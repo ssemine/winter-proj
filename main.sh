@@ -24,6 +24,7 @@ gene_dir="cojo_files"
 
 
 infile="$1" # name of the input file
+bfile="$2" # name of bfiles
 echo "Opened $infile"
 touch "$gene_list"
 
@@ -41,8 +42,27 @@ rm temp_snp_count.txt
 mkdir -p "$gene_dir"
 while IFS= read -r line; do
 	echo "Working on gene $line"
-	./transform.sh "$line" "$infile" "$gene_dir"
-done < "$gene_list"	
+	./transform.sh "$line" \ # gene name
+		"$infile" \ # file to be transformed to .ma
+		"$gene_dir" \ # name of a directory where data is saved
+		"$snp_id_idx" \ # idx of SNP ID in input file
+		"$chr_idx" \ # idx of CHR in input file
+		"$allele_one_idx" \ # idx of A1 in input file
+		"$allele_two_idx" \ # idx of A2 in input file
+		"$freq_idx" \ # idx of frequency in input file
+		"$gene_name_idx" \ # idx of gene name in input file
+		"$effect_size_idx" \ # idx of effect size in input file
+		"$se_idx" \ # idx of standard error in input file
+		"$p_value_idx" # idx of p-value in input file
+	echo ".ma for $line transformed"
+	./run.sh "$line" \
+		"$bfile" \
+		"$chr" \
+		"$maf" \
+		"$"
+
+done < "$gene_list"
+echo "Done"
 
 
 # Now, I shoud extract an SNP with lowest p-value from resulted .ma file. Then, I run GCTA-COJO that returns .cma 
