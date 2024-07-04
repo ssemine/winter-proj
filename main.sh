@@ -1,15 +1,16 @@
 #!/bin/bash
 
+# TODO: Add creating a file in main.sh that would be a list GENE: CHR
+# Fix issues with format strings
+# Testing:
+# transform.sh -> works
+# main.sh, run.sh -> need to test
+# Add parallel functionality
 
 
-# We need to transform the input file to a .ma file that is used with --cojo-file. <- separate script
-# Format of .ma fike:
-# SNP A1 A2 freq b se p N
+# Arguments:
 #
-#
-# we also need to create a temporary file for storing all the gene names (and maybe respective chromosome)
-# then with a list of SNPs -> --cojo-cond cond.snplist
-# gcta64  --bfile test  --chr 1 --maf 0.01 --cojo-file test.ma --cojo-cond cond.snplist --out test_chr1
+# $1 infile, $2 bfile, $3 maf, $4 p-value thresh
 
 # CONSTANTS
 snp_id_idx=1
@@ -25,6 +26,9 @@ gene_dir="cojo_files"
 
 infile="$1" # name of the input file
 bfile="$2" # name of bfiles
+maf="$3"
+p_val="$4"
+
 echo "Opened $infile"
 touch "$gene_list"
 
@@ -55,21 +59,14 @@ while IFS= read -r line; do
 		"$se_idx" \ # idx of standard error in input file
 		"$p_value_idx" # idx of p-value in input file
 	echo ".ma for $line transformed"
-	./run.sh "$line" \
-		"$bfile" \
-		"$chr" \
-		"$maf" \
-		"$"
+	./run.sh "$line" \ # gene name
+		"$bfile" \ # bfile
+		"$chr" \ # chromosome number
+		"$maf" \ # minor allele frequency
+		1 \ # first run index 
+		"$p_val" # p-value threshold
+
+
 
 done < "$gene_list"
 echo "Done"
-
-
-# Now, I shoud extract an SNP with lowest p-value from resulted .ma file. Then, I run GCTA-COJO that returns .cma 
-#
-# I select a p-value threshold and until there are no SNPs that are below that threshold, I keep doing GCTA-COJO
-# for each. one SNP in .snplist file. Would probably need a while loop to iterate over the .cma file, find the lowest
-# and perform GCTA-COJO again and again. Maybe think of  a different way to iterate over all genes and all SNPs for 
-# each gene. Also, choose tools that scale well, so there is no computational limit to the script. 
-#
-# 01/07

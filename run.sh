@@ -1,35 +1,32 @@
 #!/bin/bash
 
-# $1 gene $2 - bfile, $3 - chr, $4 - maf, $5 .ma file, $6 .snplist file
-# $7 - run index, $8 p-value threshold
+# $1 gene $2 - bfile, $3 - chr, $4 - maf, $5 - run index, $6 p-value threshold
 # outputs .cma file
 #
 
-
-idx="$7"
+gene_name="$1"
+bfile="$2"
+chr="$3"
+maf="$4"
+idx="$5"
+p_val="$6"
 prev_idx="$((idx - 1))"
 next_idx="$((idx + 1))"
 outfile=$(printf "%s_%s" "$1" "$idx")
+infile=$(printf "%s_input.ma" "$1")
 
 # If idx = 1, it means .ma file is used to fetch the lowest p-value
 if [ $idx -eq 1 ]
 then
-	read_file=$4
-	is_cma=0
-else
-	read_file=$(printf "%s_%s.cma" "$1" $prev_idx)
-	is_cma=1
-fi
-
-# If idx > 1, it means .cma file is used to fetch the lowest p-value
-if [ $is_cma -eq 0]
-then
+	read_file=$infile
 	snp_col=1
 	p_col=7
 else
+	read_file=$(printf "%s_%s.cma" "$1" $prev_idx)
 	snp_col=2
 	p_col=13
 fi
+
 
 top_snp_file=$(printf "%s_%s.snplist" "$1" "$idx")
 touch "$top_snp_file"
@@ -48,9 +45,14 @@ if [ $has_snp -eq 1]
 then
 	gcta64 --bfile "$2" --chr "$3" --maf "$4" --cojo-file "$5" \
 		--cojo-cond "$top_snp_file" --out "$outfile"
-	./run.sh "$1" "$2" "$3" "$4" "$5" "$6" $next_idx
+	./run.sh "$gene_name" \ # gene name
+		"$bfile" \ # bfile
+		"$chr" \ # chromosome number
+		"$maf" \ # minor allele frequency
+		"$next_idx" \ # index of the next run
+		"$p_val" # p-value threshold
 else
-	echo "Total SNPs for $1 = $prev_idx"
+	echo "Total SNPs for $gene_name = $prev_idx"
 fi
 
 echo $read_file
