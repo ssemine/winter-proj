@@ -33,24 +33,24 @@ touch "$top_snp_file"
 
 awk -v col="$p_col" \
 	-v id_col="$snp_col" \
-	-v thresh="$threshold" \
+	-v thresh="$p_val" \
 	'NR == 1 || ($col < thresh && NR > 1 && ($col < min || min == "")) \
 	{ min = $col; id = $id_col } END { if (min != "" && min < thresh) \
 	print id }' "$read_file" > "$top_snp_file"
 
 # Checks if top snp file is empty
-has_snp=$(wc -l "$top_snp_file")
+has_snp=$(wc -l < "$top_snp_file")
 
-if [ $has_snp -eq 1]
+if [ "$has_snp" -eq 1 ]
 then
-	gcta64 --bfile "$2" --chr "$3" --maf "$4" --cojo-file "$5" \
+	gcta64 --bfile "$bfile" --chr "$chr" --maf "$maf" --cojo-file "$infile" \
 		--cojo-cond "$top_snp_file" --out "$outfile"
-	./run.sh "$gene_name" \ # gene name
-		"$bfile" \ # bfile
-		"$chr" \ # chromosome number
-		"$maf" \ # minor allele frequency
-		"$next_idx" \ # index of the next run
-		"$p_val" # p-value threshold
+	./run.sh "$gene_name" \
+		"$bfile" \
+		"$chr" \
+		"$maf" \
+		"$next_idx" \
+		"$p_val"
 else
 	echo "Total SNPs for $gene_name = $prev_idx"
 fi

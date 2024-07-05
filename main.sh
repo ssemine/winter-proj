@@ -24,8 +24,8 @@ gene_list="genelist.txt"
 gene_dir="cojo_files"
 
 
-infile="$1" # name of the input file
-bfile="$2" # name of bfiles
+infile="$1"
+bfile="$2"
 maf="$3"
 p_val="$4"
 
@@ -40,33 +40,32 @@ touch temp_snp_count.txt
 awk -v sidx="$snp_id_idx" '{ print $sidx }' "$infile" | sort | uniq -c > \
        temp_snp_count.txt	
 
-awk '{ print $2, $1 }' temp_snp_count.txt > snp_count.txt # SNP: Count file
+awk '{ print $2, $1 }' temp_snp_count.txt > snp_count.txt
 rm temp_snp_count.txt
 
 mkdir -p "$gene_dir"
 while IFS= read -r line; do
 	echo "Working on gene $line"
-	./transform.sh "$line" \ # gene name
-		"$infile" \ # file to be transformed to .ma
-		"$gene_dir" \ # name of a directory where data is saved
-		"$snp_id_idx" \ # idx of SNP ID in input file
-		"$chr_idx" \ # idx of CHR in input file
-		"$allele_one_idx" \ # idx of A1 in input file
-		"$allele_two_idx" \ # idx of A2 in input file
-		"$freq_idx" \ # idx of frequency in input file
-		"$gene_name_idx" \ # idx of gene name in input file
-		"$effect_size_idx" \ # idx of effect size in input file
-		"$se_idx" \ # idx of standard error in input file
-		"$p_value_idx" # idx of p-value in input file
+	./transform.sh "$line" \
+		"$infile" \
+		"$gene_dir" \
+		"$snp_id_idx" \
+		"$chr_idx" \
+		"$allele_one_idx" \
+		"$allele_two_idx" \
+		"$freq_idx" \
+		"$gene_name_idx" \
+		"$effect_size_idx" \
+		"$se_idx" \
+		"$p_value_idx" \
+		"$chr_idx"
 	echo ".ma for $line transformed"
-	./run.sh "$line" \ # gene name
-		"$bfile" \ # bfile
-		"$chr" \ # chromosome number
-		"$maf" \ # minor allele frequency
-		1 \ # first run index 
-		"$p_val" # p-value threshold
-
-
-
+	chr=$(grep "^$line " "$gene_dir/${line}_chr.txt" | awk '{print $2}')
+	./run.sh "$line" \
+		"$bfile" \
+		"$chr" \
+		"$maf" \
+		1 \
+		"$p_val"
 done < "$gene_list"
 echo "Done"
