@@ -29,6 +29,13 @@ bfile="$2"
 maf="$3"
 p_val="$4"
 
+echo "Running main.sh..."
+echo "Parameters selected: "
+echo "Input file: $infile"
+echo "BED files: $bfile"
+echo "Minor allele frequency: $maf"
+echo "p-value threshold: $p_val"
+
 echo "Opened $infile"
 touch "$gene_list"
 
@@ -44,8 +51,9 @@ awk '{ print $2, $1 }' temp_snp_count.txt > snp_count.txt
 rm temp_snp_count.txt
 
 mkdir -p "$gene_dir"
+echo "Created $gene_dir"
 while IFS= read -r line; do
-	echo "Working on gene $line"
+	echo "Working on gene $line..."
 	./transform.sh "$line" \
 		"$infile" \
 		"$gene_dir" \
@@ -61,11 +69,13 @@ while IFS= read -r line; do
 		"$chr_idx"
 	echo ".ma for $line transformed"
 	chr=$(grep "^$line " "$gene_dir/${line}_chr.txt" | awk '{print $2}')
+	echo "Starting run.sh for $line..."
 	./run.sh "$line" \
 		"$bfile" \
 		"$chr" \
 		"$maf" \
 		1 \
 		"$p_val"
+	echo "run.sh for $line finished"
 done < "$gene_list"
 echo "Done"

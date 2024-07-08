@@ -17,6 +17,8 @@ se_idx="$11"
 p_value_idx="$12"
 chr_idx="$13"
 
+echo "Running transform.sh for $gene_name" 
+
 # Variables declarations
 name="$gene_name.ma"
 name_final="${gene_name}_input.ma"
@@ -60,4 +62,5 @@ rm "$gene_dir/$name"
 # Adds column headers to .ma file
 awk -v "cols=$columns" 'BEGIN{print cols}1' "$gene_dir/$name_final" > temp
 mv temp "$gene_dir/$name_final"
+echo "Columns added"
 
