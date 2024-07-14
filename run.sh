@@ -50,7 +50,7 @@ then
 		--cojo-cond "$top_snp_file" --out "$outfile"
 	./run.sh "$gene_name" \
 		"$bfile" \
-		"$chr" \
+		"$chr" \``
 		"$maf" \
 		"$next_idx" \
 		"$p_val"
