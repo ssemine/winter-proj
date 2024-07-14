@@ -17,7 +17,7 @@ se_idx="$11"
 p_value_idx="$12"
 chr_idx="$13"
 
-echo "Running transform.sh for $gene_name" 
+echo "	Starting transform.sh for $gene_name" 
 
 # Variables declarations
 name="$gene_name.ma"
@@ -25,10 +25,13 @@ name_final="${gene_name}_input.ma"
 columns="SNP A1 A2 freq b se p N"
 
 # Creates temporary and final .ma files
-touch "$gene_dir/$name"
-touch "$gene_dir/$name_final"
+touch "$gene_dir/$name" \
+	|| echo "transform.sh Error: touch could not create $gene_dir/$name" && exit 1
+touch "$gene_dir/$name_final" \
+	|| echo "transform.sh Error: touch could not create $gene_dir/$name_final" && exit 1
 
 # Writes required information from input column to .ma file if gene name matches
+echo "	Writing data to $gene_dir/$name"
 awk -v "col1=$snp_id_idx" \ 
 	-v "col2=$allele_one_idx" \
 	-v "col3=$allele_two_idx" \
@@ -47,20 +50,29 @@ awk -v "col1=$snp_id_idx" \
 			print $col1, $col2, $col3, $col4, $col5, $col6, $col7 > (gene_dir "/" name)
 			print $gene_name, $cidx > (gene_dir "/" name_chr)
 		}
-	}' "$infile"
+	}' "$infile" \
+	|| echo "transform.sh Error: awk could not write data to $gene_dir/$name" && exit 1
+echo "	Data written to $gene_dir/$name"
 
 # Sorts the temporary file by SNP
-sort -k 1 "$gene_dir/$name"
+sort -k 1 "$gene_dir/$name" \
+	|| echo "transform.sh Error: sort could not sort $gene_dir/$name" && exit 1
+
 
 # Adds SNP count to N column, writes data to a new file
 awk 'NR==FNR {data[$1] = $0; next} $1 in data {print data[$1], $2}' \
-	"$gene_dir/$name" snp_count.txt > "$gene_dir/$name_final"
+	"$gene_dir/$name" snp_count.txt > "$gene_dir/$name_final" \
+	|| echo "transform.sh Error: awk could not write data to $gene_dir/$name_final" && exit 1
+
+echo "	SNP count added to $gene_dir/$name_final"
 
 # Removes temporary .ma file
 rm "$gene_dir/$name"
 
 # Adds column headers to .ma file
-awk -v "cols=$columns" 'BEGIN{print cols}1' "$gene_dir/$name_final" > temp
+awk -v "cols=$columns" 'BEGIN{print cols}1' "$gene_dir/$name_final" > temp \
+	|| echo "transform.sh Error: awk could not add columns to $gene_dir/$name_final" && exit 1
+	
 mv temp "$gene_dir/$name_final"
-echo "Columns added"
+echo "	Columns added to $gene_dir/$name_final"
 
