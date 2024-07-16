@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# main.sh --infile infile --bfile bfile --maf maf --p-value p_val --gene gene_names 
+# main.sh --infile infile --bfile bfile --maf maf --p-value p_val --gene gene_names --snp snp_names 
 
 # CONSTANTS
 snp_id_idx=1
@@ -13,6 +13,7 @@ p_value_idx=14
 gene_list="gene_list.txt"
 gene_dir="cojo_files"
 genes="all" 
+snps="all"
 
 # Allows for dynamic argument assignment
 while [[ $# -gt 0 ]]; do
@@ -34,9 +35,13 @@ while [[ $# -gt 0 ]]; do
             shift 2
             ;;
         --genes)
-            genes="$2"
+      	    genes="$2"
             shift 2
             ;;
+	--snp)
+	    snps="$2"
+	    shift 2
+	    ;;
         *)
             echo "Error: invalid argument: $1"
             exit 1
@@ -53,7 +58,7 @@ echo "		p-value threshold: $p_val"
 
 echo "	Opened $infile"
 
-
+# Gene selection
 if [ "$genes" == "all" ]
 then
 	echo "	All genes selected"
@@ -63,6 +68,15 @@ else
 	echo "	Genes selected from $genes"
 	echo "$genes" > "$gene_list"
 fi
+
+# SNP selection
+if [ "$snps" == "all" ]
+then
+	echo "	All SNPs selected"
+else
+	echo "	$snps SNPs selected"
+fi
+
 
 touch snp_count.txt
 touch temp_snp_count.txt
