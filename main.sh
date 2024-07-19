@@ -1,15 +1,15 @@
 #!/bin/bash
 
 # Usage:
-# 	main.sh --infile infile --bfile bfile --maf maf --p-value p_val --gene gene_names --snp snp_names 
+# 	main.sh --infile infile --bfile bfile --maf maf --p-value p_val --genes gene_names --snps snp_names 
 
 # Arguments: 
 # 	infile: input file
 # 	bfile: bed files
 # 	maf: minor allele frequency
 # 	p_val: p-value threshold
-# 	gene: gene names (optional)
-# 	snp: snp names (optional)
+# 	genes: gene names (optional)
+# 	snps: snp names (optional)
 
 # CONSTANTS
 snp_id_idx=1
@@ -47,7 +47,7 @@ while [[ $# -gt 0 ]]; do
       	    genes="$2"
             shift 2
             ;;
-		--snp)
+		--snps)
 	    	snps="$2"
 	    	shift 2
 	    	;;
