@@ -16,6 +16,7 @@ outfile=$(printf "%s_%s" "$1" "$idx")
 infile=$(printf "%s_input.ma" "$1")
 
 echo "	Starting run.sh for $gene_name"
+echo "	Iteration number $idx"
 
 # If idx = 1, it means .ma file is used to fetch the lowest p-value
 if [ $idx -eq 1 ]
@@ -46,6 +47,7 @@ has_snp=$(wc -l < "$top_snp_file")
 
 if [ "$has_snp" -eq 1 ]
 then
+	echo "	Top SNP for $gene_name: $(cat $top_snp_file)"
 	gcta64 --bfile "$bfile" --chr "$chr" --maf "$maf" --cojo-file "$infile" \
 		--cojo-cond "$top_snp_file" --out "$outfile"
 	./run.sh "$gene_name" \
