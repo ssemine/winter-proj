@@ -16,8 +16,10 @@ effect_size_idx="$10"
 se_idx="$11"
 p_value_idx="$12"
 chr_idx="$13"
+snps_idx="$14"
 
 echo "	Starting transform.sh for $gene_name" 
+
 
 # Variables declarations
 name="$gene_name.ma"
@@ -32,32 +34,64 @@ touch "$gene_dir/$name_final" \
 
 # Writes required information from input column to .ma file if gene name matches
 echo "	Writing data to $gene_dir/$name"
-awk -v "col1=$snp_id_idx" \ 
-	-v "col2=$allele_one_idx" \
-	-v "col3=$allele_two_idx" \
-	-v "col4=$freq_idx" \
-	-v "col5=$effect_size_idx" \
-	-v "col6=$se_idx" \
-	-v "col7=$p_value_idx" \
-	-v "gidx=$gene_name_idx" \
-	-v "cidx=$chr_idx" \
-	-v "gene_name=$gene_name" \
-	-v gene_dir="$gene_dir" \
-    -v name="$name" \
-    -v name_chr="${gene_name}_chr.txt" \
-	'{
-		if ($gidx == gene_name) {
-			print $col1, $col2, $col3, $col4, $col5, $col6, $col7 > (gene_dir "/" name)
-			print $gene_name, $cidx > (gene_dir "/" name_chr)
-		}
-	}' "$infile" \
-	|| echo "transform.sh Error: awk could not write data to $gene_dir/$name" && exit 1
+if [ -f "$snps" ]
+then
+	echo "	Using $snps tp filter SNPs"
+	awk -v "col1=$snp_id_idx" \
+        -v "col2=$allele_one_idx" \
+        -v "col3=$allele_two_idx" \
+        -v "col4=$freq_idx" \
+        -v "col5=$effect_size_idx" \
+        -v "col6=$se_idx" \
+        -v "col7=$p_value_idx" \
+        -v "gidx=$gene_name_idx" \
+        -v "cidx=$chr_idx" \
+        -v "gene_name=$gene_name" \
+        -v gene_dir="$gene_dir" \
+        -v name="$name" \
+        -v name_chr="${gene_name}_chr.txt" \
+        -v snps="$snps" \
+        'BEGIN {
+            while ((getline < snps) > 0) {
+                snp_list[$1]
+            }
+        }
+        {
+            if ($gidx == gene_name && ($col1 in snp_list)) {
+                print $col1, $col2, $col3, $col4, $col5, $col6, $col7 > (gene_dir "/" name)
+                print $gene_name, $cidx > (gene_dir "/" name_chr)
+            }
+        }' "$infile" \
+		|| echo "transform.sh Error: awk could not write data to $gene_dir/$name" && exit 1 
+else
+	echo "	No SNP filter"
+	awk -v "col1=$snp_id_idx" \
+		-v "col2=$allele_one_idx" \
+		-v "col3=$allele_two_idx" \
+		-v "col4=$freq_idx" \
+		-v "col5=$effect_size_idx" \
+		-v "col6=$se_idx" \
+		-v "col7=$p_value_idx" \
+		-v "gidx=$gene_name_idx" \
+		-v "cidx=$chr_idx" \
+		-v "gene_name=$gene_name" \
+		-v gene_dir="$gene_dir" \
+		-v name="$name" \
+		-v name_chr="${gene_name}_chr.txt" \
+		'{
+			if ($gidx == gene_name) {
+				print $col1, $col2, $col3, $col4, $col5, $col6, $col7 > (gene_dir "/" name)
+				print $gene_name, $cidx > (gene_dir "/" name_chr)
+			}
+		}' "$infile" \
+		|| echo "transform.sh Error: awk could not write data to $gene_dir/$name" && exit 1
+fi
+
 echo "	Data written to $gene_dir/$name"
 
 # Sorts the temporary file by SNP
 sort -k 1 "$gene_dir/$name" \
 	|| echo "transform.sh Error: sort could not sort $gene_dir/$name" && exit 1
-
 
 # Adds SNP count to N column, writes data to a new file
 awk 'NR==FNR {data[$1] = $0; next} $1 in data {print data[$1], $2}' \
@@ -75,4 +109,3 @@ awk -v "cols=$columns" 'BEGIN{print cols}1' "$gene_dir/$name_final" > temp \
 	
 mv temp "$gene_dir/$name_final"
 echo "	Columns added to $gene_dir/$name_final"
-

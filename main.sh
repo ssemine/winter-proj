@@ -1,6 +1,15 @@
 #!/bin/bash
 
-# main.sh --infile infile --bfile bfile --maf maf --p-value p_val --gene gene_names --snp snp_names 
+# Usage:
+# 	main.sh --infile infile --bfile bfile --maf maf --p-value p_val --gene gene_names --snp snp_names 
+
+# Arguments: 
+# 	infile: input file
+# 	bfile: bed files
+# 	maf: minor allele frequency
+# 	p_val: p-value threshold
+# 	gene: gene names (optional)
+# 	snp: snp names (optional)
 
 # CONSTANTS
 snp_id_idx=1
@@ -38,10 +47,10 @@ while [[ $# -gt 0 ]]; do
       	    genes="$2"
             shift 2
             ;;
-	--snp)
-	    snps="$2"
-	    shift 2
-	    ;;
+		--snp)
+	    	snps="$2"
+	    	shift 2
+	    	;;
         *)
             echo "Error: invalid argument: $1"
             exit 1
@@ -59,7 +68,7 @@ echo "		p-value threshold: $p_val"
 echo "	Opened $infile"
 
 # Gene selection
-if [ "$genes" == "all" ]
+if [ "$genes" == "all" ] && [ ! -f "$genes" ]
 then
 	echo "	All genes selected"
 	awk -v gidx="$gene_name_idx" '{ print $gidx }' "$infile" | sort | uniq > "$gene_list" \
@@ -70,7 +79,7 @@ else
 fi
 
 # SNP selection
-if [ "$snps" == "all" ]
+if [ "$snps" == "all" ] && [ ! -f "$snps"]
 then
 	echo "	All SNPs selected"
 else
@@ -81,12 +90,18 @@ fi
 touch snp_count.txt
 touch temp_snp_count.txt
 
-awk -v sidx="$snp_id_idx" '{ print $sidx }' "$infile" | sort | uniq -c > \
-       temp_snp_count.txt \
-	   || echo "main.sh Error: unable to create snp count file" && exit 1
+# Check if $snps is a file and filter SNPs accordingly
+if [ -f "$snps" ]; then
+    echo "	Filtering SNPs based on $snps"
+    awk 'NR==FNR {snps[$1]; next} $sidx in snps' "$snps" -v sidx="$snp_id_idx" "$infile" | sort | uniq -c > temp_snp_count.txt \
+        || { echo "main.sh Error: unable to create filtered snp count file"; exit 1; }
+else
+    awk -v sidx="$snp_id_idx" '{ print $sidx }' "$infile" | sort | uniq -c > temp_snp_count.txt \
+        || { echo "main.sh Error: unable to create snp count file"; exit 1; }
+fi
 
 awk '{ print $2, $1 }' temp_snp_count.txt > snp_count.txt \
-	|| echo "main.sh Error: unable to create snp_count.txt file" && exit 1
+    || { echo "main.sh Error: unable to create snp_count.txt file"; exit 1; }
 
 rm temp_snp_count.txt
 echo "	Created file snp_count.txt"
@@ -107,7 +122,8 @@ while IFS= read -r line; do
 		"$effect_size_idx" \
 		"$se_idx" \
 		"$p_value_idx" \
-		"$chr_idx"
+		"$chr_idx" \
+		"$snps"
 	echo "	.ma for $line transformed"
 	chr=$(grep "^$line " "$gene_dir/${line}_chr.txt" | awk '{print $2}') \
 		|| echo "main.sh Error: unable to fetch chromosome number" && exit 1
