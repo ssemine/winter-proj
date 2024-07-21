@@ -1,5 +1,11 @@
 #!/bin/bash
 
+# TODO: Add chromosome 
+# optional argument to speed up scripts, make p-value optional 
+# module load gcta or copy the binary to the directory
+
+# 2 log files per each gene, detailed lof + summary log, then concatenate all summaries into one to be used for visualisation 
+
 # Usage:
 # 	main.sh --infile infile --bfile bfile --maf maf --p-value p_val --genes gene_names --snps snp_names 
 
@@ -23,6 +29,13 @@ gene_list="gene_list.txt"
 gene_dir="cojo_files"
 genes="all" 
 snps="all"
+
+
+log() {
+    echo "$(date '+%Y-%m-%d %H:%M:%S') - $1" >> "$log_file"
+}
+
+log_file="$(date '+%Y-%m-%d %H:%M:%S').log"
 
 # Allows for dynamic argument assignment
 while [[ $# -gt 0 ]]; do
@@ -51,39 +64,49 @@ while [[ $# -gt 0 ]]; do
 	    	snps="$2"
 	    	shift 2
 	    	;;
+		--log)
+			log_file="$2"
+			shift 2
+			;;
         *)
-            echo "Error: invalid argument: $1"
+            log "Error: invalid argument: $1"
             exit 1
             ;;
     esac
 done
 
-echo "Running main.sh..."
-echo "	Parameters selected: "
-echo "		Input file: $infile"
-echo "		BED files: $bfile"
-echo "		Minor allele frequency: $maf"
-echo "		p-value threshold: $p_val"
+log_file=".log"
 
-echo "	Opened $infile"
+log "Running main.sh..."
+log "	Parameters selected: "
+log "		Input file: $infile"
+log "		BED files: $bfile"
+log "		Minor allele frequency: $maf"
+log "		p-value threshold: $p_val"
+log "		Genes: $genes"
+log "		SNPs: $snps"
+log "		Log: $log_file"
+
+
+log "	Opened $infile"
 
 # Gene selection
 if [ "$genes" == "all" ] && [ ! -f "$genes" ]
 then
-	echo "	All genes selected"
+	log "	All genes selected"
 	awk -v gidx="$gene_name_idx" '{ print $gidx }' "$infile" | sort | uniq > "$gene_list" \
-		|| echo "main.sh Error: unable to create gene list" && exit 1
+		|| log "main.sh Error: unable to create gene list" && exit 1
 else
-	echo "	Genes selected from $genes"
-	echo "$genes" > "$gene_list"
+	log "	Genes selected from $genes"
+	log "$genes" > "$gene_list"
 fi
 
 # SNP selection
 if [ "$snps" == "all" ] && [ ! -f "$snps"]
 then
-	echo "	All SNPs selected"
+	log "	All SNPs selected"
 else
-	echo "	$snps SNPs selected"
+	log "	$snps SNPs selected"
 fi
 
 
@@ -92,24 +115,24 @@ touch temp_snp_count.txt
 
 # Check if $snps is a file and filter SNPs accordingly
 if [ -f "$snps" ]; then
-    echo "	Filtering SNPs based on $snps"
+    log "	Filtering SNPs based on $snps"
     awk 'NR==FNR {snps[$1]; next} $sidx in snps' "$snps" -v sidx="$snp_id_idx" "$infile" | sort | uniq -c > temp_snp_count.txt \
-        || { echo "main.sh Error: unable to create filtered snp count file"; exit 1; }
+        || { log "main.sh Error: unable to create filtered snp count file"; exit 1; }
 else
     awk -v sidx="$snp_id_idx" '{ print $sidx }' "$infile" | sort | uniq -c > temp_snp_count.txt \
-        || { echo "main.sh Error: unable to create snp count file"; exit 1; }
+        || { log "main.sh Error: unable to create snp count file"; exit 1; }
 fi
 
 awk '{ print $2, $1 }' temp_snp_count.txt > snp_count.txt \
-    || { echo "main.sh Error: unable to create snp_count.txt file"; exit 1; }
+    || { log "main.sh Error: unable to create snp_count.txt file"; exit 1; }
 
 rm temp_snp_count.txt
-echo "	Created file snp_count.txt"
+log "	Created file snp_count.txt"
 
 mkdir -p "$gene_dir"
-echo "	Created directory $gene_dir"
+log "	Created directory $gene_dir"
 while IFS= read -r line; do
-	echo "Working on gene $line..."
+	log "Working on gene $line..."
 	./transform.sh "$line" \
 		"$infile" \
 		"$gene_dir" \
@@ -123,17 +146,20 @@ while IFS= read -r line; do
 		"$se_idx" \
 		"$p_value_idx" \
 		"$chr_idx" \
-		"$snps"
-	echo "	.ma for $line transformed"
+		"$snps" \
+		"$log_file"
+	log "	.ma for $line transformed"
 	chr=$(grep "^$line " "$gene_dir/${line}_chr.txt" | awk '{print $2}') \
-		|| echo "main.sh Error: unable to fetch chromosome number" && exit 1
-	echo "Starting run.sh for $line..."
+		|| log "main.sh Error: unable to fetch chromosome number" && exit 1
+	log "Starting run.sh for $line..."
+	
 	./run.sh "$line" \
 		"$bfile" \
 		"$chr" \
 		"$maf" \
 		1 \
-		"$p_val"
-	echo "run.sh for $line finished"
-done < "$gene_list" || echo "main.sh Error: unable to read gene list" && exit 1
-echo "main.sh finished"
+		"$p_val" \
+		"$log_file"
+	log "run.sh for $line finished"
+done < "$gene_list" || log "main.sh Error: unable to read gene list" && exit 1
+log "main.sh finished"

@@ -10,13 +10,19 @@ chr="$3"
 maf="$4"
 idx="$5"
 p_val="$6"
+log_file="$7"
 prev_idx="$((idx - 1))"
 next_idx="$((idx + 1))"
 outfile=$(printf "%s_%s" "$1" "$idx")
 infile=$(printf "%s_input.ma" "$1")
 
-echo "	Starting run.sh for $gene_name"
-echo "	Iteration number $idx"
+
+log() {
+    echo "$(date '+%Y-%m-%d %H:%M:%S') - $1" >> "$log_file"
+}
+
+log "	Starting run.sh for $gene_name"
+log "	Iteration number $idx"
 
 # If idx = 1, it means .ma file is used to fetch the lowest p-value
 if [ $idx -eq 1 ]
@@ -40,14 +46,14 @@ awk -v col="$p_col" \
 	'NR == 1 || ($col < thresh && NR > 1 && ($col < min || min == "")) \
 	{ min = $col; id = $id_col } END { if (min != "" && min < thresh) \
 	print id }' "$read_file" > "$top_snp_file" \
-	|| echo "run.sh Error: awk unable to create $top_snp_file" && exit 1
+	|| log "run.sh Error: awk unable to create $top_snp_file" && exit 1
 
 # Checks if top snp file is empty
 has_snp=$(wc -l < "$top_snp_file")
 
 if [ "$has_snp" -eq 1 ]
 then
-	echo "	Top SNP for $gene_name: $(cat $top_snp_file)"
+	log "	Top SNP for $gene_name: $(cat $top_snp_file)"
 	gcta64 --bfile "$bfile" --chr "$chr" --maf "$maf" --cojo-file "$infile" \
 		--cojo-cond "$top_snp_file" --out "$outfile"
 	./run.sh "$gene_name" \
@@ -57,6 +63,6 @@ then
 		"$next_idx" \
 		"$p_val"
 else
-	echo "	Total SNPs for $gene_name = $prev_idx"
+	log "	Total SNPs for $gene_name = $prev_idx"
 fi
-echo $read_file
+log $read_file

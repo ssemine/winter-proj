@@ -17,8 +17,13 @@ se_idx="$11"
 p_value_idx="$12"
 chr_idx="$13"
 snps_idx="$14"
+log_file="$15"
 
-echo "	Starting transform.sh for $gene_name" 
+log() {
+    echo "$(date '+%Y-%m-%d %H:%M:%S') - $1" >> "$log_file"
+}
+
+log "	Starting transform.sh for $gene_name" 
 
 
 # Variables declarations
@@ -28,15 +33,15 @@ columns="SNP A1 A2 freq b se p N"
 
 # Creates temporary and final .ma files
 touch "$gene_dir/$name" \
-	|| echo "transform.sh Error: touch could not create $gene_dir/$name" && exit 1
+	|| log "transform.sh Error: touch could not create $gene_dir/$name" && exit 1
 touch "$gene_dir/$name_final" \
-	|| echo "transform.sh Error: touch could not create $gene_dir/$name_final" && exit 1
+	|| log "transform.sh Error: touch could not create $gene_dir/$name_final" && exit 1
 
 # Writes required information from input column to .ma file if gene name matches
-echo "	Writing data to $gene_dir/$name"
+log "	Writing data to $gene_dir/$name"
 if [ -f "$snps" ]
 then
-	echo "	Using $snps tp filter SNPs"
+	log "	Using $snps tp filter SNPs"
 	awk -v "col1=$snp_id_idx" \
         -v "col2=$allele_one_idx" \
         -v "col3=$allele_two_idx" \
@@ -62,9 +67,9 @@ then
                 print $gene_name, $cidx > (gene_dir "/" name_chr)
             }
         }' "$infile" \
-		|| echo "transform.sh Error: awk could not write data to $gene_dir/$name" && exit 1 
+		|| log "transform.sh Error: awk could not write data to $gene_dir/$name" && exit 1 
 else
-	echo "	No SNP filter"
+	log "	No SNP filter"
 	awk -v "col1=$snp_id_idx" \
 		-v "col2=$allele_one_idx" \
 		-v "col3=$allele_two_idx" \
@@ -84,28 +89,28 @@ else
 				print $gene_name, $cidx > (gene_dir "/" name_chr)
 			}
 		}' "$infile" \
-		|| echo "transform.sh Error: awk could not write data to $gene_dir/$name" && exit 1
+		|| log "transform.sh Error: awk could not write data to $gene_dir/$name" && exit 1
 fi
 
-echo "	Data written to $gene_dir/$name"
+log "	Data written to $gene_dir/$name"
 
 # Sorts the temporary file by SNP
 sort -k 1 "$gene_dir/$name" \
-	|| echo "transform.sh Error: sort could not sort $gene_dir/$name" && exit 1
+	|| log "transform.sh Error: sort could not sort $gene_dir/$name" && exit 1
 
 # Adds SNP count to N column, writes data to a new file
 awk 'NR==FNR {data[$1] = $0; next} $1 in data {print data[$1], $2}' \
 	"$gene_dir/$name" snp_count.txt > "$gene_dir/$name_final" \
-	|| echo "transform.sh Error: awk could not write data to $gene_dir/$name_final" && exit 1
+	|| log "transform.sh Error: awk could not write data to $gene_dir/$name_final" && exit 1
 
-echo "	SNP count added to $gene_dir/$name_final"
+log "	SNP count added to $gene_dir/$name_final"
 
 # Removes temporary .ma file
 rm "$gene_dir/$name"
 
 # Adds column headers to .ma file
 awk -v "cols=$columns" 'BEGIN{print cols}1' "$gene_dir/$name_final" > temp \
-	|| echo "transform.sh Error: awk could not add columns to $gene_dir/$name_final" && exit 1
+	|| log "transform.sh Error: awk could not add columns to $gene_dir/$name_final" && exit 1
 	
 mv temp "$gene_dir/$name_final"
-echo "	Columns added to $gene_dir/$name_final"
+log "	Columns added to $gene_dir/$name_final"
