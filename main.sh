@@ -7,15 +7,17 @@
 # 2 log files per each gene, detailed lof + summary log, then concatenate all summaries into one to be used for visualisation 
 
 # Usage:
-# 	main.sh --infile infile --bfile bfile --maf maf --p-value p_val --genes gene_names --snps snp_names 
+# 	main.sh --infile infile --bfile bfile --maf maf --p-value p_val --chr chromosome_number --genes gene_names --snps snp_names 
 
 # Arguments: 
 # 	infile: input file
 # 	bfile: bed files
 # 	maf: minor allele frequency
 # 	p_val: p-value threshold
+# 	chr: chromosome number
 # 	genes: gene names (optional)
 # 	snps: snp names (optional)
+# 	log: log file (optional)
 
 # CONSTANTS
 snp_id_idx=1
@@ -30,12 +32,11 @@ gene_dir="cojo_files"
 genes="all" 
 snps="all"
 
-
+log_file="$(date '+%Y-%m-%d %H:%M:%S').log"
 log() {
     echo "$(date '+%Y-%m-%d %H:%M:%S') - $1" >> "$log_file"
 }
 
-log_file="$(date '+%Y-%m-%d %H:%M:%S').log"
 
 # Allows for dynamic argument assignment
 while [[ $# -gt 0 ]]; do
@@ -56,6 +57,10 @@ while [[ $# -gt 0 ]]; do
             p_val="$2"
             shift 2
             ;;
+		--chr)
+			chr="$2"
+			shift 2
+			;;
         --genes)
       	    genes="$2"
             shift 2
@@ -69,13 +74,17 @@ while [[ $# -gt 0 ]]; do
 			shift 2
 			;;
         *)
-            log "Error: invalid argument: $1"
+            echo "Error: invalid argument: $1"
             exit 1
             ;;
     esac
 done
 
-log_file=".log"
+
+
+if [[ -z "$chr" ]]; then
+    log "main.sh Error: chromosome number not provided" && exit 1
+fi
 
 log "Running main.sh..."
 log "	Parameters selected: "
@@ -86,8 +95,6 @@ log "		p-value threshold: $p_val"
 log "		Genes: $genes"
 log "		SNPs: $snps"
 log "		Log: $log_file"
-
-
 log "	Opened $infile"
 
 # Gene selection
@@ -98,7 +105,7 @@ then
 		|| log "main.sh Error: unable to create gene list" && exit 1
 else
 	log "	Genes selected from $genes"
-	log "$genes" > "$gene_list"
+	echo "$genes" > "$gene_list"
 fi
 
 # SNP selection
@@ -145,14 +152,11 @@ while IFS= read -r line; do
 		"$effect_size_idx" \
 		"$se_idx" \
 		"$p_value_idx" \
-		"$chr_idx" \
 		"$snps" \
+		"$chr" \
 		"$log_file"
 	log "	.ma for $line transformed"
-	chr=$(grep "^$line " "$gene_dir/${line}_chr.txt" | awk '{print $2}') \
-		|| log "main.sh Error: unable to fetch chromosome number" && exit 1
 	log "Starting run.sh for $line..."
-	
 	./run.sh "$line" \
 		"$bfile" \
 		"$chr" \

@@ -15,8 +15,8 @@ gene_name_idx="$9"
 effect_size_idx="$10"
 se_idx="$11"
 p_value_idx="$12"
-chr_idx="$13"
-snps_idx="$14"
+snps_idx="$13"
+chr_num="$14"
 log_file="$15"
 
 log() {
@@ -54,7 +54,6 @@ then
         -v "gene_name=$gene_name" \
         -v gene_dir="$gene_dir" \
         -v name="$name" \
-        -v name_chr="${gene_name}_chr.txt" \
         -v snps="$snps" \
         'BEGIN {
             while ((getline < snps) > 0) {
@@ -62,9 +61,8 @@ then
             }
         }
         {
-            if ($gidx == gene_name && ($col1 in snp_list)) {
+            if ($gidx == gene_name && ($col1 in snp_list) && $cidx == chr_num) {
                 print $col1, $col2, $col3, $col4, $col5, $col6, $col7 > (gene_dir "/" name)
-                print $gene_name, $cidx > (gene_dir "/" name_chr)
             }
         }' "$infile" \
 		|| log "transform.sh Error: awk could not write data to $gene_dir/$name" && exit 1 
