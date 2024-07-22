@@ -18,6 +18,7 @@
 # 	genes: gene names (optional)
 # 	snps: snp names (optional)
 # 	log: log file (optional)
+#	gene_dir: gene directory (optional)
 
 # CONSTANTS
 snp_id_idx=1
@@ -37,11 +38,9 @@ mkdir -p "$log_dir"
 
 log_file="$log_dir/$(date '+%Y-%m-%d %H:%M:%S').log"
 
-
 log() {
     echo "$(date '+%Y-%m-%d %H:%M:%S') - $1" >> "$log_file"
 }
-
 
 # Allows for dynamic argument assignment
 while [[ $# -gt 0 ]]; do
@@ -78,14 +77,16 @@ while [[ $# -gt 0 ]]; do
 			log_file="$2"
 			shift 2
 			;;
+		--gene_dir)
+			gene_dir="$2"
+			shift 2
+			;;
         *)
             echo "Error: invalid argument: $1"
             exit 1
             ;;
     esac
 done
-
-
 
 if [[ -z "$chr" ]]; then
     log "main.sh Error: chromosome number not provided" && exit 1
@@ -121,7 +122,7 @@ else
 	log "	$snps SNPs selected"
 fi
 
-
+# SNP files
 touch snp_count.txt
 touch temp_snp_count.txt
 
@@ -129,20 +130,21 @@ touch temp_snp_count.txt
 if [ -f "$snps" ]; then
     log "	Filtering SNPs based on $snps"
     awk 'NR==FNR {snps[$1]; next} $sidx in snps' "$snps" -v sidx="$snp_id_idx" "$infile" | sort | uniq -c > temp_snp_count.txt \
-        || { log "main.sh Error: unable to create filtered snp count file"; exit 1; }
+        || log "main.sh Error: unable to create filtered snp count file" && exit 1
 else
     awk -v sidx="$snp_id_idx" '{ print $sidx }' "$infile" | sort | uniq -c > temp_snp_count.txt \
-        || { log "main.sh Error: unable to create snp count file"; exit 1; }
+        || log "main.sh Error: unable to create snp count file" && exit 1
 fi
 
 awk '{ print $2, $1 }' temp_snp_count.txt > snp_count.txt \
-    || { log "main.sh Error: unable to create snp_count.txt file"; exit 1; }
+    || log "main.sh Error: unable to create snp_count.txt file" && exit 1
 
 rm temp_snp_count.txt
 log "	Created file snp_count.txt"
 
 mkdir -p "$gene_dir"
 log "	Created directory $gene_dir"
+
 while IFS= read -r line; do
 	log "Working on gene $line..."
 	./transform.sh "$line" \

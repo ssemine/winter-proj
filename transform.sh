@@ -23,7 +23,7 @@ log() {
     echo "$(date '+%Y-%m-%d %H:%M:%S') - $1" >> "$log_file"
 }
 
-log "	Starting transform.sh for $gene_name" 
+log "Starting transform.sh for $gene_name" 
 
 
 # Variables declarations

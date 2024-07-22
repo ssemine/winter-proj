@@ -21,7 +21,7 @@ log() {
     echo "$(date '+%Y-%m-%d %H:%M:%S') - $1" >> "$log_file"
 }
 
-log "	Starting run.sh for $gene_name"
+log "Running run.sh for $gene_name"
 log "	Iteration number $idx"
 
 # If idx = 1, it means .ma file is used to fetch the lowest p-value
@@ -63,6 +63,5 @@ then
 		"$next_idx" \
 		"$p_val"
 else
-	log "	Total SNPs for $gene_name = $prev_idx"
+	log "Total SNPs for $gene_name = $prev_idx"
 fi
-log $read_file
