@@ -54,7 +54,7 @@ has_snp=$(wc -l < "$top_snp_file")
 if [ "$has_snp" -eq 1 ]
 then
 	log "	Top SNP for $gene_name: $(cat $top_snp_file)"
-	gcta64 --bfile "$bfile" --chr "$chr" --maf "$maf" --cojo-file "$infile" \
+	./gcta64 --bfile "$bfile" --chr "$chr" --maf "$maf" --cojo-file "$infile" \
 		--cojo-cond "$top_snp_file" --out "$outfile"
 	./run.sh "$gene_name" \
 		"$bfile" \
