@@ -1,20 +1,14 @@
 #!/bin/bash
 
-# TODO: Add chromosome 
-# optional argument to speed up scripts, make p-value optional 
-# module load gcta or copy the binary to the directory
-
-# 2 log files per each gene, detailed lof + summary log, then concatenate all summaries into one to be used for visualisation 
-
 # Usage:
-# 	main.sh --infile infile --bfile bfile --maf maf --p-value p_val --chr chromosome_number --genes gene_names --snps snp_names 
+# 	main.sh --infile infile --bfile bfile --maf maf --chr chromosome_number [ --p-value p_val | --genes gene_names | --snps snp_names | --log log_file | --gene_dir gene_directory ]
 
 # Arguments: 
 # 	infile: input file
 # 	bfile: bed files
 # 	maf: minor allele frequency
-# 	p_val: p-value threshold
 # 	chr: chromosome number
+#	p_val: p-value threshold (optional)
 # 	genes: gene names (optional)
 # 	snps: snp names (optional)
 # 	log: log file (optional)
@@ -33,6 +27,7 @@ gene_dir="cojo_files"
 genes="all" 
 snps="all"
 log_dir="logs"
+p_val="5e-12"
 
 mkdir -p "$log_dir"
 
