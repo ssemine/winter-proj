@@ -31,8 +31,13 @@ gene_list="gene_list.txt"
 gene_dir="cojo_files"
 genes="all" 
 snps="all"
+log_dir="logs"
 
-log_file="$(date '+%Y-%m-%d %H:%M:%S').log"
+mkdir -p "$log_dir"
+
+log_file="$log_dir/$(date '+%Y-%m-%d %H:%M:%S').log"
+
+
 log() {
     echo "$(date '+%Y-%m-%d %H:%M:%S') - $1" >> "$log_file"
 }
