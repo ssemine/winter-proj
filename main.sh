@@ -30,8 +30,9 @@ log_dir="logs"
 p_val="5e-12"
 
 mkdir -p "$log_dir"
-
 log_file="$log_dir/$(date '+%Y-%m-%d %H:%M:%S').log"
+touch "$log_file"
+
 
 log() {
     echo "$(date '+%Y-%m-%d %H:%M:%S') - $1" >> "$log_file"
