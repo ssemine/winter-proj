@@ -39,8 +39,7 @@ touch "$gene_dir/$name_final" \
 
 # Writes required information from input column to .ma file if gene name matches
 log "	Writing data to $gene_dir/$name"
-if [ -f "$snps" ]
-then
+if [ -f "$snps" ]; then
 	log "	Using $snps tp filter SNPs"
 	awk -v "col1=$snp_id_idx" \
         -v "col2=$allele_one_idx" \

@@ -30,9 +30,8 @@ log_dir="logs"
 p_val="5e-12"
 
 mkdir -p "$log_dir"
-log_file="$log_dir/$(date '+%Y-%m-%d %H:%M:%S').log"
-touch "$log_file"
 
+log_file="$log_dir/$(date '+%Y-%m-%d %H:%M:%S').log"
 
 log() {
     echo "$(date '+%Y-%m-%d %H:%M:%S') - $1" >> "$log_file"
@@ -84,6 +83,8 @@ while [[ $# -gt 0 ]]; do
     esac
 done
 
+touch "$log_dir/$log_file"
+
 if [[ -z "$chr" ]]; then
     log "main.sh Error: chromosome number not provided" && exit 1
 fi
@@ -100,8 +101,7 @@ log "		Log: $log_file"
 log "	Opened $infile"
 
 # Gene selection
-if [ "$genes" == "all" ] && [ ! -f "$genes" ]
-then
+if [ "$genes" == "all" ] && [ ! -f "$genes" ]; then
 	log "	All genes selected"
 	awk -v gidx="$gene_name_idx" '{ print $gidx }' "$infile" | sort | uniq > "$gene_list" \
 		|| log "main.sh Error: unable to create gene list" && exit 1
@@ -111,8 +111,7 @@ else
 fi
 
 # SNP selection
-if [ "$snps" == "all" ] && [ ! -f "$snps"]
-then
+if [ "$snps" == "all" ] && [ ! -f "$snps"]; then
 	log "	All SNPs selected"
 else
 	log "	$snps SNPs selected"
