@@ -124,8 +124,8 @@ touch temp_snp_count.txt
 # Check if $snps is a file and filter SNPs accordingly
 if [ -f "$snps" ]; then
     log "	Filtering SNPs based on $snps"
-    awk 'NR==FNR {snps[$1]; next} $sidx in snps' "$snps" -v sidx="$snp_id_idx" "$infile" | sort | uniq -c > temp_snp_count.txt \
-        || log "main.sh Error: unable to create filtered snp count file" && exit 1
+    awk -v sidx="$snp_id_idx" 'NR==FNR {snps[$1]; next} $sidx in snps' "$snps" "$infile" | sort | uniq -c > temp_snp_count.txt \
+    	|| log "main.sh Error: unable to create filtered snp count file" && exit 1
 else
     awk -v sidx="$snp_id_idx" '{ print $sidx }' "$infile" | sort | uniq -c > temp_snp_count.txt \
         || log "main.sh Error: unable to create snp count file" && exit 1
