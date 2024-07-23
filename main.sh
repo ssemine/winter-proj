@@ -107,7 +107,7 @@ then
 		|| log "main.sh Error: unable to create gene list" && exit 1
 else
 	log "	Genes selected from $genes"
-	echo "$genes" > "$gene_list"
+	cat "$genes" > "$gene_list"
 fi
 
 # SNP selection
