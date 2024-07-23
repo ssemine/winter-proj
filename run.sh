@@ -18,7 +18,7 @@ infile=$(printf "%s_input.ma" "$1")
 
 
 log() {
-    echo "$(date '+%Y-%m-%d %H:%M:%S') - $1" >> "$log_file"
+    echo "$(date '+%Y-%m-%d %H:%M:%S') - $1" >> "$log_dir/$log_file"
 }
 
 log "Running run.sh for $gene_name"

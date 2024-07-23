@@ -20,7 +20,7 @@ chr_num="$14"
 log_file="$15"
 
 log() {
-    echo "$(date '+%Y-%m-%d %H:%M:%S') - $1" >> "$log_file"
+    echo "$(date '+%Y-%m-%d %H:%M:%S') - $1" >> "$log_dir/$log_file"
 }
 
 log "Starting transform.sh for $gene_name" 

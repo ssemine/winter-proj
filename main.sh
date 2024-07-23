@@ -34,7 +34,7 @@ mkdir -p "$log_dir"
 log_file="$log_dir/$(date '+%Y-%m-%d %H:%M:%S').log"
 
 log() {
-    echo "$(date '+%Y-%m-%d %H:%M:%S') - $1" >> "$log_file"
+    echo "$(date '+%Y-%m-%d %H:%M:%S') - $1" >> "$log_dir/$log_file"
 }
 
 # Allows for dynamic argument assignment
@@ -111,7 +111,7 @@ else
 fi
 
 # SNP selection
-if [ "$snps" == "all" ] && [ ! -f "$snps"]; then
+if [ "$snps" == "all" ] && [ ! -f "$snps" ]; then
 	log "	All SNPs selected"
 else
 	log "	$snps SNPs selected"
