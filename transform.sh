@@ -1,5 +1,7 @@
 #!/bin/bash
 
+# DEBUG
+
 # This script transforms input file to .ma file. 
 
 # Command line arguments indices

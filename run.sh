@@ -1,5 +1,7 @@
 #!/bin/bash
 
+# debug
+
 # $1 gene $2 - bfile, $3 - chr, $4 - maf, $5 - run index, $6 p-value threshold
 # outputs .cma file
 #
