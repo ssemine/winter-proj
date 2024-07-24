@@ -33,7 +33,7 @@ p_val="5e-12"
 
 mkdir -p "$log_dir"
 
-log_file="$log_dir/$(date '+%Y-%m-%d %H:%M:%S').log"
+log_file="$(date '+%Y-%m-%d %H:%M:%S').log"
 
 log() {
     echo "$(date '+%Y-%m-%d %H:%M:%S') - $1" >> "$log_dir/$log_file"
