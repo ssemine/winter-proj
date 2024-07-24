@@ -20,6 +20,7 @@ p_value_idx="$12"
 snps_idx="$13"
 chr_num="$14"
 log_file="$15"
+log_dir="$16"
 
 log() {
     echo "$(date '+%Y-%m-%d %H:%M:%S') - $1" >> "$log_dir/$log_file"

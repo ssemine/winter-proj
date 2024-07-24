@@ -161,7 +161,8 @@ while IFS= read -r line; do
 		"$p_value_idx" \
 		"$snps" \
 		"$chr" \
-		"$log_file"
+		"$log_file" \
+		"$log_dir"
 	log "	.ma for $line transformed"
 	log "Starting run.sh for $line..."
 	./run.sh "$line" \
@@ -170,7 +171,8 @@ while IFS= read -r line; do
 		"$maf" \
 		1 \
 		"$p_val" \
-		"$log_file"
+		"$log_file" \
+		"$log_dir"
 	log "run.sh for $line finished"
 done < "$gene_list" || log "main.sh Error: unable to read gene list" && exit 1
 log "main.sh finished"

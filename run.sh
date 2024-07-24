@@ -13,6 +13,7 @@ maf="$4"
 idx="$5"
 p_val="$6"
 log_file="$7"
+log_dir="$8"
 prev_idx="$((idx - 1))"
 next_idx="$((idx + 1))"
 outfile=$(printf "%s_%s" "$1" "$idx")
