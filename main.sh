@@ -172,7 +172,8 @@ while IFS= read -r line; do
 		1 \
 		"$p_val" \
 		"$log_file" \
-		"$log_dir"
+		"$log_dir" \
+		"$gene_dir"
 	log "run.sh for $line finished"
 done < "$gene_list" || log "main.sh Error: unable to read gene list" && exit 1
 log "main.sh finished"

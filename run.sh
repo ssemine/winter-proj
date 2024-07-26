@@ -14,6 +14,7 @@ idx="$5"
 p_val="$6"
 log_file="$7"
 log_dir="$8"
+gene_dir="$9"
 prev_idx="$((idx - 1))"
 next_idx="$((idx + 1))"
 outfile=$(printf "%s_%s" "$1" "$idx")
@@ -47,7 +48,7 @@ awk -v col="$p_col" \
 	-v thresh="$p_val" \
 	'NR == 1 || ($col < thresh && NR > 1 && ($col < min || min == "")) \
 	{ min = $col; id = $id_col } END { if (min != "" && min < thresh) \
-	print id }' "$read_file" > "$top_snp_file" \
+	print id }' "$gene_dir/$read_file" > "$top_snp_file" \
 	|| log "run.sh Error: awk unable to create $top_snp_file" && exit 1
 
 # Checks if top snp file is empty
