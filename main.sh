@@ -88,7 +88,7 @@ done
 touch "$log_dir/$log_file"
 
 if [[ -z "$chr" ]]; then
-    log { "main.sh Error: chromosome number not provided"; exit 1; }
+    { log "main.sh Error: chromosome number not provided"; exit 1; }
 fi
 
 log "Running main.sh..."
@@ -106,7 +106,7 @@ log "	Opened $infile"
 if [ "$genes" == "all" ] && [ ! -f "$genes" ]; then
 	log "	All genes selected"
 	awk -v gidx="$gene_name_idx" '{ print $gidx }' "$infile" | sort | uniq > "$gene_list" \
-		|| log { "main.sh Error: unable to create gene list"; exit 1; }
+		|| { log "main.sh Error: unable to create gene list"; exit 1; }
 else
 	log "	Genes selected from $genes"
 	cat "$genes" > "$gene_list"
@@ -127,16 +127,16 @@ touch temp_snp_count.txt
 if [ -f "$snps" ]; then
     log "	Filtering SNPs based on $snps"
     if ! awk -v sidx="$snp_id_idx" 'NR==FNR {snps[$1]; next} $sidx in snps' "$snps" "$infile" | sort | uniq -c > temp_snp_count.txt; then
-        log { "main.sh Error: unable to create filtered snp count file"; exit 1; }
+        { log "main.sh Error: unable to create filtered snp count file"; exit 1; }
     fi
 else
     if ! awk -v sidx="$snp_id_idx" '{ print $sidx }' "$infile" | sort | uniq -c > temp_snp_count.txt; then
-        log { "main.sh Error: unable to create snp count file"; exit 1; }
+        { log "main.sh Error: unable to create snp count file"; exit 1; }
     fi
 fi
 
 if ! awk '{ print $2, $1 }' temp_snp_count.txt > snp_count.txt; then
-    log { "main.sh Error: unable to create snp_count.txt file"; exit 1; }
+    { log "main.sh Error: unable to create snp_count.txt file"; exit 1; }
 fi
 
 rm temp_snp_count.txt
@@ -175,5 +175,5 @@ while IFS= read -r line; do
 		"$log_dir" \
 		"$gene_dir"
 	log "run.sh for $line finished"
-done < "$gene_list" || log { "main.sh Error: unable to read gene list"; exit 1; }
+done < "$gene_list" || { log "main.sh Error: unable to read gene list"; exit 1; }
 log "main.sh finished"

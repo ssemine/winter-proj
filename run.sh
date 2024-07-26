@@ -49,7 +49,7 @@ awk -v col="$p_col" \
 	'NR == 1 || ($col < thresh && NR > 1 && ($col < min || min == "")) \
 	{ min = $col; id = $id_col } END { if (min != "" && min < thresh) \
 	print id }' "$gene_dir/$read_file" > "$top_snp_file" \
-	|| log { "run.sh Error: awk unable to create $top_snp_file"; exit 1; }
+	|| { log "run.sh Error: awk unable to create $top_snp_file"; exit 1; }
 
 # Checks if top snp file is empty
 has_snp=$(wc -l < "$top_snp_file")
