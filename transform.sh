@@ -19,7 +19,7 @@ gene_name_idx="$9"
 effect_size_idx="${10}"
 se_idx="${11}"
 p_value_idx="${12}"
-snps_idx="${13}"
+snps="${13}"
 chr_num="${14}"
 log_file="${15}"
 log_dir="${16}"
@@ -37,10 +37,17 @@ name_final="${gene_name}_input.ma"
 columns="SNP A1 A2 freq b se p N"
 
 # Creates temporary and final .ma files
-touch "$gene_dir/$name" \
-	|| log "transform.sh Error: touch could not create $gene_dir/$name" && exit 1
-touch "$gene_dir/$name_final" \
-	|| log "transform.sh Error: touch could not create $gene_dir/$name_final" && exit 1
+# Creates temporary and final .ma files
+if ! touch "$gene_dir/$name"; then
+    log "transform.sh Error: touch could not create $gene_dir/$name"
+    exit 1
+fi
+
+if ! touch "$gene_dir/$name_final"; then
+    log "transform.sh Error: touch could not create $gene_dir/$name_final"
+    exit 1
+fi
+
 
 # Writes required information from input column to .ma file if gene name matches
 log "	Writing data to $gene_dir/$name"

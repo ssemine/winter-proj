@@ -30,7 +30,7 @@ log "	Iteration number $idx"
 
 # If idx = 1, it means .ma file is used to fetch the lowest p-value
 if [ $idx -eq 1 ]; then
-	read_file=$infile
+	read_file="$infile"
 	snp_col=1
 	p_col=7
 else
