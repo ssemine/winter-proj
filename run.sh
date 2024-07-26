@@ -44,12 +44,19 @@ top_snp_file=$(printf "%s_%s.snplist" "$1" "$idx")
 touch "$top_snp_file"
 
 awk -v col="$p_col" \
-	-v id_col="$snp_col" \
-	-v thresh="$p_val" \
-	'NR == 1 || ($col < thresh && NR > 1 && ($col < min || min == "")) \
-	{ min = $col; id = $id_col } END { if (min != "" && min < thresh) \
-	print id }' "$gene_dir/$read_file" > "$top_snp_file" \
-	|| { log "run.sh Error: awk unable to create $top_snp_file"; exit 1; }
+    -v id_col="$snp_col" \
+    -v thresh="$p_val" \
+    'NR > 1 && $col < thresh { 
+        if (min == "" || $col < min) { 
+            min = $col; 
+            id = $id_col 
+        } 
+    } 
+    END { 
+        if (min != "" && min < thresh) 
+            print id 
+    }' "$gene_dir/$read_file" > "$top_snp_file" \
+    || { log "run.sh Error: awk unable to create $top_snp_file"; exit 1; }
 
 # Checks if top snp file is empty
 has_snp=$(wc -l < "$top_snp_file")
