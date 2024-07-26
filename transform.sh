@@ -4,7 +4,8 @@
 
 # This script transforms input file to .ma file. 
 
-# CHECK INFILE -> IT SHOULD BE IN GENE_DIR 
+# CHECK INFILE -> IT SHOULD BE IN GENE_DIR - fixed
+# NEED TO ENSURE .ma is transformed
 
 # Command line arguments indices
 gene_name="$1"
