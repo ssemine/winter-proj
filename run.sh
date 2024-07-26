@@ -39,6 +39,7 @@ else
 	p_col=13
 fi
 
+echo "read_file: $read_file"
 
 top_snp_file=$(printf "%s_%s.snplist" "$1" "$idx")
 touch "$top_snp_file"
