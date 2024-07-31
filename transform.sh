@@ -7,6 +7,7 @@
 # CHECK INFILE -> IT SHOULD BE IN GENE_DIR - fixed
 # NEED TO ENSURE .ma is transformed
 
+
 # Command line arguments indices
 gene_name="$1"
 infile="$2"
@@ -54,7 +55,7 @@ fi
 log "	Writing data to $gene_dir/$name"
 if [ -f "$snps" ]; then
     log "	Using $snps to filter SNPs"
-    awk -v "col1=$snp_id_idx" \
+    awk -F' ' -v "col1=$snp_id_idx" \
         -v "col2=$allele_one_idx" \
         -v "col3=$allele_two_idx" \
         -v "col4=$freq_idx" \
@@ -81,7 +82,7 @@ if [ -f "$snps" ]; then
         || { log "transform.sh Error: awk could not write data to $gene_dir/$name"; exit 1; }
 else
     log "	No SNP filter"
-    awk -v "col1=$snp_id_idx" \
+    awk -F' ' -v "col1=$snp_id_idx" \
         -v "col2=$allele_one_idx" \
         -v "col3=$allele_two_idx" \
         -v "col4=$freq_idx" \
@@ -104,6 +105,8 @@ else
 fi
 
 log "	Data written to $gene_dir/$name"
+log "   Inspecting data before sorting"
+head -n 5 "$gene_dir/$name" >> "$log_dir/$log_file"
 
 # Sorts the temporary file by SNP
 sort -k 1 "$gene_dir/$name" -o "$gene_dir/$name" \
