@@ -117,7 +117,7 @@ awk 'NR==FNR {data[$1] = $0; next} $1 in data {print data[$1], $2}' \
 log "	SNP count added to $gene_dir/$name_final"
 
 # Removes temporary .ma file
-rm "$gene_dir/$name"
+# rm "$gene_dir/$name"
 
 # Adds column headers to .ma file
 awk -v "cols=$columns" 'BEGIN{print cols}1' "$gene_dir/$name_final" > temp \
