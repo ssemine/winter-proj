@@ -75,7 +75,7 @@ if [ -f "$snps" ]; then
         }
         {
             if ($gidx == gene_name && ($col1 in snp_list) && $cidx == chr_num) {
-                print $col1, $col2, $col3, $col4, $col5, $col6, $col7 > (gene_dir "/" name)
+                print $col1, $col2, $col3, $col4, $col5, $col6, $col7 >> (gene_dir "/" name)
             }
         }' "$infile" \
         || { log "transform.sh Error: awk could not write data to $gene_dir/$name"; exit 1; }
@@ -96,8 +96,8 @@ else
         -v "name_chr=${gene_name}_chr.txt" \
         '{
             if ($gidx == gene_name) {
-                print $col1, $col2, $col3, $col4, $col5, $col6, $col7 > (gene_dir "/" name)
-                print gene_name, $cidx > (gene_dir "/" name_chr)
+                print $col1, $col2, $col3, $col4, $col5, $col6, $col7 >> (gene_dir "/" name)
+                print gene_name, $cidx >> (gene_dir "/" name_chr)
             }
         }' "$infile" \
         || { log "transform.sh Error: awk could not write data to $gene_dir/$name"; exit 1; }
