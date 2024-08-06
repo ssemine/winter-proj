@@ -1,7 +1,6 @@
 #!/bin/bash
 
 # DEBUG
-
 # Usage:
 # 	main.sh --infile infile --bfile bfile --maf maf --chr chromosome_number [ --p-value p_val | --genes gene_names | --snps snp_names | --log log_file | --gene_dir gene_directory ]
 
