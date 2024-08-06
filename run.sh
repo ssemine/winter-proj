@@ -22,7 +22,7 @@ infile=$(printf "%s_input.ma" "$gene_name")
 
 
 log() {
-    echo "$(date '+%Y-%m-%d %H:%M:%S') - $gene_name" >> "$log_dir/$log_file"
+    echo "$(date '+%Y-%m-%d %H:%M:%S') - $1" >> "$log_dir/$log_file"
 }
 
 log "Running run.sh for $gene_name"
