@@ -39,7 +39,7 @@ name_final="${gene_name}_input.ma"
 columns="SNP A1 A2 freq b se p N"
 
 # Creates temporary and final .ma files
-# Creates temporary and final .ma files
+
 if ! touch "$gene_dir/$name"; then
     log "transform.sh Error: touch could not create $gene_dir/$name"
     exit 1
@@ -50,6 +50,16 @@ if ! touch "$gene_dir/$name_final"; then
     exit 1
 fi
 
+log "    .ma indices:"
+log "        SNP ID: $snp_id_idx"
+log "        Chromosome: $chr_idx"
+log "        Allele 1: $allele_one_idx"
+log "        Allele 2: $allele_two_idx"
+log "        Frequency: $freq_idx"
+log "        Gene Name: $gene_name_idx"
+log "        Effect Size: $effect_size_idx"
+log "        Standard Error: $se_idx"
+log "        P-Value: $p_value_idx"
 
 # Writes required information from input column to .ma file if gene name matches
 log "	Writing data to $gene_dir/$name"
@@ -76,7 +86,7 @@ if [ -f "$snps" ]; then
         }
         {
             if ($gidx == gene && ($col1 in snp_list) && $cidx == chr_num) {
-                print $col1, $col2, $col3, $col4, $col5, $col6, $col7 > (gene_dir "/" name)
+                print $col1, $col2, $col3, $col4, $col5, $col6, $col7 >> (gene_dir "/" name)
             }
         }' "$infile" \
         || { log "transform.sh Error: awk could not write data to $gene_dir/$name"; exit 1; }
@@ -97,8 +107,8 @@ else
         -v name_chr="${gene_name}_chr.txt" \
         '{
             if ($gidx == gene) {
-                print $col1, $col2, $col3, $col4, $col5, $col6, $col7 > (gene_dir "/" name)
-                print gene, $cidx >> (gene_dir "/" name_chr)
+                print $col1, $col2, $col3, $col4, $col5, $col6, $col7 >> (gene_dir "/" name)
+                print gene_name, $cidx >> (gene_dir "/" name_chr)
             }
         }' "$infile" \
         || { log "transform.sh Error: awk could not write data to $gene_dir/$name"; exit 1; }
