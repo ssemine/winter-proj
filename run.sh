@@ -18,11 +18,11 @@ gene_dir="$9"
 prev_idx="$((idx - 1))"
 next_idx="$((idx + 1))"
 outfile=$(printf "%s_%s.cma" "$gene_name" "$idx")
-infile=$(printf "%s_input.ma" "$1")
+infile=$(printf "%s_input.ma" "$gene_name")
 
 
 log() {
-    echo "$(date '+%Y-%m-%d %H:%M:%S') - $1" >> "$log_dir/$log_file"
+    echo "$(date '+%Y-%m-%d %H:%M:%S') - $gene_name" >> "$log_dir/$log_file"
 }
 
 log "Running run.sh for $gene_name"
@@ -34,14 +34,14 @@ if [ $idx -eq 1 ]; then
 	snp_col=1
 	p_col=7
 else
-	read_file=$(printf "%s_%s.cma" "$1" $prev_idx)
+	read_file=$(printf "%s_%s.cma" "$gene_name" $prev_idx)
 	snp_col=2
 	p_col=13
 fi
 
 echo "read_file: $read_file"
 
-top_snp_file=$(printf "%s_%s.snplist" "$1" "$idx")
+top_snp_file=$(printf "%s_%s.snplist" "$gene_name" "$idx")
 touch "$top_snp_file"
 
 awk -v col="$p_col" \
