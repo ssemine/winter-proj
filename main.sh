@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# DEBUG
+# POLISH
 # Usage:
 # 	main.sh --infile infile --bfile bfile --maf maf --chr chromosome_number [ --p-value p_val | --genes gene_names | --snps snp_names | --log log_file | --gene_dir gene_directory ]
 
@@ -36,8 +36,14 @@ mkdir -p "$log_dir"
 
 log_file="$(date '+%Y-%m-%d %H:%M:%S').log"
 
+
+# Function to log messages
+# Usage: log "message"
 log() {
-    echo "$(date '+%Y-%m-%d %H:%M:%S') - $1" >> "$log_dir/$log_file"
+    local message="$1"
+    local line_number="${BASH_LINENO[0]}"
+    local file_name="${BASH_SOURCE[1]}"
+    echo "$file_name:$line_number - $message" >> "$log_dir/$log_file"
 }
 
 # Allows for dynamic argument assignment
@@ -89,35 +95,34 @@ done
 touch "$log_dir/$log_file"
 
 if [[ -z "$chr" ]]; then
-    { log "main.sh Error: chromosome number not provided"; exit 1; }
+    { log "Error: chromosome number not provided"; exit 1; }
 fi
 
-log "Running main.sh..."
-log "	Parameters selected: "
-log "		Input file: $infile"
-log "		BED files: $bfile"
-log "		Minor allele frequency: $maf"
-log "		p-value threshold: $p_val"
-log "		Genes: $genes"
-log "		SNPs: $snps"
-log "		Log: $log_file"
-log "	Opened $infile"
+log "Parameters selected: "
+log "Input file: $infile"
+log "BED files: $bfile"
+log "Minor allele frequency: $maf"
+log "p-value threshold: $p_val"
+log "Genes: $genes"
+log "SNPs: $snps"
+log "Log: $log_file"
+log "Opened $infile"
 
 # Gene selection
 if [ "$genes" == "all" ] && [ ! -f "$genes" ]; then
-	log "	All genes selected"
+	log "All genes selected"
 	awk -v gidx="$gene_name_idx" '{ print $gidx }' "$infile" | sort | uniq > "$gene_list" \
-		|| { log "main.sh Error: unable to create gene list"; exit 1; }
+		|| { log "Error: unable to create gene list"; exit 1; }
 else
-	log "	Genes selected from $genes"
+	log "Genes selected from $genes"
 	cat "$genes" > "$gene_list"
 fi
 
 # SNP selection
 if [ "$snps" == "all" ] && [ ! -f "$snps" ]; then
-	log "	All SNPs selected"
+	log "All SNPs selected"
 else
-	log "	$snps SNPs selected"
+	log "$snps SNPs selected"
 fi
 
 # SNP files
@@ -126,25 +131,25 @@ touch temp_snp_count.txt
 
 # Check if $snps is a file and filter SNPs accordingly
 if [ -f "$snps" ]; then
-    log "	Filtering SNPs based on $snps"
+    log "Filtering SNPs based on $snps"
     if ! awk -v sidx="$snp_id_idx" 'NR==FNR {snps[$1]; next} $sidx in snps' "$snps" "$infile" | sort | uniq -c > temp_snp_count.txt; then
-        { log "main.sh Error: unable to create filtered snp count file"; exit 1; }
+        { log "Error: unable to create filtered snp count file"; exit 1; }
     fi
 else
     if ! awk -v sidx="$snp_id_idx" '{ print $sidx }' "$infile" | sort | uniq -c > temp_snp_count.txt; then
-        { log "main.sh Error: unable to create snp count file"; exit 1; }
+        { log "Error: unable to create snp count file"; exit 1; }
     fi
 fi
 
 if ! awk '{ print $2, $1 }' temp_snp_count.txt > snp_count.txt; then
-    { log "main.sh Error: unable to create snp_count.txt file"; exit 1; }
+    { log "Error: unable to create snp_count.txt file"; exit 1; }
 fi
 
 rm temp_snp_count.txt
-log "	Created file snp_count.txt"
+log "Created file snp_count.txt"
 
 mkdir -p "$gene_dir"
-log "	Created directory $gene_dir"
+log "Created directory $gene_dir"
 
 while IFS= read -r line; do
 	log "Working on gene $line..."
@@ -165,7 +170,7 @@ while IFS= read -r line; do
 		"$log_file" \
 		"$log_dir" \
 		"$bfile"
-	log "	.ma for $line transformed"
+	log ".ma for $line transformed"
 	log "Starting run.sh for $line..."
 	./run.sh "$line" \
 		"$bfile" \
@@ -177,5 +182,5 @@ while IFS= read -r line; do
 		"$log_dir" \
 		"$gene_dir"
 	log "run.sh for $line finished"
-done < "$gene_list" || { log "main.sh Error: unable to read gene list"; exit 1; }
+done < "$gene_list" || { log "Error: unable to read gene list"; exit 1; }
 log "main.sh finished"
