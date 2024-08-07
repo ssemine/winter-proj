@@ -32,10 +32,14 @@ log() {
     local message="$1"
     local line_number="${BASH_LINENO[0]}"
     local file_name="${BASH_SOURCE[1]}"
-    echo "$gene $file_name:$line_number - $message" >> "$log_dir/$log_file"
+    echo "$gene $file_name:$line_number - $gene: $message" >> "$log_dir/$log_file"
 }
-
-
+log_lines() {
+    local num_lines="$1"
+    for ((i = 0; i < num_lines; i++)); do
+        echo "" >> "$log_dir/$log_file"
+    done
+}
 
 # Variables declarations
 name="$gene_name.ma"
@@ -121,10 +125,11 @@ log "Sample size $sample_size added to $gene_dir/$name_final"
 
 
 # Removes temporary .ma file
-# rm "$gene_dir/$name"
+rm "$gene_dir/$name"
 
 # Adds column headers to .ma file
 awk -v "cols=$columns" 'BEGIN{print cols}1' "$gene_dir/$name_final" > temp \
 	|| { log "transform.sh Error: awk could not add columns to $gene_dir/$name_final"; exit 1; }
 mv temp "$gene_dir/$name_final"
 log "Columns added to $gene_dir/$name_final"
+mv $gene_dir/$name_final $gene_dir/$name

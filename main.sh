@@ -45,6 +45,12 @@ log() {
     local file_name="${BASH_SOURCE[1]}"
     echo "$file_name:$line_number - $message" >> "$log_dir/$log_file"
 }
+log_lines() {
+    local num_lines="$1"
+    for ((i = 0; i < num_lines; i++)); do
+        echo "" >> "$log_dir/$log_file"
+    done
+}
 
 # Allows for dynamic argument assignment
 while [[ $# -gt 0 ]]; do
@@ -93,6 +99,9 @@ while [[ $# -gt 0 ]]; do
 done
 
 touch "$log_dir/$log_file"
+log "GCTA-COJO script started"
+log "Made by Stephen Semine, 2024"
+log lines 2
 
 if [[ -z "$chr" ]]; then
     { log "Error: chromosome number not provided"; exit 1; }
@@ -108,6 +117,8 @@ log "SNPs: $snps"
 log "Log: $log_file"
 log "Opened $infile"
 
+log_lines 2
+
 # Gene selection
 if [ "$genes" == "all" ] && [ ! -f "$genes" ]; then
 	log "All genes selected"
@@ -117,6 +128,7 @@ else
 	log "Genes selected from $genes"
 	cat "$genes" > "$gene_list"
 fi
+
 
 # SNP selection
 if [ "$snps" == "all" ] && [ ! -f "$snps" ]; then
@@ -128,7 +140,7 @@ fi
 # SNP files
 touch snp_count.txt
 touch temp_snp_count.txt
-
+log_lines 1
 # Check if $snps is a file and filter SNPs accordingly
 if [ -f "$snps" ]; then
     log "Filtering SNPs based on $snps"
@@ -144,15 +156,14 @@ fi
 if ! awk '{ print $2, $1 }' temp_snp_count.txt > snp_count.txt; then
     { log "Error: unable to create snp_count.txt file"; exit 1; }
 fi
-
 rm temp_snp_count.txt
 log "Created file snp_count.txt"
 
 mkdir -p "$gene_dir"
 log "Created directory $gene_dir"
-
 while IFS= read -r line; do
-	log "Working on gene $line..."
+	log_lines 1
+	log "Calling transform.sh for $line"
 	./transform.sh "$line" \
 		"$infile" \
 		"$gene_dir" \
@@ -171,7 +182,8 @@ while IFS= read -r line; do
 		"$log_dir" \
 		"$bfile"
 	log ".ma for $line transformed"
-	log "Starting run.sh for $line..."
+	log_lines 1
+	log "Calling run.sh for $line"
 	./run.sh "$line" \
 		"$bfile" \
 		"$chr" \
@@ -183,4 +195,5 @@ while IFS= read -r line; do
 		"$gene_dir"
 	log "run.sh for $line finished"
 done < "$gene_list" || { log "Error: unable to read gene list"; exit 1; }
-log "main.sh finished"
+log_lines 1
+log "End of script"
