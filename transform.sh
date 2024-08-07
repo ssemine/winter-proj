@@ -122,12 +122,14 @@ log "	Data written to $gene_dir/$name"
 sort -k 1 "$gene_dir/$name" -o "$gene_dir/$name" \
     || { log "transform.sh Error: sort could not sort $gene_dir/$name"; exit 1; }
 
-# Adds SNP count to N column, writes data to a new file
-awk 'NR==FNR {data[$1] = $0; next} $1 in data {print data[$1], $2}' \
-    "$gene_dir/$name" snp_count.txt > "$gene_dir/$name_final" \
+sample_size=$(wc -l < "$bfile.fam")
+
+# Adds the sample_size number to each row, writes data to a new file
+awk -v sample_size="$sample_size" '{print $0, sample_size}' "$gene_dir/$name" > "$gene_dir/$name_final" \
     || { log "transform.sh Error: awk could not write data to $gene_dir/$name_final"; exit 1; }
 
-log "	SNP count added to $gene_dir/$name_final"
+log "	Sample size $sample_size added to $gene_dir/$name_final"
+
 
 # Removes temporary .ma file
 # rm "$gene_dir/$name"
