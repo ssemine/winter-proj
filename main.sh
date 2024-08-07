@@ -99,9 +99,9 @@ while [[ $# -gt 0 ]]; do
 done
 
 touch "$log_dir/$log_file"
-log "GCTA-COJO script started"
-log "Made by Stephen Semine, 2024"
-log lines 2
+echo "GCTA-COJO script started"	>> "$log_dir/$log_file"
+echo "Made by Stephen Semine, 2024" >> "$log_dir/$log_file"
+log_lines 2
 
 if [[ -z "$chr" ]]; then
     { log "Error: chromosome number not provided"; exit 1; }
@@ -116,31 +116,19 @@ log "Genes: $genes"
 log "SNPs: $snps"
 log "Log: $log_file"
 log "Opened $infile"
-
-log_lines 2
-
+log_lines 1
 # Gene selection
 if [ "$genes" == "all" ] && [ ! -f "$genes" ]; then
-	log "All genes selected"
 	awk -v gidx="$gene_name_idx" '{ print $gidx }' "$infile" | sort | uniq > "$gene_list" \
 		|| { log "Error: unable to create gene list"; exit 1; }
 else
-	log "Genes selected from $genes"
 	cat "$genes" > "$gene_list"
 fi
 
 
-# SNP selection
-if [ "$snps" == "all" ] && [ ! -f "$snps" ]; then
-	log "All SNPs selected"
-else
-	log "$snps SNPs selected"
-fi
-
 # SNP files
 touch snp_count.txt
 touch temp_snp_count.txt
-log_lines 1
 # Check if $snps is a file and filter SNPs accordingly
 if [ -f "$snps" ]; then
     log "Filtering SNPs based on $snps"
