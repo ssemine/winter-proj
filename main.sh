@@ -163,7 +163,8 @@ while IFS= read -r line; do
 		"$snps" \
 		"$chr" \
 		"$log_file" \
-		"$log_dir"
+		"$log_dir" \
+		"$bfile"
 	log "	.ma for $line transformed"
 	log "Starting run.sh for $line..."
 	./run.sh "$line" \

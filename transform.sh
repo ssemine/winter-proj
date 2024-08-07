@@ -25,6 +25,7 @@ snps="${13}"
 chr_num="${14}"
 log_file="${15}"
 log_dir="${16}"
+bfile="${17}"
 
 log() {
     echo "$(date '+%Y-%m-%d %H:%M:%S') - $1" >> "$log_dir/$log_file"
