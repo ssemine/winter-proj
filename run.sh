@@ -15,6 +15,7 @@ p_val="$6"
 log_file="$7"
 log_dir="$8"
 gene_dir="$9"
+snp_dir="${10}"
 prev_idx="$((idx - 1))"
 next_idx="$((idx + 1))"
 outfile=$(printf "%s_%s" "$gene_name" "$idx")
@@ -48,7 +49,7 @@ else
 fi
 log "Reading from $gene_dir/$read_file"
 
-top_snp_file=$(printf "%s_%s.snplist" "$gene_name" "$idx")
+top_snp_file=$(printf "%s/%s_%s.snplist" "$snp_dir" "$gene_name" "$idx")
 touch "$top_snp_file"
 
 awk -v col="$p_col" \
@@ -81,7 +82,8 @@ if [ "$has_snp" -eq 1 ]; then
 		"$p_val" \
 		"$log_file" \
 		"$log_dir" \
-		"$gene_dir"
+		"$gene_dir" \
+        "$snp_dir"
 else
 	log "Total SNPs for $gene_name: $prev_idx"
 fi

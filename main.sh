@@ -27,10 +27,13 @@ se_idx=13
 p_value_idx=14
 gene_list="gene_list.txt"
 gene_dir="cojo_files"
+snp_dir="snp_files"
 genes="all" 
 snps="all"
 log_dir="logs"
 p_val="5e-12"
+snp_csv_header="SNP,Count"
+snp_count_file="snp_count.csv"
 
 mkdir -p "$log_dir"
 
@@ -127,28 +130,24 @@ fi
 
 
 # SNP files
-touch snp_count.txt
-touch temp_snp_count.txt
+touch "$snp_count_file"
+echo "$snp_csv_header" > "$snp_count_file"
 # Check if $snps is a file and filter SNPs accordingly
 if [ -f "$snps" ]; then
-    log "Filtering SNPs based on $snps"
-    if ! awk -v sidx="$snp_id_idx" 'NR==FNR {snps[$1]; next} $sidx in snps' "$snps" "$infile" | sort | uniq -c > temp_snp_count.txt; then
+    if ! awk -v sidx="$snp_id_idx" 'NR==FNR {snps[$1]; next} $sidx in snps' "$snps" "$infile" | sort | uniq -c | awk '{ print $2, $1 }' >> "$snp_count_file"; then
         { log "Error: unable to create filtered snp count file"; exit 1; }
     fi
 else
-    if ! awk -v sidx="$snp_id_idx" '{ print $sidx }' "$infile" | sort | uniq -c > temp_snp_count.txt; then
+    if ! awk -v sidx="$snp_id_idx" '{ print $sidx }' "$infile" | sort | uniq -c | awk '{ print $2, $1 }' >> "$snp_count_file"; then
         { log "Error: unable to create snp count file"; exit 1; }
     fi
 fi
 
-if ! awk '{ print $2, $1 }' temp_snp_count.txt > snp_count.txt; then
-    { log "Error: unable to create snp_count.txt file"; exit 1; }
-fi
-rm temp_snp_count.txt
 log "Created file snp_count.txt"
 
 mkdir -p "$gene_dir"
-log "Created directory $gene_dir"
+mkdir -p "$snp_dir"
+
 while IFS= read -r line; do
 	log_lines 1
 	log "Calling transform.sh for $line"
@@ -180,7 +179,8 @@ while IFS= read -r line; do
 		"$p_val" \
 		"$log_file" \
 		"$log_dir" \
-		"$gene_dir"
+		"$gene_dir" \
+		"$snp_dir"
 	log "run.sh for $line finished"
 done < "$gene_list" || { log "Error: unable to read gene list"; exit 1; }
 log_lines 1
