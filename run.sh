@@ -34,7 +34,7 @@ if [ $idx -eq 1 ]; then
 	snp_col=1
 	p_col=7
 else
-	read_file=$(printf "%s_%s.cma" "$gene_name" $prev_idx)
+	read_file=$(printf "%s_%s.cma.cojo" "$gene_name" $prev_idx)
 	snp_col=2
 	p_col=13
 fi
