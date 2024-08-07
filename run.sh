@@ -71,7 +71,10 @@ if [ "$has_snp" -eq 1 ]; then
 		"$chr" \
 		"$maf" \
 		"$next_idx" \
-		"$p_val"
+		"$p_val" \
+		"$log_file" \
+		"$log_dir" \
+		"$gene_dir"
 else
 	log "Total SNPs for $gene_name = $prev_idx"
 fi
