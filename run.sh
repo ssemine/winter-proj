@@ -17,7 +17,7 @@ log_dir="$8"
 gene_dir="$9"
 prev_idx="$((idx - 1))"
 next_idx="$((idx + 1))"
-outfile=$(printf "%s_%s.cma" "$gene_name" "$idx")
+outfile=$(printf "%s_%s" "$gene_name" "$idx")
 infile=$(printf "%s_input.ma" "$gene_name")
 
 
