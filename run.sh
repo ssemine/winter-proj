@@ -96,7 +96,8 @@ if [ "$has_snp" -eq 1 ]; then
 		"$log_file" \
 		"$log_dir" \
 		"$gene_dir" \
-        "$snp_dir"
+        "$snp_dir" \
+        "$summary_file"
 else
 	log "Total SNPs for $gene_name: $prev_idx"
     summary_log "Total SNPs for $gene_name: $prev_idx"
