@@ -34,10 +34,13 @@ log_dir="logs"
 p_val="5e-12"
 snp_csv_header="SNP,Count"
 snp_count_file="snp_count.csv"
+summary_file="summary.log"
+
 
 mkdir -p "$log_dir"
 
 log_file="$(date '+%Y-%m-%d %H:%M:%S').log"
+
 
 
 # Function to log messages
@@ -101,9 +104,18 @@ while [[ $# -gt 0 ]]; do
     esac
 done
 
+summary_file="${log_file%.log}_summary.log"
+summary_log() {
+	local message="$1"
+	echo "$message" >> "$log_dir/$summary_file"
+}
+
+
+
 touch "$log_dir/$log_file"
-echo "GCTA-COJO script started"	>> "$log_dir/$log_file"
-echo "Made by Stephen Semine, 2024" >> "$log_dir/$log_file"
+touch "$log_dir/$summary_file"
+
+log "Start of script"
 log_lines 2
 
 if [[ -z "$chr" ]]; then
@@ -127,6 +139,9 @@ if [ "$genes" == "all" ] && [ ! -f "$genes" ]; then
 else
 	cat "$genes" > "$gene_list"
 fi
+summary_log "Number of genes: $(wc -l < $gene_list)"
+echo "" >> "$log_dir/$summary_file"
+
 
 
 # SNP files
@@ -171,6 +186,7 @@ while IFS= read -r line; do
 	log ".ma for $line transformed"
 	log_lines 1
 	log "Calling run.sh for $line"
+	summary_log "Gene: $line"
 	./run.sh "$line" \
 		"$bfile" \
 		"$chr" \
@@ -180,8 +196,10 @@ while IFS= read -r line; do
 		"$log_file" \
 		"$log_dir" \
 		"$gene_dir" \
-		"$snp_dir"
+		"$snp_dir" \
+		"$summary_file"
 	log "run.sh for $line finished"
+	echo "" >> "$log_dir/$summary_file"
 done < "$gene_list" || { log "Error: unable to read gene list"; exit 1; }
 log_lines 1
 log "End of script"
