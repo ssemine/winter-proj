@@ -16,7 +16,15 @@ log_file="$6"
 log_dir="$7"
 bfile="$8"
 file_type="$9"
-ma_file="${10}"
+if [ file_type = "cma" ]; then
+    ma_file="${10}"
+    run_idx="${11}"
+    name=$(printf "%s_%s.ma" "$gene_name" "$idx")
+    name_final=$(printf "%s_%s_input.ma" "$gene_name" "$idx")
+else
+    name=$(printf "%s.ma" "$gene_name")
+    name_final=$(printf "%s_input.ma" "$gene_name")
+fi
 
 
 log() {
@@ -32,10 +40,11 @@ log_lines() {
         echo "" >> "$log_dir/$log_file"
     done
 }
+if [[ "$file_type" != "input" && "$file_type" != "cma" ]]; then
+    log "Error: file_type must be either 'input' or 'cma'"
+    exit 1
+fi
 
-# Variables declarations
-name="$gene_name.ma"
-name_final="${gene_name}_input.ma"
 columns="SNP A1 A2 freq b se p N"
 sample_size=$(wc -l < "$bfile.fam")
 

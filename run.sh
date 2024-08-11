@@ -96,7 +96,7 @@ if [ "$has_snp" -eq 1 ]; then
         "$log_dir" \
         "$bfile" \
         "cma" \
-        "$gene_name.ma"
+        "$gene_dir/$infile"
 	./run.sh "$gene_name" \
 		"$bfile" \
 		"$chr" \
