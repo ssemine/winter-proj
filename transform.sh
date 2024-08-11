@@ -33,7 +33,7 @@ fi
 
 if [[ "$file_type" = "cma" ]]; then
     ma_file="${10}"
-    run_idx="${11}"
+    idx="${11}"
     name=$(printf "%s_%s.ma" "$gene_name" "$idx")
     name_final=$(printf "%s_%s_input.ma" "$gene_name" "$idx")
 else
