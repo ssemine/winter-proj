@@ -1,12 +1,7 @@
 #!/bin/bash
 
-# POLISH
-
-# This script transforms input file to .ma file. 
-
-
 source definitions/file_indices.sh
-# Command line arguments indices
+
 gene_name="$1"
 infile="$2"
 gene_dir="$3"
@@ -16,15 +11,6 @@ log_file="$6"
 log_dir="$7"
 bfile="$8"
 file_type="$9"
-if [ file_type = "cma" ]; then
-    ma_file="${10}"
-    run_idx="${11}"
-    name=$(printf "%s_%s.ma" "$gene_name" "$idx")
-    name_final=$(printf "%s_%s_input.ma" "$gene_name" "$idx")
-else
-    name=$(printf "%s.ma" "$gene_name")
-    name_final=$(printf "%s_input.ma" "$gene_name")
-fi
 
 
 log() {
@@ -45,11 +31,20 @@ if [[ "$file_type" != "input" && "$file_type" != "cma" ]]; then
     exit 1
 fi
 
+if [ file_type = "cma" ]; then
+    ma_file="${10}"
+    run_idx="${11}"
+    name=$(printf "%s_%s.ma" "$gene_name" "$idx")
+    name_final=$(printf "%s_%s_input.ma" "$gene_name" "$idx")
+else
+    name=$(printf "%s.ma" "$gene_name")
+    name_final=$(printf "%s_input.ma" "$gene_name")
+fi
+
 columns="SNP A1 A2 freq b se p N"
 sample_size=$(wc -l < "$bfile.fam")
 
-# Creates temporary and final .ma files
-
+# Creates a two files to put data into
 if ! touch "$gene_dir/$name"; then
     log "Error: touch could not create $gene_dir/$name"
     exit 1
@@ -60,10 +55,8 @@ if ! touch "$gene_dir/$name_final"; then
     exit 1
 fi
 
-# Writes required information from input column to .ma file if gene name matches
+# Writes data to the temporary file
 log "Writing data to $gene_dir/$name"
-
-
 if [ file_type = "input"]; then
     if [ -f "$snps" ]; then
         log "Using $snps to filter SNPs"
