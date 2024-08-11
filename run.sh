@@ -87,6 +87,16 @@ if [ "$has_snp" -eq 1 ]; then
         --cojo-file "$gene_dir/$read_file" \
 		--cojo-cond "$top_snp_file" \
         --out "$gene_dir/$outfile"
+    ./transform.sh "$gene_name" \
+        "$gene_dir/$outfile" \
+        "$gene_dir" \
+        "$snps" \
+        "$chr" \
+        "$log_file" \
+        "$log_dir" \
+        "$bfile" \
+        "cma" \
+        "$gene_name.ma"
 	./run.sh "$gene_name" \
 		"$bfile" \
 		"$chr" \

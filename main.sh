@@ -15,6 +15,8 @@
 # 	log: log file (optional)
 #	gene_dir: gene directory (optional)
 
+source definitions/file_indices.sh
+
 # CONSTANTS
 snp_id_idx=1
 chr_idx=2
@@ -134,7 +136,7 @@ log "Opened $infile"
 log_lines 1
 # Gene selection
 if [ "$genes" == "all" ] && [ ! -f "$genes" ]; then
-	awk -v gidx="$gene_name_idx" '{ print $gidx }' "$infile" | sort | uniq > "$gene_list" \
+	awk -v gidx="$INPUT_GENE_NAME_IDX" '{ print $gidx }' "$infile" | sort | uniq > "$gene_list" \
 		|| { log "Error: unable to create gene list"; exit 1; }
 else
 	cat "$genes" > "$gene_list"
@@ -149,11 +151,11 @@ touch "$snp_count_file"
 echo "$snp_csv_header" > "$snp_count_file"
 # Check if $snps is a file and filter SNPs accordingly
 if [ -f "$snps" ]; then
-    if ! awk -v sidx="$snp_id_idx" 'NR==FNR {snps[$1]; next} $sidx in snps' "$snps" "$infile" | sort | uniq -c | awk '{ print $2, $1 }' >> "$snp_count_file"; then
+    if ! awk -v sidx="$INPUT_SNP_ID_IDX" 'NR==FNR {snps[$1]; next} $sidx in snps' "$snps" "$infile" | sort | uniq -c | awk '{ print $2, $1 }' >> "$snp_count_file"; then
         { log "Error: unable to create filtered snp count file"; exit 1; }
     fi
 else
-    if ! awk -v sidx="$snp_id_idx" '{ print $sidx }' "$infile" | sort | uniq -c | awk '{ print $2, $1 }' >> "$snp_count_file"; then
+    if ! awk -v sidx="$INPUT_SNP_ID_IDX" '{ print $sidx }' "$infile" | sort | uniq -c | awk '{ print $2, $1 }' >> "$snp_count_file"; then
         { log "Error: unable to create snp count file"; exit 1; }
     fi
 fi
@@ -169,20 +171,12 @@ while IFS= read -r line; do
 	./transform.sh "$line" \
 		"$infile" \
 		"$gene_dir" \
-		"$snp_id_idx" \
-		"$chr_idx" \
-		"$allele_one_idx" \
-		"$allele_two_idx" \
-		"$freq_idx" \
-		"$gene_name_idx" \
-		"$effect_size_idx" \
-		"$se_idx" \
-		"$p_value_idx" \
 		"$snps" \
 		"$chr" \
 		"$log_file" \
 		"$log_dir" \
-		"$bfile"
+		"$bfile" \
+		"input"
 	log ".ma for $line transformed"
 	log_lines 1
 	log "Calling run.sh for $line"
@@ -197,7 +191,8 @@ while IFS= read -r line; do
 		"$log_dir" \
 		"$gene_dir" \
 		"$snp_dir" \
-		"$summary_file"
+		"$summary_file" \
+		"$snps"
 	log "run.sh for $line finished"
 	echo "" >> "$log_dir/$summary_file"
 done < "$gene_list" || { log "Error: unable to read gene list"; exit 1; }
