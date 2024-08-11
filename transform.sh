@@ -126,9 +126,7 @@ else # need to add that it reads allele_one_idx and two from .ma file but the re
             next
         }
         {
-            if ($gidx == gene) {
-                print $col1, ma_col2[FNR], ma_col3[FNR], $col4, $col5, $col6, $col7, $col8 >> (gene_dir "/" name)
-            }
+            print $col1, ma_col2[FNR], ma_col3[FNR], $col4, $col5, $col6, $col7, $col8 >> (gene_dir "/" name)
         }' "$ma_file" "$infile" \
         || { log "Error: awk could not write data to $gene_dir/$name"; exit 1; }
 fi
