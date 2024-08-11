@@ -49,7 +49,7 @@ if [ $idx -eq 1 ]; then
 	snp_col=1
 	p_col=7
 else
-	read_file=$(printf "%s_%s.cma.cojo" "$gene_name" $prev_idx)
+	read_file=$(printf "%s_%s.ma" "$gene_name" $prev_idx)
 	snp_col=2
 	p_col=13
 fi
@@ -88,7 +88,7 @@ if [ "$has_snp" -eq 1 ]; then
 		--cojo-cond "$top_snp_file" \
         --out "$gene_dir/$outfile"
     ./transform.sh "$gene_name" \
-        "$gene_dir/$outfile" \
+        "$gene_dir/$outfile.cma.cojo" \
         "$gene_dir" \
         "$snps" \
         "$chr" \
@@ -96,7 +96,7 @@ if [ "$has_snp" -eq 1 ]; then
         "$log_dir" \
         "$bfile" \
         "cma" \
-        "$gene_dir/$infile.cma.cojo" \
+        "$gene_dir/$infile" \
         "$idx"
 	./run.sh "$gene_name" \
 		"$bfile" \
