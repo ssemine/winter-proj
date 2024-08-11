@@ -31,7 +31,7 @@ if [[ "$file_type" != "input" && "$file_type" != "cma" ]]; then
     exit 1
 fi
 
-if [[ file_type = "cma" ]]; then
+if [[ "$file_type" = "cma" ]]; then
     ma_file="${10}"
     run_idx="${11}"
     name=$(printf "%s_%s.ma" "$gene_name" "$idx")
@@ -57,7 +57,7 @@ fi
 
 # Writes data to the temporary file
 log "Writing data to $gene_dir/$name"
-if [[ file_type = "input"]]; then
+if [[ "$file_type" = "input"]]; then
     if [ -f "$snps" ]; then
         log "Using $snps to filter SNPs"
         awk -F' ' -v col1="$INPUT_SNP_ID_IDX" \
