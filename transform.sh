@@ -57,7 +57,7 @@ fi
 
 # Writes data to the temporary file
 log "Writing data to $gene_dir/$name"
-if [[ "$file_type" = "input"]]; then
+if [[ "$file_type" = "input" ]]; then
     if [ -f "$snps" ]; then
         log "Using $snps to filter SNPs"
         awk -F' ' -v col1="$INPUT_SNP_ID_IDX" \
