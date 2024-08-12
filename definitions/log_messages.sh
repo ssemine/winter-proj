@@ -19,7 +19,7 @@ export ERROR_SNP_COUNT_FILE="Error: unable to create SNP count file"
 export ERROR_READ_GENE_LIST="Error: unable to read gene list"
 
 # log messages
-export LOG_WELCOME_MESSAGE="---------------------\n"
+export LOG_WELCOME_MESSAGE="\n---------------------\n"
 LOG_WELCOME_MESSAGE+="GCTA-COJO script\n"
 LOG_WELCOME_MESSAGE+="\n"
 LOG_WELCOME_MESSAGE+="---------------------\n"
