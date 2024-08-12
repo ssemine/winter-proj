@@ -25,8 +25,8 @@ snp_dir="${10}"
 summary_file="${11}"
 prev_idx="$((idx - 1))"
 next_idx="$((idx + 1))"
-outfile=$(printf "$GCTA_OUTFILE_NAME" "$gene_name" "$idx")
-infile=$(printf "$MA_FILE_NAME" "$gene_name")
+outfile="$(printf "$GCTA_OUTFILE_NAME" "$gene_name" "$idx")"
+infile="$(printf "$MA_FILE_NAME" "$gene_name")"
 
 source definitions/functions.sh
 
@@ -37,11 +37,11 @@ log "$LOG_ITERATION_NUM $idx"
 if [ $idx -eq 1 ]; then
 	read_file="$infile"
 else
-	read_file=$(printf "$MA_FILE_NAME_IDX" "$gene_name" $prev_idx)
+	read_file="$(printf "$MA_FILE_NAME_IDX" "$gene_name" $prev_idx)"
 fi
 log "$LOG_READING_FROM $gene_dir/$read_file"
 
-top_snp_file=$(printf "$TOP_SNP_FILE" "$snp_dir" "$gene_name" "$idx")
+top_snp_file="$(printf "$TOP_SNP_FILE" "$snp_dir" "$gene_name" "$idx")"
 touch "$top_snp_file"
 
 awk -v col="$MA_P_VALUE_IDX" \
@@ -66,7 +66,7 @@ awk -v col="$MA_P_VALUE_IDX" \
 has_snp=$(wc -l < "$top_snp_file")
 
 if [ "$has_snp" -eq 1 ]; then
-	log "$(printf $LOG_TOP_SNP $gene_name $(cat $top_snp_file))"
+	log "$(printf "$LOG_TOP_SNP" "$gene_name" "$(cat $top_snp_file)")"
 	./gcta64 --bfile "$bfile" \
         --chr "$chr" \
         --maf "$maf" \
@@ -74,7 +74,7 @@ if [ "$has_snp" -eq 1 ]; then
 		--cojo-cond "$top_snp_file" \
         --out "$gene_dir/$outfile"
     ./transform.sh "$gene_name" \
-        "$(printf $TRANSFORM_CMA_FILE_NAME $gene_dir $outfile)" \
+        "$(printf "$TRANSFORM_CMA_FILE_NAME" "$gene_dir" "$outfile")" \
         "$gene_dir" \
         "$snps" \
         "$chr" \
@@ -96,6 +96,6 @@ if [ "$has_snp" -eq 1 ]; then
         "$snp_dir" \
         "$summary_file"
 else
-	log $(printf "$LOG_TOTAL_SNPS" "$gene_name" "$prev_idx")
-    summary_log $(printf "$LOG_TOTAL_SNPS" "$gene_name" "$prev_idx")
+	log "$(printf "$LOG_TOTAL_SNPS" "$gene_name" "$prev_idx")"
+    summary_log "$(printf "$LOG_TOTAL_SNPS" "$gene_name" "$prev_idx")"
 fi

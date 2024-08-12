@@ -31,11 +31,11 @@ fi
 if [[ "$file_type" = "$CMA_IDENTIFIER" ]]; then
     ma_file="${10}"
     idx="${11}"
-    name=$(printf "$MA_FILE_NAME_IDX" "$gene_name" "$idx")
-    name_final=$(printf "$MA_FILE_NAME_FINAL_IDX" "$gene_name" "$idx")
+    name="$(printf "$MA_FILE_NAME_IDX" "$gene_name" "$idx")"
+    name_final="$(printf "$MA_FILE_NAME_FINAL_IDX" "$gene_name" "$idx")"
 else
-    name=$(printf "$MA_FILE_NAME" "$gene_name")
-    name_final=$(printf "$MA_FILE_NAME_FINAL" "$gene_name")
+    name="$(printf "$MA_FILE_NAME" "$gene_name")"
+    name_final="$(printf "$MA_FILE_NAME_FINAL" "$gene_name")"
 fi
 
 columns="$MA_FILE_COLUMNS"
@@ -137,7 +137,7 @@ sort -k 1 "$gene_dir/$name" -o "$gene_dir/$name" \
 # Adds the sample_size number to each row, writes data to a new file
 awk -v sample_size="$sample_size" '{print $0, sample_size}' "$gene_dir/$name" > "$gene_dir/$name_final" \
     || { log_genes "$ERROR_AWK_WRITE $gene_dir/$name_final"; exit 1; }
-log_genes "$(printf $LOG_SAMPLE_SIZE_ADDED $sample_size) $gene_dir/$name_final"
+log_genes "$(printf "$LOG_SAMPLE_SIZE_ADDED" "$sample_size" "$gene_dir/$name_final")"
 
 # Removes temporary .ma file
 rm "$gene_dir/$name"
@@ -148,5 +148,5 @@ awk -v "cols=$columns" 'BEGIN{print cols}1' "$gene_dir/$name_final" > temp \
 mv temp "$gene_dir/$name_final"
 log_genes "$LOG_COLUMNS_ADDED $gene_dir/$name_final"
 mv $gene_dir/$name_final $gene_dir/$name
-log_genes "$printf($LOG_FILE_RENAMED $gene_dir/$name_final $gene_dir/$name)"
+log_genes "$(printf "$LOG_FILE_RENAMED" "$gene_dir/$name_final" "$gene_dir/$name")"
 log_genes "$LOG_END_MESSAGE $gene_dir/$name"

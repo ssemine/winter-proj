@@ -91,7 +91,7 @@ if [[ -z "$chr" ]]; then
     { log "$ERROR_CHR_NUM_NOT_PROVIDED"; exit 1; }
 fi
 
-log $(printf "$LOG_PARAMETERS" "$infile" "$bfile" "$maf" "$p_val" "$chr" "$genes" "$snps" "$log_file")
+log "$(printf "$LOG_PARAMETERS" "$infile" "$bfile" "$maf" "$p_val" "$chr" "$genes" "$snps" "$log_file")"
 log_lines 1
 
 
