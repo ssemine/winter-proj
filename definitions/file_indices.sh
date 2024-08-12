@@ -1,4 +1,9 @@
-# Input file indices
+# file_indices.sh
+# ---------------
+# Stores the column indices for the input files: GWAS summary statistics, .ma files, and .cma files.
+# --------------------------------------------------------------------------------------------------
+
+# Input file indices (GWAS summary statistics)
 export INPUT_SNP_ID_IDX=1
 export INPUT_CHR_IDX=2
 export INPUT_ALLELE_ONE_IDX=4
