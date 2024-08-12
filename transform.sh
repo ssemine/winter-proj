@@ -21,6 +21,7 @@ log_file="$6"
 log_dir="$7"
 bfile="$8"
 file_type="$9"
+
 source definitions/functions.sh
 
 if [[ "$file_type" != "$INPUT_IDENTIFIER" && "$file_type" != "$CMA_IDENTIFIER" ]]; then
@@ -41,7 +42,6 @@ fi
 columns="$MA_FILE_COLUMNS"
 sample_size=$(wc -l < "$bfile.fam")
 
-# Creates a two files to put data into
 if ! touch "$gene_dir/$name"; then
     log_genes "$ERROR_TOUCH_FAILED $gene_dir/$name"
     exit 1
@@ -52,7 +52,6 @@ if ! touch "$gene_dir/$name_final"; then
     exit 1
 fi
 
-# Writes data to the temporary file
 log_genes "$LOG_WRITING_DATA $gene_dir/$name"
 if [[ "$file_type" = "$INPUT_IDENTIFIER" ]]; then
     if [ -f "$snps" ]; then
@@ -104,7 +103,7 @@ if [[ "$file_type" = "$INPUT_IDENTIFIER" ]]; then
             }' "$infile" \
             || { log_genes "$ERROR_AWK_WRITE $gene_dir/$name"; exit 1; }
     fi
-else # need to add that it reads allele_one_idx and two from .ma file but the rest from cma
+else
     awk -F' ' -v col1="$CMA_SNP_ID_IDX" \
         -v col2="$MA_A1_IDX" \
         -v col3="$MA_A2_IDX" \
@@ -129,17 +128,13 @@ fi
 
 log_genes "$LOG_DATA_WRITTEN $gene_dir/$name"
 
-# Sorts the temporary file by SNP
 sort -k 1 "$gene_dir/$name" -o "$gene_dir/$name" \
     || { log_genes "$ERROR_SORT $gene_dir/$name"; exit 1; }
 
-
-# Adds the sample_size number to each row, writes data to a new file
 awk -v sample_size="$sample_size" '{print $0, sample_size}' "$gene_dir/$name" > "$gene_dir/$name_final" \
     || { log_genes "$ERROR_AWK_WRITE $gene_dir/$name_final"; exit 1; }
 log_genes "$(printf "$LOG_SAMPLE_SIZE_ADDED" "$sample_size" "$gene_dir/$name_final")"
 
-# Removes temporary .ma file
 rm "$gene_dir/$name"
 
 # Adds column headers to .ma file

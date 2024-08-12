@@ -26,7 +26,6 @@ snp_count_file="$SNP_COUNT_FILE"
 source definitions/functions.sh
 mkdir -p "$log_dir"
 
- 
 while [[ $# -gt 0 ]]; do
     case $1 in
         --infile)
@@ -79,8 +78,6 @@ summary_log() {
 	echo "$message" >> "$log_dir/$summary_file"
 }
 
-
-
 touch "$log_dir/$log_file"
 touch "$log_dir/$summary_file"
 
@@ -94,13 +91,13 @@ fi
 log "$(printf "$LOG_PARAMETERS" "$infile" "$bfile" "$maf" "$p_val" "$chr" "$genes" "$snps" "$log_file")"
 log_lines 1
 
-
 if [ "$genes" == "$GENES_ALL" ] && [ ! -f "$genes" ]; then
 	awk -v gidx="$INPUT_GENE_NAME_IDX" '{ print $gidx }' "$infile" | sort | uniq > "$gene_list" \
 		|| { log "$ERROR_GENE_LIST"; exit 1; }
 else
 	cat "$genes" > "$gene_list"
 fi
+
 summary_log "Number of genes: $(wc -l < $gene_list)"
 echo "" >> "$log_dir/$summary_file"
 

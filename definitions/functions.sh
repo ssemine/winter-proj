@@ -1,3 +1,12 @@
+# functions.sh
+# ------------
+# Stores function declarations
+# ----------------------------
+
+
+
+
+
 log() {
     local message="$1"
     local line_number="${BASH_LINENO[0]}"

@@ -33,7 +33,6 @@ source definitions/functions.sh
 log "$LOG_STARTING_RUN $gene_name"
 log "$LOG_ITERATION_NUM $idx"
 
-# If idx = 1, it means .ma file is used to fetch the lowest p-value
 if [ $idx -eq 1 ]; then
 	read_file="$infile"
 else
@@ -62,7 +61,6 @@ awk -v col="$MA_P_VALUE_IDX" \
     }' "$gene_dir/$read_file" \
     || { log "$ERROR_AWK_WRITE $top_snp_file"; exit 1; }
 
-# Checks if top snp file is empty
 has_snp=$(wc -l < "$top_snp_file")
 
 if [ "$has_snp" -eq 1 ]; then
