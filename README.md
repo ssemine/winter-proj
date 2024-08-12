@@ -39,4 +39,12 @@ Bfiles (.bed, .bim, .fam)
   
   **run.sh** - runs GCTA-COJO iteratively for each SNP
 
+  **definitions/constants.sh** - stores constants, such as the default p-value
+
+  **definitions/file_indices.sh** - stores input (GWAS summary statistics), .ma, .cma.cojo column indices
+
+  **definitions/functions.sh** - stores logging functions' declarations
+
+  **definitions/log_messages.sh** - stores log messages
+
 
