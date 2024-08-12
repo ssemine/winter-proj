@@ -7,7 +7,7 @@
 
 
 
-export P_VALUE_THRESHOLD="5e-8"
+export P_VALUE_THRESHOLD="1e-10"
 export GENE_LIST="gene_list"
 export GENE_DIR="cojo_files"
 export SNP_DIR="snp_files"
