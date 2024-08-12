@@ -2,14 +2,14 @@ log() {
     local message="$1"
     local line_number="${BASH_LINENO[0]}"
     local file_name="${BASH_SOURCE[1]}"
-    echo "$file_name:$line_number - $message" >> "$log_dir/$log_file"
+    echo -e "$file_name:$line_number - $message" >> "$log_dir/$log_file"
 }
 log_genes() {
     local gene="$gene_name"
     local message="$1"
     local line_number="${BASH_LINENO[0]}"
     local file_name="${BASH_SOURCE[1]}"
-    echo "$file_name:$line_number - $gene: $message" >> "$log_dir/$log_file"
+    echo -e "$file_name:$line_number - $gene: $message" >> "$log_dir/$log_file"
 }
 log_lines() {
     local num_lines="$1"
@@ -19,5 +19,5 @@ log_lines() {
 }
 summary_log() {
 	local message="$1"
-	echo "$message" >> "$log_dir/$summary_file"
+	echo -e "$message" >> "$log_dir/$summary_file"
 }
