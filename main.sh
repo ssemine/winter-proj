@@ -1,4 +1,5 @@
 #!/bin/bash
+
 # main.sh
 # -------
 # Main script that runs transform.sh and run.sh for each gene in the input file.
