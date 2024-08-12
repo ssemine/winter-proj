@@ -132,6 +132,8 @@ while IFS= read -r line; do
 		"$bfile" \
 		"input"
 	log "$LOG_MA_TRANSFORMED $line"
+	num_snps = $(wc -l < "$gene_dir/$line.ma")
+	new_p_val = $((0.05 / num_snps))
 	log_lines 1
 	log "$LOG_CALLING_RUN $line"
 	summary_log "Gene: $line"
@@ -140,7 +142,7 @@ while IFS= read -r line; do
 		"$chr" \
 		"$maf" \
 		1 \
-		"$p_val" \
+		"$new_p_val" \
 		"$log_file" \
 		"$log_dir" \
 		"$gene_dir" \
