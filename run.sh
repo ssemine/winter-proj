@@ -82,7 +82,8 @@ if [ "$has_snp" -eq 1 ]; then
         --maf "$maf" \
         --cojo-file "$gene_dir/$read_file" \
 		--cojo-cond "$top_snp_file" \
-        --out "$gene_dir/$outfile"
+        --out "$gene_dir/$outfile" \
+        || { log "$ERROR_GCTA_FAILED $gene_name"; exit 1; }
     ./transform.sh "$gene_name" \
         "$(printf "$TRANSFORM_CMA_FILE_NAME" "$gene_dir" "$outfile")" \
         "$gene_dir" \
@@ -93,7 +94,8 @@ if [ "$has_snp" -eq 1 ]; then
         "$bfile" \
         "$CMA_IDENTIFIER" \
         "$gene_dir/$ma_file_reference" \
-        "$idx"
+        "$idx" \
+        || { log "$ERROR_TRANSFORM $gene_name"; exit 1; }
 	./run.sh "$gene_name" \
 		"$bfile" \
 		"$chr" \
@@ -104,7 +106,8 @@ if [ "$has_snp" -eq 1 ]; then
 		"$log_dir" \
 		"$gene_dir" \
         "$snp_dir" \
-        "$summary_file"
+        "$summary_file" \
+        || { log "$ERROR_RUN_FAILED $gene_name"; exit 1; }
 else
 	log "$(printf "$LOG_TOTAL_SNPS" "$gene_name" "$prev_idx")"
     summary_log "$(printf "$LOG_TOTAL_SNPS" "$gene_name" "$prev_idx")"

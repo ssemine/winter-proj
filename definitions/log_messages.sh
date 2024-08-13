@@ -11,6 +11,8 @@
 # ----------------
 
 # error messages
+export ERROR_TRANSFORM_FAILED="Error: transform.sh failed for"
+export ERROR_RUN_FAILED="Error: run.sh failed for"
 export ERROR_INVALID_ARGUMENT="Error: invalid argument:"
 export ERROR_CHR_NUM_NOT_PROVIDED="Error: chromosome number not provided"
 export ERROR_GENE_LIST="Error: unable to create gene list"
@@ -73,6 +75,7 @@ export LOG_ENDING_TRANSFORM="Ending transform.sh for"
 # ---------------
 
 # error messages
+export ERROR_GCTA_FAILED="Error: GCTA failed for"
 
 # log messages
 export LOG_STARTING_RUN="Starting run.sh for"

@@ -131,7 +131,8 @@ while IFS= read -r line; do
 		"$log_file" \
 		"$log_dir" \
 		"$bfile" \
-		"input"
+		"input" \
+		|| { log "$ERROR_TRANSFORM $line"; exit 1; }
 	cp "$gene_dir/$line.ma" "$(printf "$MA_FILE_NAME_REFERENCE" "$gene_dir/$line")"
 	log "$LOG_MA_TRANSFORMED $line"
 	num_snps=$(wc -l < "$gene_dir/$line.ma")
@@ -151,7 +152,8 @@ while IFS= read -r line; do
 		"$gene_dir" \
 		"$snp_dir" \
 		"$summary_file" \
-		"$snps"
+		"$snps" \
+		|| { log "$ERROR_RUN_FAILED $line"; exit 1; }
 	log "$LOG_RUN_FINISHED $line"
 	echo "" >> "$log_dir/$summary_file"
 done < "$gene_list" || { log "$ERROR_READ_GENE_LIST"; exit 1; }
