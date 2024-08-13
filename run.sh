@@ -91,7 +91,7 @@ if [ "$has_snp" -eq 1 ]; then
         'NR==FNR { 
             snps[$snp_col];
             next 
-        } FNR > 1 && $snp_col in snps' "$gene_dir/snp_list.tmp" \
+        } $snp_col in snps' "$gene_dir/snp_list.tmp" \
         "$gene_dir/$ma_file_reference" > "$gene_dir/$ma_file_reference.tmp"
 
     cat "$gene_dir/$ma_file_reference.tmp" > "$gene_dir/$ma_file_reference"
