@@ -115,13 +115,17 @@ else
         -v gene="$gene_name" \
         -v gene_dir="$gene_dir" \
         -v name="$name" \
+        -v ma_snp_idx="$MA_SNP_ID_IDX" \
         'FNR==NR {
             ma_col2[FNR] = $col2
             ma_col3[FNR] = $col3
+            snp_idx[$ma_snp_idx] = 1
             next
         }
         {
-            print $col1, ma_col2[FNR], ma_col3[FNR], $col4, $col5, $col6, $col7, $col8 >> (gene_dir "/" name)
+            if ($col1 in snp_idx) {
+                print $col1, ma_col2[FNR], ma_col3[FNR], $col4, $col5, $col6, $col7, $col8 >> (gene_dir "/" name)
+            }
         }' "$ma_file" "$infile" \
         || { log_genes "$ERROR_AWK_WRITE $gene_dir/$name"; exit 1; }
 fi
