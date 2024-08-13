@@ -66,11 +66,12 @@ awk -v col="$MA_P_VALUE_IDX" \
 has_snp=$(wc -l < "$top_snp_file")
 
 if [ "$has_snp" -eq 1 ]; then
-	log "$(printf "$LOG_TOP_SNP" "$gene_name" "$(cat $top_snp_file)")"
+    top_snp=$(cat $top_snp_file)
+	log "$(printf "$LOG_TOP_SNP" "$gene_name" "$top_snp")"
     cp "$gene_dir/$ma_file_reference" \
     "$gene_dir/$ma_file_reference_tmp"
-    awk -v col="$MA_SNP_IDX_IDX" \
-        -v snp="$(cat $top_snp_file)" '{
+    awk -v col="$MA_SNP_ID_IDX" \
+        -v snp="$top_snp" '{
             if ($col != snp) { 
                 print $0
             }
