@@ -27,6 +27,8 @@ prev_idx="$((idx - 1))"
 next_idx="$((idx + 1))"
 outfile="$(printf "$GCTA_OUTFILE_NAME" "$gene_name" "$idx")"
 infile="$(printf "$MA_FILE_NAME" "$gene_name")"
+ma_file_reference="$(printf "$MA_FILE_NAME_REFERENCE" "$gene_name")"
+ma_file_reference_tmp="$(printf "$MA_FILE_NAME_REFERENCE_TMP" "$gene_name")"
 
 source definitions/functions.sh
 
@@ -65,15 +67,15 @@ has_snp=$(wc -l < "$top_snp_file")
 
 if [ "$has_snp" -eq 1 ]; then
 	log "$(printf "$LOG_TOP_SNP" "$gene_name" "$(cat $top_snp_file)")"
-    cp "$gene_dir/$gene_name\_reference.ma" \
-    "$gene_dir/$gene_name\_reference.ma.tmp"
+    cp "$gene_dir/$ma_file_reference" \
+    "$gene_dir/$ma_file_reference_tmp"
     awk -v col="$MA_SNP_IDX_IDX" \
         -v snp="$(cat $top_snp_file)" '{
             if ($col != snp) { 
                 print $0
             }
-        }' "$gene_dir/$gene_name\_reference.ma.tmp" > "$gene_dir/$gene_name\_reference.ma"
-    rm "$gene_dir/$gene_name\_reference.ma.tmp"
+        }' "$gene_dir/$ma_file_reference_tmp" > "$gene_dir/$ma_file_reference"
+    rm "$gene_dir/$ma_file_reference_tmp"
 	./gcta64 --bfile "$bfile" \
         --chr "$chr" \
         --maf "$maf" \
@@ -89,7 +91,7 @@ if [ "$has_snp" -eq 1 ]; then
         "$log_dir" \
         "$bfile" \
         "$CMA_IDENTIFIER" \
-        "$gene_dir/$gene_name\_reference.ma" \
+        "$gene_dir/$ma_file_reference" \
         "$idx"
 	./run.sh "$gene_name" \
 		"$bfile" \
