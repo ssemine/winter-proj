@@ -111,7 +111,6 @@ else
     -v col5="$CMA_EFFECT_SIZE_IDX" \
     -v col6="$CMA_SE_IDX" \
     -v col7="$CMA_P_VALUE_IDX" \
-    -v col8="$sample_size" \
     -v gene="$gene_name" \
     -v gene_dir="$gene_dir" \
     -v name="$name" \
@@ -122,7 +121,7 @@ else
         next
     }
     {
-        print $col1, ma_col2[FNR], ma_col3[FNR], $col4, $col5, $col6, $col7, $col8 >> (gene_dir "/" name)
+        print $col1, ma_col2[FNR], ma_col3[FNR], $col4, $col5, $col6, $col7 >> (gene_dir "/" name)
     }' "$ma_file" "$infile" \
     || { log_genes "$ERROR_AWK_WRITE $gene_dir/$name"; exit 1; }
 fi
