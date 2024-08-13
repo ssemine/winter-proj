@@ -68,15 +68,6 @@ has_snp=$(wc -l < "$top_snp_file")
 if [ "$has_snp" -eq 1 ]; then
     top_snp=$(cat $top_snp_file)
 	log "$(printf "$LOG_TOP_SNP" "$gene_name" "$top_snp")"
-    cp "$gene_dir/$ma_file_reference" \
-    "$gene_dir/$ma_file_reference_tmp"
-    awk -v col="$MA_SNP_ID_IDX" \
-        -v snp="$top_snp" '{
-            if ($col != snp) { 
-                print $0
-            }
-        }' "$gene_dir/$ma_file_reference_tmp" > "$gene_dir/$ma_file_reference"
-    rm "$gene_dir/$ma_file_reference_tmp"
 	./gcta64 --bfile "$bfile" \
         --chr "$chr" \
         --maf "$maf" \
@@ -84,10 +75,23 @@ if [ "$has_snp" -eq 1 ]; then
 		--cojo-cond "$top_snp_file" \
         --out "$gene_dir/$outfile" \
         || { log "$ERROR_GCTA_FAILED $gene_name"; exit 1; }
-    sort -k "$CMA_SNP_ID_IDX" "$gene_dir/$outfile.cma.cojo" -o "$gene_dir/$outfile.cma.cojo" \
+    cma_file="$(printf "$TRANSFORM_CMA_FILE_NAME" "$gene_dir" "$outfile")"
+    sort -k "$CMA_SNP_ID_IDX" "$cma_file" -o "$cma_file" \
         || { log "$ERROR_SORT $gene_dir/$gene_name"; exit 1; }
+    awk -v snp_col="$CMA_SNP_ID_IDX" \
+        '{
+            print $snp_col
+        }' "$cma_file" > "$gene_dir/snp_list.tmp"
+    awk -v snp_col="$MA_SNP_ID_IDX" \
+        'NR==FNR { 
+            snps[$snp_col];
+            next 
+        } $snp_col in snps' "$gene_dir/snp_list.tmp" \
+        "$gene_dir/$ma_file_reference" > "$gene_dir/$ma_file_reference.tmp"
+    cat "$gene_dir/$ma_file_reference.tmp" > "$gene_dir/$ma_file_reference"
+    rm "$gene_dir/snp_list.tmp" "$gene_dir/$ma_file_reference.tmp"
     ./transform.sh "$gene_name" \
-        "$(printf "$TRANSFORM_CMA_FILE_NAME" "$gene_dir" "$outfile")" \
+        cma_file \
         "$gene_dir" \
         "$snps" \
         "$chr" \
