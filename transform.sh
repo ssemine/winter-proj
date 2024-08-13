@@ -127,6 +127,7 @@ else
         }
     }' "$ma_file" "$infile" \
     || { log_genes "$ERROR_AWK_WRITE $gene_dir/$name"; exit 1; }
+fi
 
 log_genes "$LOG_DATA_WRITTEN $gene_dir/$name"
 
