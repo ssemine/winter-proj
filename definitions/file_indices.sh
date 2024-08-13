@@ -29,12 +29,12 @@ export MA_SE_IDX=6
 export MA_P_VALUE_IDX=7
 export MA_SAMPLE_SIZE_IDX=8
 
-# .cma file indices
+# .cma file indices Chr	SNP	bp	refA	freq	b	se	p	n	freq_geno	bC	bC_se	pC
 export CMA_CHR_IDX=1
 export CMA_SNP_ID_IDX=2
 export CMA_POS_IDX=3
-export CMA_FREQ_IDX=4
-export CMA_ALLELE_EFFECT_IDX=5
+export CMA_ALLELE_EFFECT_IDX=4
+export CMA_FREQ_IDX=5
 export CMA_ORIGINAL_EFFECT_SIZE_IDX=6
 export CMA_ORIGIAL_SE_IDX=7
 export CMA_ORIGINAL_P_VALUE_IDX=8
