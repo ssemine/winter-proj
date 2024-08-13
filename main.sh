@@ -132,6 +132,7 @@ while IFS= read -r line; do
 		"$log_dir" \
 		"$bfile" \
 		"input"
+	cp "$gene_dir/$line.ma" "$gene_dir/$line\_reference.ma"
 	log "$LOG_MA_TRANSFORMED $line"
 	num_snps=$(wc -l < "$gene_dir/$line.ma")
 	new_p_val=$(echo "scale=10; 0.05 / $num_snps" | bc)

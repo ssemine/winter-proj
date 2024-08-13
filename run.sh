@@ -65,6 +65,15 @@ has_snp=$(wc -l < "$top_snp_file")
 
 if [ "$has_snp" -eq 1 ]; then
 	log "$(printf "$LOG_TOP_SNP" "$gene_name" "$(cat $top_snp_file)")"
+    cp "$gene_dir/$gene_name\_reference.ma" \
+    "$gene_dir/$gene_name\_reference.ma.tmp"
+    awk -v col="$MA_SNP_IDX_IDX" \
+        -v snp="$(cat $top_snp_file)" '{
+            if ($col != snp) { 
+                print $0
+            }
+        }' "$gene_dir/$gene_name\_reference.ma.tmp" > "$gene_dir/$gene_name\_reference.ma"
+    rm "$gene_dir/$gene_name\_reference.ma.tmp"
 	./gcta64 --bfile "$bfile" \
         --chr "$chr" \
         --maf "$maf" \
@@ -80,7 +89,7 @@ if [ "$has_snp" -eq 1 ]; then
         "$log_dir" \
         "$bfile" \
         "$CMA_IDENTIFIER" \
-        "$gene_dir/$infile" \
+        "$gene_dir/$gene_name\_reference.ma" \
         "$idx"
 	./run.sh "$gene_name" \
 		"$bfile" \
