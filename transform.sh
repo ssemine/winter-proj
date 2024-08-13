@@ -118,7 +118,7 @@ else
     -v name="$name" \
     -v ma_snp_idx="$MA_SNP_ID_IDX" \
     'FNR==NR {
-        ma_snp[ $ma_snp_idx ] = 1
+        ma_snp[FNR] = $ma_snp_idx
         ma_col2[FNR] = $col2
         ma_col3[FNR] = $col3
         next
