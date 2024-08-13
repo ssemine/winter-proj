@@ -91,7 +91,7 @@ if [ "$has_snp" -eq 1 ]; then
     cat "$gene_dir/$ma_file_reference.tmp" > "$gene_dir/$ma_file_reference"
     rm "$gene_dir/snp_list.tmp" "$gene_dir/$ma_file_reference.tmp"
     ./transform.sh "$gene_name" \
-        cma_file \
+        "$cma_file" \
         "$gene_dir" \
         "$snps" \
         "$chr" \
