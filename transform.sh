@@ -54,6 +54,7 @@ fi
 
 log_genes "$LOG_WRITING_DATA $gene_dir/$name"
 if [[ "$file_type" = "$INPUT_IDENTIFIER" ]]; then
+    log "INPUT"
     if [ -f "$snps" ]; then
         log_genes "$LOG_USING_SNP_FILTER $snps"
         awk -F' ' -v col1="$INPUT_SNP_ID_IDX" \
@@ -104,6 +105,7 @@ if [[ "$file_type" = "$INPUT_IDENTIFIER" ]]; then
             || { log_genes "$ERROR_AWK_WRITE $gene_dir/$name"; exit 1; }
     fi
 else
+    log "CMA"
     awk -F' ' -v col1="$CMA_SNP_ID_IDX" \
     -v col2="$MA_A1_IDX" \
     -v col3="$MA_A2_IDX" \
