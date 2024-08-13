@@ -133,7 +133,7 @@ fi
 
 log_genes "$LOG_DATA_WRITTEN $gene_dir/$name"
 
-sort -k 1 "$gene_dir/$name" -o "$gene_dir/$name" \
+sort -k "$MA_SNP_ID_IDX" "$gene_dir/$name" -o "$gene_dir/$name" \
     || { log_genes "$ERROR_SORT $gene_dir/$name"; exit 1; }
 
 awk -v sample_size="$sample_size" '{print $0, sample_size}' "$gene_dir/$name" > "$gene_dir/$name_final" \

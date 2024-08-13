@@ -84,6 +84,8 @@ if [ "$has_snp" -eq 1 ]; then
 		--cojo-cond "$top_snp_file" \
         --out "$gene_dir/$outfile" \
         || { log "$ERROR_GCTA_FAILED $gene_name"; exit 1; }
+    sort -k "$CMA_SNP_ID_IDX" "$gene_dir/$outfile.cma.cojo" -o "$gene_dir/$outfile.cma.cojo" \
+        || { log "$ERROR_SORT $gene_dir/$gene_name"; exit 1; }
     ./transform.sh "$gene_name" \
         "$(printf "$TRANSFORM_CMA_FILE_NAME" "$gene_dir" "$outfile")" \
         "$gene_dir" \
