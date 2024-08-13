@@ -76,22 +76,27 @@ if [ "$has_snp" -eq 1 ]; then
         --out "$gene_dir/$outfile" \
         || { log "$ERROR_GCTA_FAILED $gene_name"; exit 1; }
     cma_file="$(printf "$TRANSFORM_CMA_FILE_NAME" "$gene_dir" "$outfile")"
+
     head -n 1 "$cma_file" > "$cma_file.header"
     tail -n +2 "$cma_file" | sort -k "$CMA_SNP_ID_IDX" > "$cma_file.sorted"
     cat "$cma_file.header" "$cma_file.sorted" > "$cma_file"
     rm "$cma_file.header" "$cma_file.sorted"  
+
     awk -v snp_col="$CMA_SNP_ID_IDX" \
-        'NR > 1{
+        'NR > 1 {
             print $snp_col
         }' "$cma_file" > "$gene_dir/snp_list.tmp"
+
     awk -v snp_col="$MA_SNP_ID_IDX" \
         'NR==FNR { 
             snps[$snp_col];
             next 
-        } $snp_col in snps' "$gene_dir/snp_list.tmp" \
+        } FNR > 1 && $snp_col in snps' "$gene_dir/snp_list.tmp" \
         "$gene_dir/$ma_file_reference" > "$gene_dir/$ma_file_reference.tmp"
+
     cat "$gene_dir/$ma_file_reference.tmp" > "$gene_dir/$ma_file_reference"
     rm "$gene_dir/snp_list.tmp" "$gene_dir/$ma_file_reference.tmp"
+
     ./transform.sh "$gene_name" \
         "$cma_file" \
         "$gene_dir" \
