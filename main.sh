@@ -93,7 +93,7 @@ mkdir -p "$log_dir"
 touch "$log_dir/$log_file"
 touch "$log_dir/$summary_file"
 touch "$results_file"
-cat "$RESULTS_FILE_HEADER" > "$results_file"
+echo "$RESULTS_FILE_HEADER" > "$results_file"
 log "$LOG_WELCOME_MESSAGE"
 log_lines 2
 
