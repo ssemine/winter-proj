@@ -121,7 +121,7 @@ fi
 mkdir -p "$gene_dir"
 mkdir -p "$snp_dir"
 
-if [[ p_val = "$P_VALUE_THRESHOLD_PER_CHR" ]] then;
+if [[ p_val = "$P_VALUE_THRESHOLD_PER_CHR" ]]; then
 	p_val=$(echo "scale=10; 0.05 / $(awk -v snp_col="$INPUT_SNP_ID_IDX" '{ print $snp_col }' "$infile" | sort | uniq | wc -l)" | bc)
 fi
 
