@@ -85,8 +85,8 @@ if [ "$has_snp" -eq 1 ]; then
     touch "$CMA_TOP_SNP_FILE"
     if [ "$idx" -ge 2 ]; then
         prev_cma_file="$(printf "$TRANSFORM_CMA_FILE_NAME" "$gene_dir" "$(printf "$GCTA_OUTFILE_NAME" "$gene_name" $prev_idx)")"
-        awk -v snp="$CMA_SNP_ID_IDX" -v top_snp="$top_snp" '$(snp) == top_snp' "$prev_cma_file" > "$CMA_TOP_SNP_FILE"
-        awk -v snp="$MA_SNP_ID_IDX" -v top_snp="$top_snp" '$(snp) == top_snp' "$gene_dir/$read_file" > "$MA_TOP_SNP_FILE"
+        awk -v snp="$CMA_SNP_ID_IDX" -v top_snp="$top_snp" '$snp == top_snp' "$prev_cma_file" > "$CMA_TOP_SNP_FILE"
+        awk -v snp="$MA_SNP_ID_IDX" -v top_snp="$top_snp" '$snp == top_snp' "$gene_dir/$read_file" > "$MA_TOP_SNP_FILE"
         awk -v snp="$MA_SNP_ID_IDX" \
             -v gene_name="$gene_name" \
             -v allele_one="$MA_ALLELE_ONE_IDX" \
