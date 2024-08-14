@@ -88,8 +88,8 @@ if [[ "$has_snp" =~ ^-?[0-9]+$ ]] && [ "$has_snp" -eq 1 ]; then
         awk -v snp="$CMA_SNP_ID_IDX" -v top_snp="$top_snp" '$snp == top_snp' "$prev_cma_file" > "$CMA_TOP_SNP_FILE"
         awk -v snp="$MA_SNP_ID_IDX" \
             -v gene_name="$gene_name" \
-            -v allele_one="$MA_ALLELE_ONE_IDX" \
-            -v allele_two="$MA_ALLELE_TWO_IDX" \
+            -v allele_one="$MA_A1_IDX" \
+            -v allele_two="$MA_A2_IDX" \
             -v freq="$MA_FREQ_IDX" \
             -v effect_size="$MA_EFFECT_SIZE_IDX" \
             -v se="$MA_SE_IDX" \
@@ -166,8 +166,8 @@ else
         cat "$MA_TOP_SNP_FILE"
         awk -v snp="$MA_SNP_ID_IDX" \
             -v gene_name="$gene_name" \
-            -v allele_one="$MA_ALLELE_ONE_IDX" \
-            -v allele_two="$MA_ALLELE_TWO_IDX" \
+            -v allele_one="$MA_A1_IDX" \
+            -v allele_two="$MA_A2_IDX" \
             -v freq="$MA_FREQ_IDX" \
             -v effect_size="$MA_EFFECT_SIZE_IDX" \
             -v se="$MA_SE_IDX" \
