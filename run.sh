@@ -83,23 +83,10 @@ if [ "$has_snp" -eq 1 ]; then
     cma_file="$(printf "$TRANSFORM_CMA_FILE_NAME" "$gene_dir" "$outfile")"
     touch "$MA_TOP_SNP_FILE"
     touch "$CMA_TOP_SNP_FILE"
-    awk -v snp="$MA_SNP_ID_IDX" -v top_snp="$top_snp" '$snp == top_snp' "$gene_dir/$read_file" > "$MA_TOP_SNP_FILE"
-    if [ "$idx" -eq 1 ]; then
-        awk -v snp="$MA_SNP_ID_IDX" \
-            -v gene_name="$gene_name" \
-            -v allele_one="$MA_ALLELE_ONE_IDX" \
-            -v allele_two="$MA_ALLELE_TWO_IDX" \
-            -v freq="$MA_FREQ_IDX" \
-            -v effect_size="$MA_EFFECT_SIZE_IDX" \
-            -v se="$MA_SE_IDX" \
-            -v p_val="$MA_P_VALUE_IDX" \
-            -v sample_size="$MA_SAMPLE_SIZE_IDX" \
-            '{ 
-                print $snp, gene_name, $allele_one, $allele_two, $freq, $effect_size, $se, $p_val, $effect_size, $se, $p_val, $sample_size
-            }' "$MA_TOP_SNP_FILE" >> "$results_file"
-    else
+    if [ "$idx" -ge 2 ]; then
         prev_cma_file="$(printf "$TRANSFORM_CMA_FILE_NAME" "$gene_dir" "$(printf "$GCTA_OUTFILE_NAME" "$gene_name" $prev_idx)")"
-        awk -v snp="$CMA_SNP_ID_IDX" -v top_snp="$top_snp" '$snp == top_snp' "$prev_cma_file" > "$CMA_TOP_SNP_FILE"
+        awk -v snp="$CMA_SNP_ID_IDX" -v top_snp="$top_snp" '$(snp) == top_snp' "$prev_cma_file" > "$CMA_TOP_SNP_FILE"
+        awk -v snp="$MA_SNP_ID_IDX" -v top_snp="$top_snp" '$(snp) == top_snp' "$gene_dir/$read_file" > "$MA_TOP_SNP_FILE"
         awk -v snp="$MA_SNP_ID_IDX" \
             -v gene_name="$gene_name" \
             -v allele_one="$MA_ALLELE_ONE_IDX" \
@@ -121,8 +108,8 @@ if [ "$has_snp" -eq 1 ]; then
             { 
                 print $snp, gene_name, $allele_one, $allele_two, $freq, $effect_size, $se, $p_val, cma_effect_size, cma_se, cma_p_val, $sample_size
             }' "$CMA_TOP_SNP_FILE" "$MA_TOP_SNP_FILE" >> "$results_file"
+        rm "$MA_TOP_SNP_FILE" "$CMA_TOP_SNP_FILE"
     fi
-    rm "$MA_TOP_SNP_FILE" "$CMA_TOP_SNP_FILE"
 
     head -n 1 "$cma_file" > "$cma_file.$HEADER_EXTENTION"
     tail -n +2 "$cma_file" | sort -k "$CMA_SNP_ID_IDX" > "$cma_file.$SORTED_EXTENTION"
