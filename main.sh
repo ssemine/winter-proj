@@ -114,20 +114,6 @@ fi
 summary_log "Number of genes: $(wc -l < $gene_list)"
 echo "" >> "$log_dir/$summary_file"
 
-touch "$snp_count_file"
-echo "$snp_csv_header" > "$snp_count_file"
-log "$LOG_CREATED_FILES $snp_count_file"
-
-if [ -f "$snps" ]; then
-    if ! awk -v sidx="$INPUT_SNP_ID_IDX" 'NR==FNR {snps[$1]; next} $sidx in snps' "$snps" "$infile" | sort | uniq -c | awk '{ print $2, $1 }' >> "$snp_count_file"; then
-        { log "$ERROR_FILTERED_SNP_COUNT_FILE"; exit 1; }
-    fi
-else
-    if ! awk -v sidx="$INPUT_SNP_ID_IDX" '{ print $sidx }' "$infile" | sort | uniq -c | awk '{ print $2, $1 }' >> "$snp_count_file"; then
-        { log "$ERROR_SNP_COUNT_FILE"; exit 1; }
-    fi
-fi
-
 mkdir -p "$gene_dir"
 mkdir -p "$snp_dir"
 
