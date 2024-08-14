@@ -29,7 +29,7 @@ if [[ "$file_type" != "$INPUT_IDENTIFIER" && "$file_type" != "$CMA_IDENTIFIER" ]
     exit 1
 fi
 
-if [[ "$file_type" = "$CMA_IDENTIFIER" ]]; then
+if [ "$file_type" = "$CMA_IDENTIFIER" ]; then
     ma_file="${10}"
     idx="${11}"
     name="$(printf "$MA_FILE_NAME_IDX" "$gene_name" "$idx")"
@@ -53,7 +53,7 @@ if ! touch "$gene_dir/$name_final"; then
 fi
 
 log_genes "$LOG_WRITING_DATA $gene_dir/$name"
-if [[ "$file_type" == "$INPUT_IDENTIFIER" ]]; then
+if [ "$file_type" = "$INPUT_IDENTIFIER" ]; then
     log "INPUT"
     if [ -f "$snps" ]; then
         log_genes "$LOG_USING_SNP_FILTER $snps"

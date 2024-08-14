@@ -11,6 +11,7 @@
 # ----------------
 
 # error messages
+export RUN_DIR_EXISTS="Error: run directory (%s) already exists"
 export ERROR_TRANSFORM_FAILED="Error: transform.sh failed for"
 export ERROR_RUN_FAILED="Error: run.sh failed for"
 export ERROR_INVALID_ARGUMENT="Error: invalid argument:"

@@ -26,8 +26,8 @@ summary_file="$SUMMARY_FILE"
 snp_csv_header="$SNP_CSV_HEADER"
 snp_count_file="$SNP_COUNT_FILE"
 
-source definitions/functions.sh
-mkdir -p "$log_dir"
+run_dir="$RUN_DIR"
+
 
 while [[ $# -gt 0 ]]; do
     case $1 in
@@ -67,6 +67,10 @@ while [[ $# -gt 0 ]]; do
 			gene_dir="$2"
 			shift 2
 			;;
+		--run_dir)
+			run_dir="$2"
+			shift 2
+			;;
         *)
             echo "$ERROR_INVALID_ARGUMENT $1"
             exit 1
@@ -74,16 +78,20 @@ while [[ $# -gt 0 ]]; do
     esac
 done
 
+if [[ -d "$run_dir" ]]; then
+    echo "$(printf "$RUN_DIR_EXISTS" "$run_dir")"
+	exit 1
+fi
 
+mkdir -p "$run_dir"
+cd "$run_dir"
+
+mkdir -p "$log_dir"
 summary_file="${log_file%.log}_summary.log"
-summary_log() {
-	local message="$1"
-	echo "$message" >> "$log_dir/$summary_file"
-}
-
 touch "$log_dir/$log_file"
 touch "$log_dir/$summary_file"
 
+source definitions/functions.sh
 log "$LOG_WELCOME_MESSAGE"
 log_lines 2
 
@@ -121,7 +129,7 @@ fi
 mkdir -p "$gene_dir"
 mkdir -p "$snp_dir"
 
-if [[ p_val == "$P_VALUE_THRESHOLD_PER_CHR" ]]; then
+if [ "$p_val" = "$P_VALUE_THRESHOLD_PER_CHR" ]; then
 	p_val=$(echo "scale=10; 0.05 / $(awk -v snp_col="$INPUT_SNP_ID_IDX" '{ print $snp_col }' "$infile" | sort | uniq | wc -l)" | bc)
 fi
 
@@ -141,7 +149,7 @@ while IFS= read -r line; do
 	ma_file_reference="$(printf "$MA_FILE_NAME_REFERENCE" "$gene_dir/$line")"
 	cp "$gene_dir/$line.ma" "$ma_file_reference"
 	log "$LOG_MA_TRANSFORMED $line"
-	if [[ p_val == "$P_VALUE_THRESHOLD_PER_GENE" ]]; then
+	if [ p_val = "$P_VALUE_THRESHOLD_PER_GENE" ]; then
 		num_snps=$(wc -l < "$gene_dir/$line.ma")
 		p_val=$(echo "scale=10; 0.05 / $num_snps" | bc)
 	fi
