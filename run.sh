@@ -114,6 +114,7 @@ if [ "$has_snp" -eq 1 ]; then
         "$log_dir" \
         "$bfile" \
         "$CMA_IDENTIFIER" \
+        "$PATH_TO_DEFINITIONS" \
         "$gene_dir/$ma_file_reference" \
         "$idx" \
         || { log "$ERROR_TRANSFORM $gene_name"; exit 1; }
@@ -128,6 +129,7 @@ if [ "$has_snp" -eq 1 ]; then
 		"$gene_dir" \
         "$snp_dir" \
         "$summary_file" \
+        "$PATH_TO_DEFINITIONS" \
         || { log "$ERROR_RUN_FAILED $gene_name"; exit 1; }
 else
 	log "$(printf "$LOG_TOTAL_SNPS" "$gene_name" "$prev_idx")"

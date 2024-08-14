@@ -32,8 +32,8 @@ if [[ "$file_type" != "$INPUT_IDENTIFIER" && "$file_type" != "$CMA_IDENTIFIER" ]
 fi
 
 if [ "$file_type" = "$CMA_IDENTIFIER" ]; then
-    ma_file="${10}"
-    idx="${11}"
+    ma_file="${11}"
+    idx="${12}"
     name="$(printf "$MA_FILE_NAME_IDX" "$gene_name" "$idx")"
     name_final="$(printf "$MA_FILE_NAME_FINAL_IDX" "$gene_name" "$idx")"
 else
