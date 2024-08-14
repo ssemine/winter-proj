@@ -176,6 +176,7 @@ while IFS= read -r line; do
 		|| { log "$ERROR_RUN_FAILED $line"; exit 1; }
 	log "$LOG_RUN_FINISHED $line"
 	rm "$ma_file_reference"
+	rm "$MA_TOP_SNP_FILE"
 	echo "" >> "$log_dir/$summary_file"
 done < "$gene_list" || { log "$ERROR_READ_GENE_LIST"; exit 1; }
 log_lines 1

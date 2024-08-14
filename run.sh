@@ -107,7 +107,7 @@ if [[ "$has_snp" =~ ^-?[0-9]+$ ]] && [ "$has_snp" -eq 1 ]; then
             { 
                 print $snp, gene_name, $allele_one, $allele_two, $freq, $effect_size, $se, $p_val, cma_effect_size, cma_se, cma_p_val, $sample_size
             }' "$CMA_TOP_SNP_FILE" "$MA_TOP_SNP_FILE" >> "$results_file"
-        rm "$MA_TOP_SNP_FILE" "$CMA_TOP_SNP_FILE"
+        rm "$CMA_TOP_SNP_FILE"
     fi
 
     head -n 1 "$cma_file" > "$cma_file.$HEADER_EXTENTION"
@@ -163,6 +163,7 @@ if [[ "$has_snp" =~ ^-?[0-9]+$ ]] && [ "$has_snp" -eq 1 ]; then
         || { log "$ERROR_RUN_FAILED $gene_name"; exit 1; }
 else
     if [[ "$prev_idx" =~ ^-?[0-9]+$ ]] && [ "$prev_idx" -eq 1 ]; then
+        cat "$MA_TOP_SNP_FILE"
         awk -v snp="$MA_SNP_ID_IDX" \
             -v gene_name="$gene_name" \
             -v allele_one="$MA_ALLELE_ONE_IDX" \
@@ -175,7 +176,6 @@ else
             '{ 
                 print $snp, gene_name, $allele_one, $allele_two, $freq, $effect_size, $se, $p_val, $effect_size, $se, $p_val, $sample_size
             }' "$MA_TOP_SNP_FILE" >> "$results_file"
-        rm "$MA_TOP_SNP_FILE"
     fi
 	log "$(printf "$LOG_TOTAL_SNPS" "$gene_name" "$prev_idx")"
     summary_log "$(printf "$LOG_TOTAL_SNPS" "$gene_name" "$prev_idx")"
