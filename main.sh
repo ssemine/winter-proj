@@ -84,14 +84,12 @@ if [[ -d "$run_dir" ]]; then
 fi
 
 mkdir -p "$run_dir"
-cd "$run_dir"
-
-mkdir -p "$log_dir"
 summary_file="${log_file%.log}_summary.log"
+source definitions/functions.sh
+cd "$run_dir"
+mkdir -p "$log_dir"
 touch "$log_dir/$log_file"
 touch "$log_dir/$summary_file"
-
-source definitions/functions.sh
 log "$LOG_WELCOME_MESSAGE"
 log_lines 2
 
