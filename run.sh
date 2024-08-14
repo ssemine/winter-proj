@@ -69,7 +69,8 @@ awk -v col="$MA_P_VALUE_IDX" \
     || { log "$ERROR_AWK_WRITE $top_snp_file"; exit 1; }
 
 has_snp=$(wc -l < "$top_snp_file")
-
+touch "$MA_TOP_SNP_FILE"
+awk -v snp="$MA_SNP_ID_IDX" -v top_snp="$top_snp" '$snp == top_snp' "$gene_dir/$read_file" > "$MA_TOP_SNP_FILE"
 if [ "$has_snp" -eq 1 ]; then
     top_snp=$(cat $top_snp_file)
 	log "$(printf "$LOG_TOP_SNP" "$gene_name" "$top_snp")"
@@ -81,12 +82,10 @@ if [ "$has_snp" -eq 1 ]; then
         --out "$gene_dir/$outfile" \
         || { log "$ERROR_GCTA_FAILED $gene_name"; exit 1; }
     cma_file="$(printf "$TRANSFORM_CMA_FILE_NAME" "$gene_dir" "$outfile")"
-    touch "$MA_TOP_SNP_FILE"
-    touch "$CMA_TOP_SNP_FILE"
     if [ "$idx" -ge 2 ]; then
+        touch "$CMA_TOP_SNP_FILE"
         prev_cma_file="$(printf "$TRANSFORM_CMA_FILE_NAME" "$gene_dir" "$(printf "$GCTA_OUTFILE_NAME" "$gene_name" $prev_idx)")"
         awk -v snp="$CMA_SNP_ID_IDX" -v top_snp="$top_snp" '$snp == top_snp' "$prev_cma_file" > "$CMA_TOP_SNP_FILE"
-        awk -v snp="$MA_SNP_ID_IDX" -v top_snp="$top_snp" '$snp == top_snp' "$gene_dir/$read_file" > "$MA_TOP_SNP_FILE"
         awk -v snp="$MA_SNP_ID_IDX" \
             -v gene_name="$gene_name" \
             -v allele_one="$MA_ALLELE_ONE_IDX" \
@@ -163,6 +162,20 @@ if [ "$has_snp" -eq 1 ]; then
         "$results_file" \
         || { log "$ERROR_RUN_FAILED $gene_name"; exit 1; }
 else
+    if [ "$prev_idx" -eq 1 ]; then
+        awk -v snp="$MA_SNP_ID_IDX" \
+            -v gene_name="$gene_name" \
+            -v allele_one="$MA_ALLELE_ONE_IDX" \
+            -v allele_two="$MA_ALLELE_TWO_IDX" \
+            -v freq="$MA_FREQ_IDX" \
+            -v effect_size="$MA_EFFECT_SIZE_IDX" \
+            -v se="$MA_SE_IDX" \
+            -v p_val="$MA_P_VALUE_IDX" \
+            '{ 
+                print $snp, gene_name, $allele_one, $allele_two, $freq, $effect_size, $se, $p_val, $effect_size, $se, $p_val, $sample_size
+            }' "$MA_TOP_SNP_FILE" >> "$results_file"
+        rm "$MA_TOP_SNP_FILE"
+    fi
 	log "$(printf "$LOG_TOTAL_SNPS" "$gene_name" "$prev_idx")"
     summary_log "$(printf "$LOG_TOTAL_SNPS" "$gene_name" "$prev_idx")"
 fi
