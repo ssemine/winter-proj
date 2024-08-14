@@ -134,7 +134,7 @@ fi
 while IFS= read -r line; do
 	log_lines 1
 	log "$LOG_CALLING_TRANSFORM $line"
-	./transform.sh "$line" \
+	"$PATH_TO_TRANSFORM_SH" "$line" \
 		"$infile" \
 		"$gene_dir" \
 		"$snps" \
@@ -143,6 +143,7 @@ while IFS= read -r line; do
 		"$log_dir" \
 		"$bfile" \
 		"input" \
+		"$PATH_TO_DEFINITIONS" \
 		|| { log "$ERROR_TRANSFORM $line"; exit 1; }
 	ma_file_reference="$(printf "$MA_FILE_NAME_REFERENCE" "$gene_dir/$line")"
 	cp "$gene_dir/$line.ma" "$ma_file_reference"
@@ -155,7 +156,7 @@ while IFS= read -r line; do
 	log_lines 1
 	log "$LOG_CALLING_RUN $line"
 	summary_log "Gene: $line"
-	./run.sh "$line" \
+	"$PATH_TO_RUN_SH" "$line" \
 		"$bfile" \
 		"$chr" \
 		"$maf" \
@@ -167,6 +168,7 @@ while IFS= read -r line; do
 		"$snp_dir" \
 		"$summary_file" \
 		"$snps" \
+		"$PATH_TO_DEFINITIONS" \
 		|| { log "$ERROR_RUN_FAILED $line"; exit 1; }
 	log "$LOG_RUN_FINISHED $line"
 	rm "$ma_file_reference"

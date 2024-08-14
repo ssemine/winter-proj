@@ -8,9 +8,6 @@
 # Usage: ./transform.sh gene_name infile gene_dir snps chr_num log_file log_dir bfile file_type [ma_file idx]
 # -----------------------------------------------------------------------------------------------------------
 
-source definitions/constants.sh
-source definitions/file_indices.sh
-source definitions/log_messages.sh
 
 gene_name="$1"
 infile="$2"
@@ -21,8 +18,13 @@ log_file="$6"
 log_dir="$7"
 bfile="$8"
 file_type="$9"
+path_to_definitions="${10}"
 
-source definitions/functions.sh
+
+source "$path_to_definitions/constants.sh"
+source "$path_to_definitions/file_indices.sh"
+source "$path_to_definitions/log_messages.sh"
+source "$path_to_definitions/functions.sh"
 
 if [[ "$file_type" != "$INPUT_IDENTIFIER" && "$file_type" != "$CMA_IDENTIFIER" ]]; then
     log_genes "$ERROR_FILE_TYPE"

@@ -4,7 +4,12 @@
 # ---------------------
 
 
+export PATH_TO_GCTA="../gcta64"
 
+
+export PATH_TO_TRANSFORM_SH="../transform.sh"
+export PATH_TO_RUN_SH="../run.sh"
+export PATH_TO_DEFINITIONS="../definitions"
 
 
 export P_VALUE_THRESHOLD="1e-10"

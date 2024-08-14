@@ -8,9 +8,6 @@
 # Usage: ./run.sh gene_name bfile chr maf idx p_val log_file log_dir gene_dir snp_dir summary_file
 # ------------------------------------------------------------------------------------------------
 
-source definitions/constants.sh
-source definitions/file_indices.sh
-source definitions/log_messages.sh
 
 gene_name="$1"
 bfile="$2"
@@ -23,6 +20,12 @@ log_dir="$8"
 gene_dir="$9"
 snp_dir="${10}"
 summary_file="${11}"
+path_to_definitions="${12}"
+
+source "$path_to_definitions/constants.sh"
+source "$path_to_definitions/file_indices.sh"
+source "$path_to_definitions/log_messages.sh"
+
 prev_idx="$((idx - 1))"
 next_idx="$((idx + 1))"
 outfile="$(printf "$GCTA_OUTFILE_NAME" "$gene_name" "$idx")"
@@ -30,7 +33,7 @@ infile="$(printf "$MA_FILE_NAME" "$gene_name")"
 ma_file_reference="$(printf "$MA_FILE_NAME_REFERENCE" "$gene_name")"
 ma_file_reference_tmp="$(printf "$MA_FILE_NAME_REFERENCE_TMP" "$gene_name")"
 
-source definitions/functions.sh
+source "$path_to_definitions/functions.sh"
 
 log "$LOG_STARTING_RUN $gene_name"
 log "$LOG_ITERATION_NUM $idx"
@@ -68,7 +71,7 @@ has_snp=$(wc -l < "$top_snp_file")
 if [ "$has_snp" -eq 1 ]; then
     top_snp=$(cat $top_snp_file)
 	log "$(printf "$LOG_TOP_SNP" "$gene_name" "$top_snp")"
-	./gcta64 --bfile "$bfile" \
+	"$PATH_TO_GCTA" --bfile "$bfile" \
         --chr "$chr" \
         --maf "$maf" \
         --cojo-file "$gene_dir/$read_file" \
@@ -102,7 +105,7 @@ if [ "$has_snp" -eq 1 ]; then
     cat "$gene_dir/$ma_file_reference.tmp" > "$gene_dir/$ma_file_reference"
     rm "$gene_dir/snp_list.tmp" "$gene_dir/$ma_file_reference.tmp"
 
-    ./transform.sh "$gene_name" \
+    "$PATH_TO_TRANSFORM_SH" "$gene_name" \
         "$cma_file" \
         "$gene_dir" \
         "$snps" \
@@ -114,7 +117,7 @@ if [ "$has_snp" -eq 1 ]; then
         "$gene_dir/$ma_file_reference" \
         "$idx" \
         || { log "$ERROR_TRANSFORM $gene_name"; exit 1; }
-	./run.sh "$gene_name" \
+	"$PATH_TO_RUN_SH" "$gene_name" \
 		"$bfile" \
 		"$chr" \
 		"$maf" \
