@@ -81,6 +81,7 @@ if [ "$has_snp" -eq 1 ]; then
         --out "$gene_dir/$outfile" \
         || { log "$ERROR_GCTA_FAILED $gene_name"; exit 1; }
     cma_file="$(printf "$TRANSFORM_CMA_FILE_NAME" "$gene_dir" "$outfile")"
+    ma_top_snp="$(awk -v snp="$MA_SNP_ID_IDX" -v top_snp="$top_snp" '$snp == top_snp' "$gene_dir/$read_file")"
     if [ "$idx" -eq 1 ]; then
         awk -v snp="$MA_SNP_ID_IDX" \
             -v gene_name="$gene_name" \
@@ -93,10 +94,9 @@ if [ "$has_snp" -eq 1 ]; then
             -v sample_size="$MA_SAMPLE_SIZE_IDX" \
             '{ 
                 print $snp, gene_name, $allele_one, $allele_two, $freq, $effect_size, $se, $p_val, $effect_size, $se, $p_val, $sample_size
-            }' "$gene_dir/$read_file" | grep "$top_snp" >> "$results_file"
+            }' "$ma_top_snp" >> "$results_file"
     else
         prev_cma_file="$(printf "$TRANSFORM_CMA_FILE_NAME" "$gene_dir" "$(printf "$GCTA_OUTFILE_NAME" "$gene_name" $prev_idx)")"
-        ma_top_snp="$(awk -v snp="$MA_SNP_ID_IDX" -v top_snp="$top_snp" '$snp == top_snp' "$gene_dir/$read_file")"
         cma_top_snp="$(awk -v snp="$CMA_SNP_ID_IDX" -v top_snp="$top_snp" '$snp == top_snp' "$prev_cma_file")"
         awk -v snp="$MA_SNP_ID_IDX" \
             -v gene_name="$gene_name" \
