@@ -145,7 +145,7 @@ while IFS= read -r line; do
 		"$log_file" \
 		"$log_dir" \
 		"$bfile" \
-		"input" \
+		"$INPUT_IDENTIFIER" \
 		"$PATH_TO_DEFINITIONS" \
 		"$snps" \
 		|| { log "$ERROR_TRANSFORM $line"; exit 1; }
