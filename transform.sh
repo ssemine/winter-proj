@@ -53,7 +53,7 @@ if ! touch "$gene_dir/$name_final"; then
 fi
 
 log_genes "$LOG_WRITING_DATA $gene_dir/$name"
-if [[ "$file_type" = "$INPUT_IDENTIFIER" ]]; then
+if [[ "$file_type" == "$INPUT_IDENTIFIER" ]]; then
     log "INPUT"
     if [ -f "$snps" ]; then
         log_genes "$LOG_USING_SNP_FILTER $snps"
