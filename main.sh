@@ -18,7 +18,7 @@ gene_dir="$GENE_DIR"
 snp_dir="$SNP_DIR"
 genes="$GENES_ALL" 
 snps="$SNPS_ALL"
-p_val="$P_VALUE_THRESHOLD"
+p_val="$P_VALUE_THRESHOLD_PER_GENE"
 
 log_dir="$LOG_DIR"
 log_file="$LOG_FILE"

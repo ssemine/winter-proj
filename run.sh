@@ -98,6 +98,7 @@ if [[ "$has_snp" =~ ^-?[0-9]+$ ]] && [ "$has_snp" -eq 1 ]; then
             -v cma_se_idx="$CMA_SE_IDX" \
             -v cma_p_val_idx="$CMA_P_VALUE_IDX" \
             -v sample_size="$MA_SAMPLE_SIZE_IDX" \
+            -v thresh="$p_val" \
             'FNR==NR {
                 cma_effect_size=$cma_effect_size_idx
                 cma_se=$cma_se_idx
@@ -105,7 +106,7 @@ if [[ "$has_snp" =~ ^-?[0-9]+$ ]] && [ "$has_snp" -eq 1 ]; then
                 next
             }
             { 
-                print $snp, gene_name, $allele_one, $allele_two, $freq, $effect_size, $se, $p_val, cma_effect_size, cma_se, cma_p_val, $sample_size
+                print $snp, gene_name, $allele_one, $allele_two, $freq, $effect_size, $se, $p_val, cma_effect_size, cma_se, cma_p_val, $sample_size, thresh
             }' "$CMA_TOP_SNP_FILE" "$MA_TOP_SNP_FILE" >> "$results_file"
         rm "$CMA_TOP_SNP_FILE"
     fi
@@ -173,8 +174,9 @@ else
             -v se="$MA_SE_IDX" \
             -v p_val="$MA_P_VALUE_IDX" \
             -v sample_size="$MA_SAMPLE_SIZE_IDX" \
+            -v thresh="$p_val" \
             '{ 
-                print $snp, gene_name, $allele_one, $allele_two, $freq, $effect_size, $se, $p_val, $effect_size, $se, $p_val, $sample_size
+                print $snp, gene_name, $allele_one, $allele_two, $freq, $effect_size, $se, $p_val, $effect_size, $se, $p_val, $sample_size, thresh
             }' "$MA_TOP_SNP_FILE" >> "$results_file"
     fi
 	log "$(printf "$LOG_TOTAL_SNPS" "$gene_name" "$prev_idx")"
