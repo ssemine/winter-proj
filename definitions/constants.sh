@@ -8,6 +8,8 @@
 
 
 export P_VALUE_THRESHOLD="1e-10"
+export P_VALUE_THRESHOLD_PER_GENE="per-gene"
+export P_VALUE_THRESHOLD_PER_CHR="per-chr"
 export GENE_LIST="gene_list"
 export GENE_DIR="cojo_files"
 export SNP_DIR="snp_files"

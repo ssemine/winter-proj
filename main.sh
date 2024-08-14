@@ -7,6 +7,7 @@
 # ------------------------------------------------------------------------------
 # Usage: ./main.sh --infile <input_file> --bfile <bed_file> --maf <maf> --chr <chr_num> \
 # 			[ --pval <p_value> | --genes <gene_list> | --snps <snp_list> | --log <log_file> | --gene_dir <gene_dir> ]
+# -------------------------------------------------------------------------------------------------------------------
 
 source definitions/constants.sh
 source definitions/file_indices.sh
@@ -120,6 +121,10 @@ fi
 mkdir -p "$gene_dir"
 mkdir -p "$snp_dir"
 
+if [[ p_val = "$P_VALUE_THRESHOLD_PER_CHR" ]] then;
+	p_val=$(echo "scale=10; 0.05 / $(awk -v snp_col="$INPUT_SNP_ID_IDX" '{ print $snp_col }' "$infile" | sort | uniq | wc -l)" | bc)
+fi
+
 while IFS= read -r line; do
 	log_lines 1
 	log "$LOG_CALLING_TRANSFORM $line"
@@ -133,12 +138,14 @@ while IFS= read -r line; do
 		"$bfile" \
 		"input" \
 		|| { log "$ERROR_TRANSFORM $line"; exit 1; }
-	cp "$gene_dir/$line.ma" "$(printf "$MA_FILE_NAME_REFERENCE" "$gene_dir/$line")"
-	head "$(printf "$MA_FILE_NAME_REFERENCE" "$gene_dir/$line")"
+	ma_file_reference="$(printf "$MA_FILE_NAME_REFERENCE" "$gene_dir/$line")"
+	cp "$gene_dir/$line.ma" "$ma_file_reference"
 	log "$LOG_MA_TRANSFORMED $line"
-	num_snps=$(wc -l < "$gene_dir/$line.ma")
-	new_p_val=$(echo "scale=10; 0.05 / $num_snps" | bc)
-	summary_log "p-value for $line $new_p_val"
+	if [[ p_val = "$P_VALUE_THRESHOLD_PER_GENE" ]]; then
+		num_snps=$(wc -l < "$gene_dir/$line.ma")
+		p_val=$(echo "scale=10; 0.05 / $num_snps" | bc)
+	fi
+	summary_log "p-value for $line $p_val"
 	log_lines 1
 	log "$LOG_CALLING_RUN $line"
 	summary_log "Gene: $line"
@@ -147,7 +154,7 @@ while IFS= read -r line; do
 		"$chr" \
 		"$maf" \
 		1 \
-		"$new_p_val" \
+		"$p_val" \
 		"$log_file" \
 		"$log_dir" \
 		"$gene_dir" \
@@ -156,6 +163,7 @@ while IFS= read -r line; do
 		"$snps" \
 		|| { log "$ERROR_RUN_FAILED $line"; exit 1; }
 	log "$LOG_RUN_FINISHED $line"
+	rm "$ma_file_reference"
 	echo "" >> "$log_dir/$summary_file"
 done < "$gene_list" || { log "$ERROR_READ_GENE_LIST"; exit 1; }
 log_lines 1
