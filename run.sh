@@ -120,7 +120,7 @@ if [ "$has_snp" -eq 1 ]; then
             }
             { 
                 print $snp, gene_name, $allele_one, $allele_two, $freq, $effect_size, $se, $p_val, cma_effect_size, cma_se, cma_p_val, $sample_size
-            }' "$MA_TOP_SNP_FILE" "$CMA_TOP_SNP_FILE" >> "$results_file"
+            }' "$CMA_TOP_SNP_FILE" "$MA_TOP_SNP_FILE" >> "$results_file"
     fi
     rm "$MA_TOP_SNP_FILE" "$CMA_TOP_SNP_FILE"
 
