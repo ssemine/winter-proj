@@ -167,7 +167,6 @@ while IFS= read -r line; do
 		"$gene_dir" \
 		"$snp_dir" \
 		"$summary_file" \
-		"$snps" \
 		"$PATH_TO_DEFINITIONS" \
 		|| { log "$ERROR_RUN_FAILED $line"; exit 1; }
 	log "$LOG_RUN_FINISHED $line"
