@@ -29,7 +29,7 @@ export MA_SE_IDX=6
 export MA_P_VALUE_IDX=7
 export MA_SAMPLE_SIZE_IDX=8
 
-# .cma file indices Chr	SNP	bp	refA	freq	b	se	p	n	freq_geno	bC	bC_se	pC
+# .cma file indices
 export CMA_CHR_IDX=1
 export CMA_SNP_ID_IDX=2
 export CMA_POS_IDX=3

@@ -21,6 +21,7 @@ gene_dir="$9"
 snp_dir="${10}"
 summary_file="${11}"
 path_to_definitions="${12}"
+results_file="${13}"
 
 
 source "$path_to_definitions/constants.sh"
@@ -80,16 +81,55 @@ if [ "$has_snp" -eq 1 ]; then
         --out "$gene_dir/$outfile" \
         || { log "$ERROR_GCTA_FAILED $gene_name"; exit 1; }
     cma_file="$(printf "$TRANSFORM_CMA_FILE_NAME" "$gene_dir" "$outfile")"
+    if [ "$idx" -eq 1 ]; then
+        awk -v snp="$MA_SNP_ID_IDX" \
+            -v gene_name="$gene_name" \
+            -v allele_one="$MA_ALLELE_ONE_IDX" \
+            -v allele_two="$MA_ALLELE_TWO_IDX" \
+            -v freq="$MA_FREQ_IDX" \
+            -v effect_size="$MA_EFFECT_SIZE_IDX" \
+            -v se="$MA_SE_IDX" \
+            -v p_val="$MA_P_VALUE_IDX" \
+            -v sample_size="$MA_SAMPLE_SIZE_IDX" \
+            '{ 
+                print $snp, gene_name, $allele_one, $allele_two, $freq, $effect_size, $se, $p_val, $effect_size, $se, $p_val, $sample_size
+            }' "$gene_dir/$read_file" | grep "$top_snp" >> "$results_file"
+    else
+        prev_cma_file="$(printf "$TRANSFORM_CMA_FILE_NAME" "$gene_dir" "$(printf "$GCTA_OUTFILE_NAME" "$gene_name" $prev_idx)")"
+        ma_top_snp="$(awk -v snp="$MA_SNP_ID_IDX" -v top_snp="$top_snp" '$snp == top_snp' "$gene_dir/$read_file")"
+        cma_top_snp="$(awk -v snp="$CMA_SNP_ID_IDX" -v top_snp="$top_snp" '$snp == top_snp' "$prev_cma_file")"
+        awk -v snp="$MA_SNP_ID_IDX" \
+            -v gene_name="$gene_name" \
+            -v allele_one="$MA_ALLELE_ONE_IDX" \
+            -v allele_two="$MA_ALLELE_TWO_IDX" \
+            -v freq="$MA_FREQ_IDX" \
+            -v effect_size="$MA_EFFECT_SIZE_IDX" \
+            -v se="$MA_SE_IDX" \
+            -v p_val="$MA_P_VALUE_IDX" \
+            -v cma_effect_size_idx="$CMA_EFFECT_SIZE_IDX" \
+            -v cma_se_idx="$CMA_SE_IDX" \
+            -v cma_p_val_idx="$CMA_P_VALUE_IDX" \
+            -v sample_size="$MA_SAMPLE_SIZE_IDX" \
+            'FNR==NR {
+                cma_effect_size=$cma_effect_size_idx
+                cma_se=$cma_se_idx
+                cma_p_val=$cma_p_val_idx
+                next
+            }
+            { 
+                print $snp, gene_name, $allele_one, $allele_two, $freq, $effect_size, $se, $p_val, cma_effect_size, cma_se, cma_p_val, $sample_size
+            }' "$ma_top_snp" "$cma_top_snp" >> "$results_file"
+    fi
 
-    head -n 1 "$cma_file" > "$cma_file.header"
-    tail -n +2 "$cma_file" | sort -k "$CMA_SNP_ID_IDX" > "$cma_file.sorted"
-    cat "$cma_file.header" "$cma_file.sorted" > "$cma_file"
-    rm "$cma_file.header" "$cma_file.sorted"  
+    head -n 1 "$cma_file" > "$cma_file.$HEADER_EXTENTION"
+    tail -n +2 "$cma_file" | sort -k "$CMA_SNP_ID_IDX" > "$cma_file.$SORTED_EXTENTION"
+    cat "$cma_file.$HEADER_EXTENTION" "$cma_file.$SORTED_EXTENTION" > "$cma_file"
+    rm "$cma_file.$HEADER_EXTENTION" "$cma_file.$SORTED_EXTENTION"  
 
     awk -v snp_col="$CMA_SNP_ID_IDX" \
         'NR > 1 {
             print $snp_col
-        }' "$cma_file" > "$gene_dir/snp_list.tmp"
+        }' "$cma_file" > "$gene_dir/$SNP_LIST"
 
     awk -v snp_col="$MA_SNP_ID_IDX" \
         'NR==FNR { 
@@ -100,11 +140,11 @@ if [ "$has_snp" -eq 1 ]; then
             print; 
             next
         } 
-        $snp_col in snps' "$gene_dir/snp_list.tmp" \
-        "$gene_dir/$ma_file_reference" > "$gene_dir/$ma_file_reference.tmp"
+        $snp_col in snps' "$gene_dir/$SNP_LIST" \
+        "$gene_dir/$ma_file_reference" > "$gene_dir/$ma_file_reference.$TMP_EXTENTION"
 
-    cat "$gene_dir/$ma_file_reference.tmp" > "$gene_dir/$ma_file_reference"
-    rm "$gene_dir/snp_list.tmp" "$gene_dir/$ma_file_reference.tmp"
+    cat "$gene_dir/$ma_file_reference.$TMP_EXTENTION" > "$gene_dir/$ma_file_reference"
+    rm "$gene_dir/$SNP_LIST" "$gene_dir/$ma_file_reference.$TMP_EXTENTION"
 
     "$PATH_TO_TRANSFORM_SH" "$gene_name" \
         "$cma_file" \
@@ -130,7 +170,7 @@ if [ "$has_snp" -eq 1 ]; then
         "$snp_dir" \
         "$summary_file" \
         "$PATH_TO_DEFINITIONS" \
-        "$snps" \
+        "$results_file" \
         || { log "$ERROR_RUN_FAILED $gene_name"; exit 1; }
 else
 	log "$(printf "$LOG_TOTAL_SNPS" "$gene_name" "$prev_idx")"

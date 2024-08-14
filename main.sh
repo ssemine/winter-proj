@@ -28,6 +28,8 @@ snp_count_file="$SNP_COUNT_FILE"
 
 run_dir="$RUN_DIR"
 
+results_file="$RESULTS_FILE_NAME"
+
 
 while [[ $# -gt 0 ]]; do
     case $1 in
@@ -90,6 +92,8 @@ cd "$run_dir"
 mkdir -p "$log_dir"
 touch "$log_dir/$log_file"
 touch "$log_dir/$summary_file"
+touch "$results_file"
+cat "$RESULTS_FILE_HEADER" > "$results_file"
 log "$LOG_WELCOME_MESSAGE"
 log_lines 2
 
@@ -168,6 +172,7 @@ while IFS= read -r line; do
 		"$snp_dir" \
 		"$summary_file" \
 		"$PATH_TO_DEFINITIONS" \
+		"$results_file" \
 		|| { log "$ERROR_RUN_FAILED $line"; exit 1; }
 	log "$LOG_RUN_FINISHED $line"
 	rm "$ma_file_reference"

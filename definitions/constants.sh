@@ -12,6 +12,11 @@ export PATH_TO_RUN_SH="../run.sh"
 export PATH_TO_DEFINITIONS="../definitions"
 
 
+export HEADER_EXTENTION=".header"
+export SORTED_EXTENTION=".sorted"
+export TMP_EXTENTION=".tmp"
+
+
 export P_VALUE_THRESHOLD="1e-10"
 export P_VALUE_THRESHOLD_PER_GENE="per-gene"
 export P_VALUE_THRESHOLD_PER_CHR="per-chr"
@@ -25,6 +30,7 @@ export LOG_DIR="logs"
 export LOG_FILE="$(date '+%Y-%m-%d %H:%M:%S').log"
 export SNP_CSV_HEADER="SNP,Count"
 export SNP_COUNT_FILE="snp_count.csv"
+export SNP_LIST="snp_list.$TMP_EXTENTION"
 export SUMMARY_FILE="summary.log"
 export MA_FILE_COLUMNS="SNP A1 A2 freq b se p N"
 export MA_FILE_NAME="%s.ma"
@@ -38,3 +44,7 @@ export INPUT_IDENTIFIER="input"
 export TOP_SNP_FILE="%s/%s_%s.snplist"
 export TRANSFORM_CMA_FILE_NAME="%s/%s.cma.cojo"
 export GCTA_OUTFILE_NAME="%s_%s"
+
+
+export RESULTS_FILE_NAME="results.csv"
+export RESULTS_FILE_HEADER="SNP GENE A1 A2 freq b se p bC bC_se pC N"
