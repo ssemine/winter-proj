@@ -82,7 +82,7 @@ if [[ "$has_snp" =~ ^-?[0-9]+$ ]] && [ "$has_snp" -eq 1 ]; then
         || { log "$ERROR_GCTA_FAILED $gene_name"; exit 1; }
     cma_file="$(printf "$TRANSFORM_CMA_FILE_NAME" "$gene_dir" "$outfile")"
     awk -v snp="$MA_SNP_ID_IDX" -v top_snp="$top_snp" '$snp == top_snp' "$gene_dir/$read_file" > "$MA_TOP_SNP_FILE"
-    if [[ "$idx" =~ ^-?[0-9]+$ ]] && [ "$has_snp" -ge 2 ]; then
+    if [[ "$idx" =~ ^-?[0-9]+$ ]] && [ "$idx" -ge 2 ]; then
         touch "$CMA_TOP_SNP_FILE"
         prev_cma_file="$(printf "$TRANSFORM_CMA_FILE_NAME" "$gene_dir" "$(printf "$GCTA_OUTFILE_NAME" "$gene_name" $prev_idx)")"
         awk -v snp="$CMA_SNP_ID_IDX" -v top_snp="$top_snp" '$snp == top_snp' "$prev_cma_file" > "$CMA_TOP_SNP_FILE"
@@ -171,6 +171,7 @@ else
             -v effect_size="$MA_EFFECT_SIZE_IDX" \
             -v se="$MA_SE_IDX" \
             -v p_val="$MA_P_VALUE_IDX" \
+            -v sample_size="$MA_SAMPLE_SIZE_IDX" \
             '{ 
                 print $snp, gene_name, $allele_one, $allele_two, $freq, $effect_size, $se, $p_val, $effect_size, $se, $p_val, $sample_size
             }' "$MA_TOP_SNP_FILE" >> "$results_file"
