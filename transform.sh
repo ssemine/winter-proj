@@ -12,13 +12,12 @@
 gene_name="$1"
 infile="$2"
 gene_dir="$3"
-snps="$4"
-chr_num="$5"
-log_file="$6"
-log_dir="$7"
-bfile="$8"
-file_type="$9"
-path_to_definitions="${10}"
+chr_num="$4"
+log_file="$5"
+log_dir="$6"
+bfile="$7"
+file_type="$8"
+path_to_definitions="$9"
 
 
 source "$path_to_definitions/constants.sh"
@@ -32,11 +31,12 @@ if [[ "$file_type" != "$INPUT_IDENTIFIER" && "$file_type" != "$CMA_IDENTIFIER" ]
 fi
 
 if [ "$file_type" = "$CMA_IDENTIFIER" ]; then
-    ma_file="${11}"
-    idx="${12}"
+    ma_file="${10}"
+    idx="${11}"
     name="$(printf "$MA_FILE_NAME_IDX" "$gene_name" "$idx")"
     name_final="$(printf "$MA_FILE_NAME_FINAL_IDX" "$gene_name" "$idx")"
 else
+    snps="${10}"
     name="$(printf "$MA_FILE_NAME" "$gene_name")"
     name_final="$(printf "$MA_FILE_NAME_FINAL" "$gene_name")"
 fi

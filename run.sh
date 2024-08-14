@@ -22,6 +22,7 @@ snp_dir="${10}"
 summary_file="${11}"
 path_to_definitions="${12}"
 
+
 source "$path_to_definitions/constants.sh"
 source "$path_to_definitions/file_indices.sh"
 source "$path_to_definitions/log_messages.sh"
@@ -108,7 +109,6 @@ if [ "$has_snp" -eq 1 ]; then
     "$PATH_TO_TRANSFORM_SH" "$gene_name" \
         "$cma_file" \
         "$gene_dir" \
-        "$snps" \
         "$chr" \
         "$log_file" \
         "$log_dir" \
@@ -130,6 +130,7 @@ if [ "$has_snp" -eq 1 ]; then
         "$snp_dir" \
         "$summary_file" \
         "$PATH_TO_DEFINITIONS" \
+        "$snps" \
         || { log "$ERROR_RUN_FAILED $gene_name"; exit 1; }
 else
 	log "$(printf "$LOG_TOTAL_SNPS" "$gene_name" "$prev_idx")"

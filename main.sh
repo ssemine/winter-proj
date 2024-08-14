@@ -137,13 +137,13 @@ while IFS= read -r line; do
 	"$PATH_TO_TRANSFORM_SH" "$line" \
 		"$infile" \
 		"$gene_dir" \
-		"$snps" \
 		"$chr" \
 		"$log_file" \
 		"$log_dir" \
 		"$bfile" \
 		"input" \
 		"$PATH_TO_DEFINITIONS" \
+		"$snps" \
 		|| { log "$ERROR_TRANSFORM $line"; exit 1; }
 	ma_file_reference="$(printf "$MA_FILE_NAME_REFERENCE" "$gene_dir/$line")"
 	cp "$gene_dir/$line.ma" "$ma_file_reference"
