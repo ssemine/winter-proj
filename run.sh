@@ -82,10 +82,11 @@ if [[ "$has_snp" =~ ^-?[0-9]+$ ]] && [ "$has_snp" -eq 1 ]; then
         || { log "$ERROR_GCTA_FAILED $gene_name"; exit 1; }
     cma_file="$(printf "$TRANSFORM_CMA_FILE_NAME" "$gene_dir" "$outfile")"
     awk -v snp="$MA_SNP_ID_IDX" -v top_snp="$top_snp" '$snp == top_snp' "$gene_dir/$read_file" > "$MA_TOP_SNP_FILE"
-    if [[ "$idx" =~ ^-?[0-9]+$ ]] && [ "$idx" -ge 2 ]; then
+    if [[ "$idx" =~ ^-?[0-9]+$ ]] && [ "$idx" > 2 ]; then
         touch "$CMA_TOP_SNP_FILE"
+        # prev_cma_file gets printed correctly
         prev_cma_file="$(printf "$TRANSFORM_CMA_FILE_NAME" "$gene_dir" "$(printf "$GCTA_OUTFILE_NAME" "$gene_name" $prev_idx)")"
-        echo $prev_cma_file
+        # check two awk commands
         awk -v snp="$CMA_SNP_ID_IDX" -v top_snp="$top_snp" '$snp == top_snp' "$prev_cma_file" > "$CMA_TOP_SNP_FILE"
         awk -v snp="$MA_SNP_ID_IDX" \
             -v gene_name="$gene_name" \
@@ -165,7 +166,6 @@ if [[ "$has_snp" =~ ^-?[0-9]+$ ]] && [ "$has_snp" -eq 1 ]; then
         || { log "$ERROR_RUN_FAILED $gene_name"; exit 1; }
 else
     if [[ "$prev_idx" =~ ^-?[0-9]+$ ]] && [ "$prev_idx" -eq 1 ]; then
-        cat "$MA_TOP_SNP_FILE"
         awk -v snp="$MA_SNP_ID_IDX" \
             -v gene_name="$gene_name" \
             -v allele_one="$MA_A1_IDX" \
