@@ -86,7 +86,6 @@ if [[ "$has_snp" =~ ^-?[0-9]+$ ]] && [ "$has_snp" -eq 1 ]; then
     awk -v snp="$MA_SNP_ID_IDX" -v top_snp="$top_snp" '$snp == top_snp' "$gene_dir/$read_file" > "$MA_TOP_SNP_FILE"
     if [[ "$idx" =~ ^-?[0-9]+$ ]] && [ "$idx" -gt 1 ]; then
         touch "$CMA_TOP_SNP_FILE"
-        # prev_cma_file gets printed correctly
         awk -v snp="$CMA_SNP_ID_IDX" -v top_snp="$prev_top_snp" '$snp == top_snp' "$prev_cma_file" > "$CMA_TOP_SNP_FILE"
         awk -v snp="$MA_SNP_ID_IDX" \
             -v gene_name="$gene_name" \
@@ -180,7 +179,7 @@ else
             '{ 
                 print $snp, gene_name, $allele_one, $allele_two, $freq, $effect_size, $se, $p_val, $effect_size, $se, $p_val, $sample_size, thresh
             }' "$MA_TOP_SNP_FILE" >> "$results_file"
-    else
+    elif [[ "$prev_idx" =~ ^-?[0-9]+$ ]] && [ "$prev_idx" -gt 1 ]; then
         awk -v snp="$CMA_SNP_ID_IDX" -v top_snp="$prev_top_snp" '$snp == top_snp' "$prev_cma_file" > "$CMA_TOP_SNP_FILE"
         awk -v snp="$MA_SNP_ID_IDX" \
             -v gene_name="$gene_name" \
