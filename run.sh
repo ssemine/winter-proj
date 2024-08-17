@@ -22,6 +22,7 @@ snp_dir="${10}"
 summary_file="${11}"
 path_to_definitions="${12}"
 results_file="${13}"
+prev_top_snp="${14}"
 
 
 source "$path_to_definitions/constants.sh"
@@ -81,13 +82,12 @@ if [[ "$has_snp" =~ ^-?[0-9]+$ ]] && [ "$has_snp" -eq 1 ]; then
         --out "$gene_dir/$outfile" \
         || { log "$ERROR_GCTA_FAILED $gene_name"; exit 1; }
     cma_file="$(printf "$TRANSFORM_CMA_FILE_NAME" "$gene_dir" "$outfile")"
+    prev_cma_file="$(printf "$TRANSFORM_CMA_FILE_NAME" "$gene_dir" "$(printf "$GCTA_OUTFILE_NAME" "$gene_name" $prev_idx)")"
     awk -v snp="$MA_SNP_ID_IDX" -v top_snp="$top_snp" '$snp == top_snp' "$gene_dir/$read_file" > "$MA_TOP_SNP_FILE"
     if [[ "$idx" =~ ^-?[0-9]+$ ]] && [ "$idx" -gt 1 ]; then
         touch "$CMA_TOP_SNP_FILE"
         # prev_cma_file gets printed correctly
-        prev_cma_file="$(printf "$TRANSFORM_CMA_FILE_NAME" "$gene_dir" "$(printf "$GCTA_OUTFILE_NAME" "$gene_name" $prev_idx)")"
-        # check two awk commands
-        awk -v snp="$CMA_SNP_ID_IDX" -v top_snp="$top_snp" '$snp == top_snp' "$prev_cma_file" > "$CMA_TOP_SNP_FILE"
+        awk -v snp="$CMA_SNP_ID_IDX" -v top_snp="$prev_top_snp" '$snp == top_snp' "$prev_cma_file" > "$CMA_TOP_SNP_FILE"
         awk -v snp="$MA_SNP_ID_IDX" \
             -v gene_name="$gene_name" \
             -v allele_one="$MA_A1_IDX" \
@@ -163,6 +163,7 @@ if [[ "$has_snp" =~ ^-?[0-9]+$ ]] && [ "$has_snp" -eq 1 ]; then
         "$summary_file" \
         "$PATH_TO_DEFINITIONS" \
         "$results_file" \
+        "$top_snp" \
         || { log "$ERROR_RUN_FAILED $gene_name"; exit 1; }
 else
     if [[ "$prev_idx" =~ ^-?[0-9]+$ ]] && [ "$prev_idx" -eq 1 ]; then
@@ -179,7 +180,33 @@ else
             '{ 
                 print $snp, gene_name, $allele_one, $allele_two, $freq, $effect_size, $se, $p_val, $effect_size, $se, $p_val, $sample_size, thresh
             }' "$MA_TOP_SNP_FILE" >> "$results_file"
+    else
+        awk -v snp="$CMA_SNP_ID_IDX" -v top_snp="$prev_top_snp" '$snp == top_snp' "$prev_cma_file" > "$CMA_TOP_SNP_FILE"
+        awk -v snp="$MA_SNP_ID_IDX" \
+            -v gene_name="$gene_name" \
+            -v allele_one="$MA_A1_IDX" \
+            -v allele_two="$MA_A2_IDX" \
+            -v freq="$MA_FREQ_IDX" \
+            -v effect_size="$MA_EFFECT_SIZE_IDX" \
+            -v se="$MA_SE_IDX" \
+            -v p_val="$MA_P_VALUE_IDX" \
+            -v cma_effect_size_idx="$CMA_EFFECT_SIZE_IDX" \
+            -v cma_se_idx="$CMA_SE_IDX" \
+            -v cma_p_val_idx="$CMA_P_VALUE_IDX" \
+            -v sample_size="$MA_SAMPLE_SIZE_IDX" \
+            -v thresh="$p_val" \
+            'FNR==NR {
+                cma_effect_size=$cma_effect_size_idx
+                cma_se=$cma_se_idx
+                cma_p_val=$cma_p_val_idx
+                next
+            }
+            { 
+                print $snp, gene_name, $allele_one, $allele_two, $freq, $effect_size, $se, $p_val, cma_effect_size, cma_se, cma_p_val, $sample_size, thresh
+            }' "$CMA_TOP_SNP_FILE" "$MA_TOP_SNP_FILE" >> "$results_file"
+        rm "$CMA_TOP_SNP_FILE"
     fi
+    rm "$MA_TOP_SNP_FILE"
 	log "$(printf "$LOG_TOTAL_SNPS" "$gene_name" "$prev_idx")"
     summary_log "$(printf "$LOG_TOTAL_SNPS" "$gene_name" "$prev_idx")"
 fi
