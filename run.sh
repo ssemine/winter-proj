@@ -88,7 +88,7 @@ if [[ "$has_snp" =~ ^-?[0-9]+$ ]] && [ "$has_snp" -eq 1 ]; then
         --cojo-file "$gene_dir/$read_file" \
 		--cojo-cond "$top_snp_file" \
         --out "$gene_dir/$outfile" \
-        || { log "$ERROR_GCTA_FAILED $gene_name"; exit 1; }
+        || log "$ERROR_GCTA_FAILED $gene_name"
     cma_file="$(printf "$TRANSFORM_CMA_FILE_NAME" "$gene_dir" "$outfile")"
     prev_cma_file="$(printf "$TRANSFORM_CMA_FILE_NAME" "$gene_dir" "$(printf "$GCTA_OUTFILE_NAME" "$gene_name" $prev_idx)")"
     if [[ "$idx" =~ ^-?[0-9]+$ ]] && [ "$idx" -gt 1 ]; then
