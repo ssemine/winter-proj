@@ -73,6 +73,7 @@ has_snp="$(wc -l < "$top_snp_file")"
 touch "$MA_TOP_SNP_FILE"
 if [[ "$has_snp" =~ ^-?[0-9]+$ ]] && [ "$has_snp" -eq 1 ]; then
     echo "has snp = 1" >> "$results_file"
+    echo "idx = $idx" >> "$results_file"
     top_snp=$(cat $top_snp_file)
 	log "$(printf "$LOG_TOP_SNP" "$gene_name" "$top_snp")"
 	"$PATH_TO_GCTA" --bfile "$bfile" \
@@ -89,6 +90,10 @@ if [[ "$has_snp" =~ ^-?[0-9]+$ ]] && [ "$has_snp" -eq 1 ]; then
         echo "idx > 1 ($idx) (reading/writing cma)" >> "$results_file"
         touch "$CMA_TOP_SNP_FILE"
         awk -v snp="$CMA_SNP_ID_IDX" -v top_snp="$prev_top_snp" '$snp == top_snp' "$prev_cma_file" > "$CMA_TOP_SNP_FILE"
+        echo "MA file:" >> "$results_file"
+        cat "$MA_TOP_SNP_FILE" >> "$results_file"
+        echo "CMA file:" >> "$results_file"
+        cat "$CMA_TOP_SNP_FILE" >> "$results_file"
         awk -v snp="$MA_SNP_ID_IDX" \
             -v gene_name="$gene_name" \
             -v allele_one="$MA_A1_IDX" \
