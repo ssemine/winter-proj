@@ -72,6 +72,7 @@ awk -v col="$MA_P_VALUE_IDX" \
 has_snp="$(wc -l < "$top_snp_file")"
 touch "$MA_TOP_SNP_FILE"
 if [[ "$has_snp" =~ ^-?[0-9]+$ ]] && [ "$has_snp" -eq 1 ]; then
+    echo "has snp = 1" >> "$results_file"
     top_snp=$(cat $top_snp_file)
 	log "$(printf "$LOG_TOP_SNP" "$gene_name" "$top_snp")"
 	"$PATH_TO_GCTA" --bfile "$bfile" \
@@ -85,6 +86,7 @@ if [[ "$has_snp" =~ ^-?[0-9]+$ ]] && [ "$has_snp" -eq 1 ]; then
     prev_cma_file="$(printf "$TRANSFORM_CMA_FILE_NAME" "$gene_dir" "$(printf "$GCTA_OUTFILE_NAME" "$gene_name" $prev_idx)")"
     awk -v snp="$MA_SNP_ID_IDX" -v top_snp="$top_snp" '$snp == top_snp' "$gene_dir/$read_file" > "$MA_TOP_SNP_FILE"
     if [[ "$idx" =~ ^-?[0-9]+$ ]] && [ "$idx" -gt 1 ]; then
+        echo "idx > 1 (reading/writing cma)" >> "$results_file"
         touch "$CMA_TOP_SNP_FILE"
         awk -v snp="$CMA_SNP_ID_IDX" -v top_snp="$prev_top_snp" '$snp == top_snp' "$prev_cma_file" > "$CMA_TOP_SNP_FILE"
         awk -v snp="$MA_SNP_ID_IDX" \
@@ -166,6 +168,7 @@ if [[ "$has_snp" =~ ^-?[0-9]+$ ]] && [ "$has_snp" -eq 1 ]; then
         || { log "$ERROR_RUN_FAILED $gene_name"; exit 1; }
 else
     if [[ "$prev_idx" =~ ^-?[0-9]+$ ]] && [ "$prev_idx" -eq 1 ]; then
+        echo "prev_idx = 1 (only one snp found)" >> "$results_file"
         awk -v snp="$MA_SNP_ID_IDX" \
             -v gene_name="$gene_name" \
             -v allele_one="$MA_A1_IDX" \
@@ -180,6 +183,7 @@ else
                 print $snp, gene_name, $allele_one, $allele_two, $freq, $effect_size, $se, $p_val, $effect_size, $se, $p_val, $sample_size, thresh
             }' "$MA_TOP_SNP_FILE" >> "$results_file"
     elif [[ "$prev_idx" =~ ^-?[0-9]+$ ]] && [ "$prev_idx" -gt 1 ]; then
+        echo "prev_idx > 1 (>1 snp found (reading/writing cma))" >> "$results_file"
         awk -v snp="$CMA_SNP_ID_IDX" -v top_snp="$prev_top_snp" '$snp == top_snp' "$prev_cma_file" > "$CMA_TOP_SNP_FILE"
         awk -v snp="$MA_SNP_ID_IDX" \
             -v gene_name="$gene_name" \
