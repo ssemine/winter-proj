@@ -86,7 +86,7 @@ if [[ "$has_snp" =~ ^-?[0-9]+$ ]] && [ "$has_snp" -eq 1 ]; then
     prev_cma_file="$(printf "$TRANSFORM_CMA_FILE_NAME" "$gene_dir" "$(printf "$GCTA_OUTFILE_NAME" "$gene_name" $prev_idx)")"
     awk -v snp="$MA_SNP_ID_IDX" -v top_snp="$top_snp" '$snp == top_snp' "$gene_dir/$read_file" > "$MA_TOP_SNP_FILE"
     if [[ "$idx" =~ ^-?[0-9]+$ ]] && [ "$idx" -gt 1 ]; then
-        echo "idx > 1 (reading/writing cma)" >> "$results_file"
+        echo "idx > 1 ($idx) (reading/writing cma)" >> "$results_file"
         touch "$CMA_TOP_SNP_FILE"
         awk -v snp="$CMA_SNP_ID_IDX" -v top_snp="$prev_top_snp" '$snp == top_snp' "$prev_cma_file" > "$CMA_TOP_SNP_FILE"
         awk -v snp="$MA_SNP_ID_IDX" \
