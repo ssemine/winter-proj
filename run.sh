@@ -51,11 +51,17 @@ log "$LOG_READING_FROM $gene_dir/$read_file"
 top_snp_file="$(printf "$TOP_SNP_FILE" "$snp_dir" "$gene_name" "$idx")"
 touch "$top_snp_file"
 
+if [ -f "$MA_TOP_SNP_FILE" ]; then
+    rm "$MA_TOP_SNP_FILE"
+fi
+touch "$MA_TOP_SNP_FILE"
+
 awk -v col="$MA_P_VALUE_IDX" \
     -v id_col="$MA_SNP_ID_IDX" \
     -v thresh="$p_val" \
     -v snp_file="$top_snp_file" \
     -v summary_file="$log_dir/$summary_file" \
+    -v ma_top_snp_file="$MA_TOP_SNP_FILE" \
     'NR > 1 && $col < thresh { 
         if (min == "" || $col < min) { 
             min = $col; 
@@ -66,11 +72,11 @@ awk -v col="$MA_P_VALUE_IDX" \
         if (min != "" && min < thresh) 
             print id > snp_file
             print id, min >> summary_file
+            print $0 > ma_top_snp_file
     }' "$gene_dir/$read_file" \
     || { log "$ERROR_AWK_WRITE $top_snp_file"; exit 1; }
 
 has_snp="$(wc -l < "$top_snp_file")"
-touch "$MA_TOP_SNP_FILE"
 if [[ "$has_snp" =~ ^-?[0-9]+$ ]] && [ "$has_snp" -eq 1 ]; then
     echo "has snp = 1" >> "$results_file"
     echo "idx = $idx" >> "$results_file"
@@ -85,11 +91,19 @@ if [[ "$has_snp" =~ ^-?[0-9]+$ ]] && [ "$has_snp" -eq 1 ]; then
         || { log "$ERROR_GCTA_FAILED $gene_name"; exit 1; }
     cma_file="$(printf "$TRANSFORM_CMA_FILE_NAME" "$gene_dir" "$outfile")"
     prev_cma_file="$(printf "$TRANSFORM_CMA_FILE_NAME" "$gene_dir" "$(printf "$GCTA_OUTFILE_NAME" "$gene_name" $prev_idx)")"
-    awk -v snp="$MA_SNP_ID_IDX" -v top_snp="$top_snp" '$snp == top_snp' "$gene_dir/$read_file" > "$MA_TOP_SNP_FILE"
     if [[ "$idx" =~ ^-?[0-9]+$ ]] && [ "$idx" -gt 1 ]; then
         echo "idx > 1 ($idx) (reading/writing cma)" >> "$results_file"
         touch "$CMA_TOP_SNP_FILE"
-        awk -v snp="$CMA_SNP_ID_IDX" -v top_snp="$prev_top_snp" '$snp == top_snp' "$prev_cma_file" > "$CMA_TOP_SNP_FILE"
+        awk -v snp="$CMA_SNP_ID_IDX" \
+        -v top_snp="$prev_top_snp" \
+        -v gene_name="$gene_name" \
+        -v gene_idx="$GENE_NAME_IDX" \
+        '{
+            if ($snp == top_snp && $gene_idx == gene_name) {
+                print
+            }
+        }' "$prev_cma_file" > "$CMA_TOP_SNP_FILE"
+
         echo "MA file:" >> "$results_file"
         cat "$MA_TOP_SNP_FILE" >> "$results_file"
         echo "CMA file:" >> "$results_file"
@@ -189,7 +203,15 @@ else
             }' "$MA_TOP_SNP_FILE" >> "$results_file"
     elif [[ "$prev_idx" =~ ^-?[0-9]+$ ]] && [ "$prev_idx" -gt 1 ]; then
         echo "prev_idx > 1 (>1 snp found (reading/writing cma))" >> "$results_file"
-        awk -v snp="$CMA_SNP_ID_IDX" -v top_snp="$prev_top_snp" '$snp == top_snp' "$prev_cma_file" > "$CMA_TOP_SNP_FILE"
+        awk -v snp="$CMA_SNP_ID_IDX" \
+        -v top_snp="$prev_top_snp" \
+        -v gene_name="$gene_name" \
+        -v gene_idx="$GENE_NAME_IDX" \
+        '{
+            if ($snp == top_snp && $gene_idx == gene_name) {
+                print
+            }
+        }' "$prev_cma_file" > "$CMA_TOP_SNP_FILE"
         awk -v snp="$MA_SNP_ID_IDX" \
             -v gene_name="$gene_name" \
             -v allele_one="$MA_A1_IDX" \
@@ -214,7 +236,6 @@ else
             }' "$CMA_TOP_SNP_FILE" "$MA_TOP_SNP_FILE" >> "$results_file"
         rm "$CMA_TOP_SNP_FILE"
     fi
-    rm "$MA_TOP_SNP_FILE"
 	log "$(printf "$LOG_TOTAL_SNPS" "$gene_name" "$prev_idx")"
     summary_log "$(printf "$LOG_TOTAL_SNPS" "$gene_name" "$prev_idx")"
 fi
