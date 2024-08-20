@@ -36,6 +36,9 @@ outfile="$(printf "$GCTA_OUTFILE_NAME" "$gene_name" "$idx")"
 infile="$(printf "$MA_FILE_NAME" "$gene_name")"
 ma_file_reference="$(printf "$MA_FILE_NAME_REFERENCE" "$gene_name")"
 ma_file_reference_tmp="$(printf "$MA_FILE_NAME_REFERENCE_TMP" "$gene_name")"
+ma_top_snp_file="$(printf "$MA_TOP_SNP_FILE" "$gene_name" "$idx")"
+cma_top_snp_file="$(printf "$CMA_TOP_SNP_FILE" "$gene_name" "$idx")"
+
 
 source "$path_to_definitions/functions.sh"
 
@@ -52,17 +55,13 @@ log "$LOG_READING_FROM $gene_dir/$read_file"
 top_snp_file="$(printf "$TOP_SNP_FILE" "$snp_dir" "$gene_name" "$idx")"
 touch "$top_snp_file"
 
-if [ -f "$MA_TOP_SNP_FILE" ]; then
-    rm "$MA_TOP_SNP_FILE"
-fi
-touch "$MA_TOP_SNP_FILE"
-
 awk -v col="$MA_P_VALUE_IDX" \
     -v id_col="$MA_SNP_ID_IDX" \
     -v thresh="$p_val" \
     -v snp_file="$top_snp_file" \
     -v summary_file="$log_dir/$summary_file" \
-    -v ma_top_snp_file="$MA_TOP_SNP_FILE" \
+    -v idx="$idx" \
+    -v cma_top_snp_file="$cma_top_snp_file" \
     'NR > 1 && $col < thresh { 
         if (min == "" || $col < min) { 
             min = $col; 
@@ -73,7 +72,9 @@ awk -v col="$MA_P_VALUE_IDX" \
         if (min != "" && min < thresh) 
             print id > snp_file
             print id, min >> summary_file
-            print $0 > ma_top_snp_file
+            if (idx > 1) {
+                print $0 > cma_top_snp_file
+            }
     }' "$gene_dir/$read_file" \
     || { log "$ERROR_AWK_WRITE $top_snp_file"; exit 1; }
 
@@ -81,6 +82,7 @@ has_snp="$(wc -l < "$top_snp_file")"
 if [[ "$has_snp" =~ ^-?[0-9]+$ ]] && [ "$has_snp" -eq 1 ]; then
     top_snp=$(cat $top_snp_file)
 	log "$(printf "$LOG_TOP_SNP" "$gene_name" "$top_snp")"
+
 	"$PATH_TO_GCTA" --bfile "$bfile" \
         --chr "$chr" \
         --maf "$maf" \
@@ -88,8 +90,17 @@ if [[ "$has_snp" =~ ^-?[0-9]+$ ]] && [ "$has_snp" -eq 1 ]; then
 		--cojo-cond "$top_snp_file" \
         --out "$gene_dir/$outfile" \
         || log "$ERROR_GCTA_FAILED $gene_name"
+
     cma_file="$(printf "$TRANSFORM_CMA_FILE_NAME" "$gene_dir" "$outfile")"
-    prev_cma_file="$(printf "$TRANSFORM_CMA_FILE_NAME" "$gene_dir" "$(printf "$GCTA_OUTFILE_NAME" "$gene_name" $prev_idx)")"
+
+    awk -v snp="$MA_SNP_ID_IDX" \
+        -v top_snp="$top_snp" \
+        '{
+            if ($snp == top_snp){
+                print $0
+            }
+        }' "$gene_dir/$(printf "$MA_FILE_NAME" "$gene_name")" > "$ma_top_snp_file"
+
     if [[ "$idx" =~ ^-?[0-9]+$ ]] && [ "$idx" -eq 1 ]; then
         awk -v snp="$MA_SNP_ID_IDX" \
             -v gene_name="$gene_name" \
@@ -103,17 +114,9 @@ if [[ "$has_snp" =~ ^-?[0-9]+$ ]] && [ "$has_snp" -eq 1 ]; then
             -v thresh="$p_val" \
             '{ 
                 print $snp, gene_name, $allele_one, $allele_two, $freq, $effect_size, $se, $p_val, $effect_size, $se, $p_val, $sample_size, thresh
-            }' "$MA_TOP_SNP_FILE" >> "$results_file"
+            }' "$ma_top_snp_file" >> "$results_file"
+        rm "$ma_top_snp_file"
     elif [[ "$idx" =~ ^-?[0-9]+$ ]] && [ "$idx" -gt 1 ]; then
-        touch "$CMA_TOP_SNP_FILE"
-        awk -v snp="$CMA_SNP_ID_IDX" \
-        -v top_snp="$top_snp" \
-        -v gene_name="$gene_name" \
-        '{
-            if ($snp == top_snp) {
-                print $0
-            }
-        }' "$prev_cma_file" > "$CMA_TOP_SNP_FILE"
         awk -v snp="$MA_SNP_ID_IDX" \
             -v gene_name="$gene_name" \
             -v allele_one="$MA_A1_IDX" \
@@ -135,8 +138,9 @@ if [[ "$has_snp" =~ ^-?[0-9]+$ ]] && [ "$has_snp" -eq 1 ]; then
             }
             { 
                 print $snp, gene_name, $allele_one, $allele_two, $freq, $effect_size, $se, $p_val, cma_effect_size, cma_se, cma_p_val, $sample_size, thresh
-            }' "$CMA_TOP_SNP_FILE" "$MA_TOP_SNP_FILE" >> "$results_file"
-        rm "$CMA_TOP_SNP_FILE"
+            }' "$cma_top_snp_file" "$ma_top_snp_file" >> "$results_file"
+        rm "$ma_top_snp_file"
+        rm "$cma_top_snp_file"
     fi
 
     head -n 1 "$cma_file" > "$cma_file.$HEADER_EXTENTION"
