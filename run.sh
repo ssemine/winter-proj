@@ -232,7 +232,7 @@ else
             }
             { 
                 print $snp, gene_name, $allele_one, $allele_two, $freq, $effect_size, $se, $p_val, cma_effect_size, cma_se, cma_p_val, $sample_size, thresh
-            }' "$CMA_TOP_SNP_FILE" "$MA_TOP_SNP_FILE" > "$results_file"
+            }' "$CMA_TOP_SNP_FILE" "$MA_TOP_SNP_FILE" >> "$results_file"
         rm "$CMA_TOP_SNP_FILE"
     fi
 	log "$(printf "$LOG_TOTAL_SNPS" "$gene_name" "$prev_idx")"
