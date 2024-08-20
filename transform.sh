@@ -143,7 +143,7 @@ sort -k "$MA_SNP_ID_IDX" "$gene_dir/$name" -o "$gene_dir/$name" \
     || { log_genes "$ERROR_SORT $gene_dir/$name"; exit 1; }
 
 cat "$gene_dir/$name" > "$gene_dir/$name_tmp"
-cat "$columns" > "$gene_dir/$name"
+echo "$columns" > "$gene_dir/$name"
 cat "$gene_dir/$name_tmp" >> "$gene_dir/$name"
 rm "$gene_dir/$name_tmp"
 log_genes "$LOG_COLUMNS_ADDED $gene_dir/$name"
