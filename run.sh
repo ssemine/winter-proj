@@ -134,9 +134,9 @@ if [[ "$has_snp" =~ ^-?[0-9]+$ ]] && [ "$has_snp" -eq 1 ]; then
             -v effect_size="$MA_EFFECT_SIZE_IDX" \
             -v se="$MA_SE_IDX" \
             -v p_val="$MA_P_VALUE_IDX" \
-            -v cma_effect_size_idx="$CMA_EFFECT_SIZE_IDX" \
-            -v cma_se_idx="$CMA_SE_IDX" \
-            -v cma_p_val_idx="$CMA_P_VALUE_IDX" \
+            -v cma_effect_size_idx="$MA_EFFECT_SIZE_IDX" \
+            -v cma_se_idx="$MA_SE_IDX" \
+            -v cma_p_val_idx="$MA_P_VALUE_IDX" \
             -v sample_size="$MA_SAMPLE_SIZE_IDX" \
             -v thresh="$p_val" \
             'FNR==NR {
