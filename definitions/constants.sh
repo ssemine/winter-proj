@@ -5,6 +5,7 @@
 
 
 export PATH_TO_GCTA="../gcta64"
+export RUN_DIR="run_$(date '+%Y-%m-%d-%H:%M:%S')"
 
 
 export PATH_TO_TRANSFORM_SH="../transform.sh"
@@ -18,13 +19,14 @@ export TMP_EXTENTION=".tmp"
 
 
 export P_VALUE_THRESHOLD="1e-10"
+export P_VALUE_NUMERATOR="0.05"
 export P_VALUE_THRESHOLD_PER_GENE="per_gene"
 export P_VALUE_THRESHOLD_PER_CHR="per_chr"
 
 export GENE_LIST="gene_list"
 export GENE_DIR="cojo_files"
-export RUN_DIR="run_$(date '+%Y-%m-%d-%H:%M:%S')"
 export SNP_DIR="snp_files"
+export CLEAN_OPTIONS=("$GENE_DIR" "$SNP_DIR" "$RUN_DIR")
 export GENES_ALL="all"
 export SNPS_ALL="all"
 export LOG_DIR="logs"
@@ -45,8 +47,9 @@ export INPUT_IDENTIFIER="input"
 export TOP_SNP_FILE="%s/%s_%s.snplist"
 export TRANSFORM_CMA_FILE_NAME="%s/%s.cma.cojo"
 export GCTA_OUTFILE_NAME="%s_%s"
-
-export MA_TOP_SNP_FILE="%s_ma_top_snp_%s"
-export CMA_TOP_SNP_FILE="%s_cma_top_snp_%s"
+export GCTA_LOG_FILE="%s.log"
+export SNP_LINE_EXTENTION=".snpline"
+export MA_TOP_SNP_FILE="%s_%s.ma.$SNP_LINE_EXTENTION"
+export CMA_TOP_SNP_FILE="%s_%s.cma.$SNP_LINE_EXTENTION"
 export RESULTS_FILE_NAME="results"
-export RESULTS_FILE_HEADER="SNP GENE A1 A2 freq b se p bC bC_se pC N p_thresh"
+export RESULTS_FILE_HEADER="SNP GENE A1 A2 freq b se p bC bC_se pC N pT"

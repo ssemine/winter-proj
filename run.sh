@@ -153,10 +153,12 @@ if [[ "$has_snp" =~ ^-?[0-9]+$ ]] && [ "$has_snp" -eq 1 ]; then
     fi
 
     # Sorts the .cma.cojo file by SNP ID
-    head -n 1 "$cma_file" > "$cma_file.$HEADER_EXTENTION"
-    tail -n +2 "$cma_file" | sort -k "$CMA_SNP_ID_IDX" > "$cma_file.$SORTED_EXTENTION"
-    cat "$cma_file.$HEADER_EXTENTION" "$cma_file.$SORTED_EXTENTION" > "$cma_file"
-    rm "$cma_file.$HEADER_EXTENTION" "$cma_file.$SORTED_EXTENTION"  
+    cma_file_header="$(printf "$cma_file.$HEADER_EXTENTION")"
+    cma_file_sorted="$(printf "$cma_file.$SORTED_EXTENTION")"
+    head -n 1 "$cma_file" > "$cma_file_header"
+    tail -n +2 "$cma_file" | sort -k "$CMA_SNP_ID_IDX" > "$cma_file_sorted"
+    cat "$cma_file_header" "$cma_file_sorted" > "$cma_file"
+    rm "$cma_file_header" "$cma_file_sorted"  
 
     # Writes the SNPs from cma.cojo file to a SNP_LIST file
     awk -v snp_col="$CMA_SNP_ID_IDX" \

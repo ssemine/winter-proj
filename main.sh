@@ -73,6 +73,9 @@ while [[ $# -gt 0 ]]; do
 			run_dir="$2"
 			shift 2
 			;;
+		--clean)
+			clean="$2"
+			shift 2
         *)
             echo "$ERROR_INVALID_ARGUMENT $1"
             exit 1
@@ -118,7 +121,7 @@ mkdir -p "$gene_dir"
 mkdir -p "$snp_dir"
 
 if [ "$p_val" = "$P_VALUE_THRESHOLD_PER_CHR" ]; then
-	p_val=$(echo "scale=10; 0.05 / $(awk -v snp_col="$INPUT_SNP_ID_IDX" '{ print $snp_col }' "$infile" | sort | uniq | wc -l)" | bc)
+	p_val=$(echo "scale=10; $P_VALUE_NUMERATOR / $(awk -v snp_col="$INPUT_SNP_ID_IDX" '{ print $snp_col }' "$infile" | sort | uniq | wc -l)" | bc)
 fi
 
 while IFS= read -r line; do
@@ -160,9 +163,25 @@ while IFS= read -r line; do
 		"$PATH_TO_DEFINITIONS" \
 		"$results_file" \
 		|| { log "$ERROR_RUN_FAILED $line"; exit 1; }
+
+	# Join GCTA logs by gene and run.sh idx
+	gcta_log_file="$(printf "$GCTA_LOG_FILE" "$line")"
+	touch "$log_dir/$gcta_log_file"
+	cat "$gene_dir/$line"*.log > "$log_dir/$gcta_log_file"
+	rm "$gene_dir/$line"*.log
+	
 	log "$LOG_RUN_FINISHED $line"
 	rm "$ma_file_reference"
 	echo "" >> "$log_dir/$summary_file"
 done < "$gene_list" || { log "$ERROR_READ_GENE_LIST"; exit 1; }
+
+
+# Clean up
+if [ "$clean" = "all" ]; then 
+	rm "$gene_list"
+	rm -rf "$gene_dir"
+	rm -rf "$snp_dir"
+fi
+
 log_lines 1
 log "$LOG_END_MESSAGE"
