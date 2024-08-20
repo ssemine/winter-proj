@@ -123,6 +123,7 @@ mkdir -p "$snp_dir"
 
 if [ "$p_val" = "$P_VALUE_THRESHOLD_PER_CHR" ]; then
 	p_val=$(echo "scale=10; $P_VALUE_NUMERATOR / $(awk -v snp_col="$INPUT_SNP_ID_IDX" '{ print $snp_col }' "$infile" | sort | uniq | wc -l)" | bc)
+	p_val=$(printf "%.${DECIMAL_PLACES}e" "$p_val")
 fi
 
 while IFS= read -r line; do
