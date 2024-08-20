@@ -64,7 +64,8 @@ awk -v col="$MA_P_VALUE_IDX" \
     'NR > 1 && $col < thresh { 
         if (min == "" || $col < min) { 
             min = $col; 
-            id = $id_col 
+            id = $id_col
+            line = $0 
         } 
     } 
     END { 
@@ -72,7 +73,7 @@ awk -v col="$MA_P_VALUE_IDX" \
             print id > snp_file
             print id, min >> summary_file
             if (idx > 1) {
-                print $0 > cma_top_snp_file
+                print line > cma_top_snp_file
             }
     }' "$gene_dir/$read_file" \
     || { log "$ERROR_AWK_WRITE $top_snp_file"; exit 1; }
