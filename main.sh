@@ -172,7 +172,11 @@ while IFS= read -r line; do
 	rm "$gene_dir/$line"*.log
 
 	log "$LOG_RUN_FINISHED $line"
+
+	# Clean up
 	rm "$ma_file_reference"
+	rm *".$SNP_LINE_EXTENTION"
+
 	echo "" >> "$log_dir/$summary_file"
 done < "$gene_list" || { log "$ERROR_READ_GENE_LIST"; exit 1; }
 

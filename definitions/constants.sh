@@ -13,9 +13,9 @@ export PATH_TO_RUN_SH="../run.sh"
 export PATH_TO_DEFINITIONS="../definitions"
 
 
-export HEADER_EXTENTION=".header"
-export SORTED_EXTENTION=".sorted"
-export TMP_EXTENTION=".tmp"
+export HEADER_EXTENTION="header"
+export SORTED_EXTENTION="sorted"
+export TMP_EXTENTION="tmp"
 
 
 export P_VALUE_THRESHOLD="1e-10"
@@ -48,7 +48,7 @@ export TOP_SNP_FILE="%s/%s_%s.snplist"
 export TRANSFORM_CMA_FILE_NAME="%s/%s.cma.cojo"
 export GCTA_OUTFILE_NAME="%s_%s"
 export GCTA_LOG_FILE="%s.log"
-export SNP_LINE_EXTENTION=".snpline"
+export SNP_LINE_EXTENTION="snpline"
 export MA_TOP_SNP_FILE="%s_%s.ma.$SNP_LINE_EXTENTION"
 export CMA_TOP_SNP_FILE="%s_%s.cma.$SNP_LINE_EXTENTION"
 export RESULTS_FILE_NAME="results"
