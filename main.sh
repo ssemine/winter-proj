@@ -147,8 +147,10 @@ while IFS= read -r line; do
 
 	if [ p_val = "$P_VALUE_THRESHOLD_PER_GENE" ]; then
 		num_snps=$(wc -l < "$gene_dir/$line.ma")
+		echo "$num_snps" >> "$results_file"
 		p_val=$(echo "scale=$P_VALUE_PRECISION; $P_VALUE_NUMERATOR / $num_snps" | bc)
 		p_val=$(printf "%.${P_VALUE_PRECISION}f\n" "$p_val")
+		echo "$p_val" >> "$results_file"
 	fi
 	summary_log "p-value for $line $p_val"
 	log_lines 1
