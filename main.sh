@@ -145,6 +145,7 @@ while IFS= read -r line; do
 	cp "$gene_dir/$line.ma" "$ma_file_reference"
 	log "$LOG_MA_TRANSFORMED $line"
 
+	# Calculate p-value per gene (consider to remove)
 	if [ p_val = "$P_VALUE_THRESHOLD_PER_GENE" ]; then
 		num_snps=$(wc -l < "$gene_dir/$line.ma")
 		p_val=$(echo "scale=$P_VALUE_PRECISION; $P_VALUE_NUMERATOR / $num_snps" | bc)

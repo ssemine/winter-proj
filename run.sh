@@ -118,7 +118,7 @@ if [[ "$has_snp" =~ ^-?[0-9]+$ ]] && [ "$has_snp" -eq 1 ]; then
             -v sample_size="$MA_SAMPLE_SIZE_IDX" \
             -v thresh="$p_val" \
             '{
-                sci_thresh = sprintf("%.5e", thresh)  
+                sci_thresh=sprintf("%.5e", thresh)  
                 print $snp, gene_name, $allele_one, $allele_two, $freq, $effect_size, $se, $p_val, $effect_size, $se, $p_val, $sample_size, sci_thresh
             }' "$ma_top_snp_file" >> "$results_file"
     
@@ -145,7 +145,7 @@ if [[ "$has_snp" =~ ^-?[0-9]+$ ]] && [ "$has_snp" -eq 1 ]; then
                 next
             }
             {
-                sci_thresh = sprintf("%.5e", thresh) 
+                sci_thresh=sprintf("%.5e", thresh) 
                 print $snp, gene_name, $allele_one, $allele_two, $freq, $effect_size, $se, $p_val, cma_effect_size, cma_se, cma_p_val, $sample_size, sci_thresh
             }' "$cma_top_snp_file" "$ma_top_snp_file" >> "$results_file"
         # Deletes both files, as they are no longer needed
