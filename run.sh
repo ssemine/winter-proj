@@ -24,7 +24,6 @@ path_to_definitions="${12}"
 results_file="${13}"
 prev_top_snp="${14}"
 
-
 source "$path_to_definitions/constants.sh"
 source "$path_to_definitions/file_indices.sh"
 source "$path_to_definitions/log_messages.sh"
@@ -38,7 +37,6 @@ ma_file_reference="$(printf "$MA_FILE_NAME_REFERENCE" "$gene_name")"
 ma_file_reference_tmp="$(printf "$MA_FILE_NAME_REFERENCE_TMP" "$gene_name")"
 ma_top_snp_file="$(printf "$MA_TOP_SNP_FILE" "$gene_name" "$idx")"
 cma_top_snp_file="$(printf "$CMA_TOP_SNP_FILE" "$gene_name" "$idx")"
-
 
 source "$path_to_definitions/functions.sh"
 
@@ -55,6 +53,7 @@ log "$LOG_READING_FROM $gene_dir/$read_file"
 top_snp_file="$(printf "$TOP_SNP_FILE" "$snp_dir" "$gene_name" "$idx")"
 touch "$top_snp_file"
 
+# Fetches the SNP with the lowest p-value. Writes to snp_file, summary_file and if the origin file is .cma.cojo (idx > 1) writes to cma_top_snp_file
 awk -v col="$MA_P_VALUE_IDX" \
     -v id_col="$MA_SNP_ID_IDX" \
     -v thresh="$p_val" \
@@ -83,6 +82,7 @@ if [[ "$has_snp" =~ ^-?[0-9]+$ ]] && [ "$has_snp" -eq 1 ]; then
     top_snp=$(cat $top_snp_file)
 	log "$(printf "$LOG_TOP_SNP" "$gene_name" "$top_snp")"
 
+    # Runs GCTA conditional analysis
 	"$PATH_TO_GCTA" --bfile "$bfile" \
         --chr "$chr" \
         --maf "$maf" \
@@ -91,8 +91,10 @@ if [[ "$has_snp" =~ ^-?[0-9]+$ ]] && [ "$has_snp" -eq 1 ]; then
         --out "$gene_dir/$outfile" \
         || log "$ERROR_GCTA_FAILED $gene_name"
 
+    # .cma.cojo file from above GCTA conditional analysis
     cma_file="$(printf "$TRANSFORM_CMA_FILE_NAME" "$gene_dir" "$outfile")"
 
+    # Fetches the top SNP from the initial .ma file and writes to ma_top_snp_file
     awk -v snp="$MA_SNP_ID_IDX" \
         -v top_snp="$top_snp" \
         '{
@@ -101,7 +103,9 @@ if [[ "$has_snp" =~ ^-?[0-9]+$ ]] && [ "$has_snp" -eq 1 ]; then
             }
         }' "$gene_dir/$(printf "$MA_FILE_NAME" "$gene_name")" > "$ma_top_snp_file"
 
+    # If idx = 1 (First run, SNP not from GCTA-COJO)
     if [[ "$idx" =~ ^-?[0-9]+$ ]] && [ "$idx" -eq 1 ]; then
+        # Writes top SNP data from initial .ma file (cma.cojo columns are duplicates of initial .ma) to results_file
         awk -v snp="$MA_SNP_ID_IDX" \
             -v gene_name="$gene_name" \
             -v allele_one="$MA_A1_IDX" \
@@ -115,8 +119,12 @@ if [[ "$has_snp" =~ ^-?[0-9]+$ ]] && [ "$has_snp" -eq 1 ]; then
             '{ 
                 print $snp, gene_name, $allele_one, $allele_two, $freq, $effect_size, $se, $p_val, $effect_size, $se, $p_val, $sample_size, thresh
             }' "$ma_top_snp_file" >> "$results_file"
+        # Deletes ma_top_snp_file as no longer needed
         rm "$ma_top_snp_file"
+    
+    # If idx > 1 (SNP from GCTA-COJO)
     elif [[ "$idx" =~ ^-?[0-9]+$ ]] && [ "$idx" -gt 1 ]; then
+        # Writes top SNP data from both cma.cojo (transformed to .ma) and initial .ma to results_file
         awk -v snp="$MA_SNP_ID_IDX" \
             -v gene_name="$gene_name" \
             -v allele_one="$MA_A1_IDX" \
@@ -139,20 +147,23 @@ if [[ "$has_snp" =~ ^-?[0-9]+$ ]] && [ "$has_snp" -eq 1 ]; then
             { 
                 print $snp, gene_name, $allele_one, $allele_two, $freq, $effect_size, $se, $p_val, cma_effect_size, cma_se, cma_p_val, $sample_size, thresh
             }' "$cma_top_snp_file" "$ma_top_snp_file" >> "$results_file"
-        rm "$ma_top_snp_file"
-        rm "$cma_top_snp_file"
+        # Deletes both files, as they are no longer needed
+        rm "$ma_top_snp_file" "$cma_top_snp_file"
     fi
 
+    # Sorts the .cma.cojo file by SNP ID
     head -n 1 "$cma_file" > "$cma_file.$HEADER_EXTENTION"
     tail -n +2 "$cma_file" | sort -k "$CMA_SNP_ID_IDX" > "$cma_file.$SORTED_EXTENTION"
     cat "$cma_file.$HEADER_EXTENTION" "$cma_file.$SORTED_EXTENTION" > "$cma_file"
     rm "$cma_file.$HEADER_EXTENTION" "$cma_file.$SORTED_EXTENTION"  
 
+    # Writes the SNPs from cma.cojo file to a SNP_LIST file
     awk -v snp_col="$CMA_SNP_ID_IDX" \
         'NR > 1 {
             print $snp_col
         }' "$cma_file" > "$gene_dir/$SNP_LIST"
 
+    # Removes rows which SNPs do not appear in SNP_LIST
     awk -v snp_col="$MA_SNP_ID_IDX" \
         'NR==FNR { 
             snps[$snp_col];
@@ -165,9 +176,11 @@ if [[ "$has_snp" =~ ^-?[0-9]+$ ]] && [ "$has_snp" -eq 1 ]; then
         $snp_col in snps' "$gene_dir/$SNP_LIST" \
         "$gene_dir/$ma_file_reference" > "$gene_dir/$ma_file_reference.$TMP_EXTENTION"
 
+    # Updates ma_file_reference file
     cat "$gene_dir/$ma_file_reference.$TMP_EXTENTION" > "$gene_dir/$ma_file_reference"
     rm "$gene_dir/$SNP_LIST" "$gene_dir/$ma_file_reference.$TMP_EXTENTION"
 
+    # Transforms the .cma.cojo file to .ma file
     "$PATH_TO_TRANSFORM_SH" "$gene_name" \
         "$cma_file" \
         "$gene_dir" \
@@ -180,6 +193,8 @@ if [[ "$has_snp" =~ ^-?[0-9]+$ ]] && [ "$has_snp" -eq 1 ]; then
         "$gene_dir/$ma_file_reference" \
         "$idx" \
         || { log "$ERROR_TRANSFORM $gene_name"; exit 1; }
+    
+    # Calls next run.sh
 	"$PATH_TO_RUN_SH" "$gene_name" \
 		"$bfile" \
 		"$chr" \
@@ -196,7 +211,7 @@ if [[ "$has_snp" =~ ^-?[0-9]+$ ]] && [ "$has_snp" -eq 1 ]; then
         "$top_snp" \
         || { log "$ERROR_RUN_FAILED $gene_name"; exit 1; }
 else
-    
+    # If no SNP with p-value < threshold is found, log and write to summary_file
 	log "$(printf "$LOG_TOTAL_SNPS" "$gene_name" "$prev_idx")"
     summary_log "$(printf "$LOG_TOTAL_SNPS" "$gene_name" "$prev_idx")"
 fi
