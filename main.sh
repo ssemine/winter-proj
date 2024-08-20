@@ -143,9 +143,11 @@ while IFS= read -r line; do
 	ma_file_reference="$(printf "$MA_FILE_NAME_REFERENCE" "$gene_dir/$line")"
 	cp "$gene_dir/$line.ma" "$ma_file_reference"
 	log "$LOG_MA_TRANSFORMED $line"
+
 	if [ p_val = "$P_VALUE_THRESHOLD_PER_GENE" ]; then
 		num_snps=$(wc -l < "$gene_dir/$line.ma")
-		p_val=$(echo "scale=10; 0.05 / $num_snps" | bc)
+		p_val=$(echo "scale=10; $P_VALUE_NUMERATOR / $num_snps" | bc)
+		p_val=$(printf "%.${DECIMAL_PLACES}e" "$p_val")
 	fi
 	summary_log "p-value for $line $p_val"
 	log_lines 1
