@@ -34,11 +34,11 @@ if [ "$file_type" = "$CMA_IDENTIFIER" ]; then
     ma_file="${10}"
     idx="${11}"
     name="$(printf "$MA_FILE_NAME_IDX" "$gene_name" "$idx")"
-    name_final="$(printf "$MA_FILE_NAME_FINAL_IDX" "$gene_name" "$idx")"
+    name_tmp="$(printf "$MA_FILE_NAME_TMP_IDX" "$gene_name" "$idx")"
 else
     snps="${10}"
     name="$(printf "$MA_FILE_NAME" "$gene_name")"
-    name_final="$(printf "$MA_FILE_NAME_FINAL" "$gene_name")"
+    name_tmp="$(printf "$MA_FILE_TMP_FINAL" "$gene_name")"
 fi
 
 columns="$MA_FILE_COLUMNS"
@@ -49,8 +49,8 @@ if ! touch "$gene_dir/$name"; then
     exit 1
 fi
 
-if ! touch "$gene_dir/$name_final"; then
-    log_genes "$ERROR_TOUCH_FAILED $gene_dir/$name_final"
+if ! touch "$gene_dir/$name_tmp"; then
+    log_genes "$ERROR_TOUCH_FAILED $gene_dir/$name_tmp"
     exit 1
 fi
 
@@ -73,6 +73,7 @@ if [ "$file_type" = "$INPUT_IDENTIFIER" ]; then
             -v name="$name" \
             -v snps="$snps" \
             -v chr_num="$chr_num" \
+            -v sample_size="$sample_size" \
             'BEGIN {
                 while ((getline < snps) > 0) {
                     snp_list[$1]
@@ -80,7 +81,7 @@ if [ "$file_type" = "$INPUT_IDENTIFIER" ]; then
             }
             {
                 if ($gidx == gene && ($col1 in snp_list) && $cidx == chr_num) {
-                    print $col1, $col2, $col3, $col4, $col5, $col6, $col7 >> (gene_dir "/" name)
+                    print $col1, $col2, $col3, $col4, $col5, $col6, $col7, sample_size >> (gene_dir "/" name)
                 }
             }' "$infile" \
             || { log_genes "$ERROR_AWK_WRITE $gene_dir/$name"; exit 1; }
@@ -99,9 +100,10 @@ if [ "$file_type" = "$INPUT_IDENTIFIER" ]; then
             -v gene_dir="$gene_dir" \
             -v name="$name" \
             -v name_chr="${gene_name}_chr.txt" \
+            -v sample_size="$sample_size" \
             '{
                 if ($gidx == gene) {
-                    print $col1, $col2, $col3, $col4, $col5, $col6, $col7 >> (gene_dir "/" name)
+                    print $col1, $col2, $col3, $col4, $col5, $col6, $col7, sample_size >> (gene_dir "/" name)
                 }
             }' "$infile" \
             || { log_genes "$ERROR_AWK_WRITE $gene_dir/$name"; exit 1; }
@@ -119,6 +121,7 @@ else
     -v gene_dir="$gene_dir" \
     -v name="$name" \
     -v ma_snp_idx="$MA_SNP_ID_IDX" \
+    -v sample_size="$sample_size" \
     'FNR == 1 { next }
     FNR==NR {
         ma_snp[$ma_snp_idx] = 1
@@ -128,7 +131,7 @@ else
     }
     {
         if ($col1 in ma_snp) {
-            print $col1, ma_col2[FNR], ma_col3[FNR], $col4, $col5, $col6, $col7 >> (gene_dir "/" name)
+            print $col1, ma_col2[FNR], ma_col3[FNR], $col4, $col5, $col6, $col7, sample_size >> (gene_dir "/" name)
         }
     }' "$ma_file" "$infile" \
     || { log_genes "$ERROR_AWK_WRITE $gene_dir/$name"; exit 1; }
@@ -139,17 +142,9 @@ log_genes "$LOG_DATA_WRITTEN $gene_dir/$name"
 sort -k "$MA_SNP_ID_IDX" "$gene_dir/$name" -o "$gene_dir/$name" \
     || { log_genes "$ERROR_SORT $gene_dir/$name"; exit 1; }
 
-awk -v sample_size="$sample_size" '{print $0, sample_size}' "$gene_dir/$name" > "$gene_dir/$name_final" \
-    || { log_genes "$ERROR_AWK_WRITE $gene_dir/$name_final"; exit 1; }
-log_genes "$(printf "$LOG_SAMPLE_SIZE_ADDED" "$sample_size" "$gene_dir/$name_final")"
-
-rm "$gene_dir/$name"
-
-# Adds column headers to .ma file
-awk -v "cols=$columns" 'BEGIN{print cols}1' "$gene_dir/$name_final" > temp \
-	|| { log_genes "$ERROR_AWK_COLS $gene_dir/$name_final"; exit 1; }
-mv temp "$gene_dir/$name_final"
-log_genes "$LOG_COLUMNS_ADDED $gene_dir/$name_final"
-mv $gene_dir/$name_final $gene_dir/$name
-log_genes "$(printf "$LOG_FILE_RENAMED" "$gene_dir/$name_final" "$gene_dir/$name")"
+cat "$gene_dir/$name" > "$gene_dir/$name_tmp"
+cat "$columns" > "$gene_dir/$name"
+cat "$gene_dir/$name_tmp" >> "$gene_dir/$name"
+rm "$gene_dir/$name_tmp"
+log_genes "$LOG_COLUMNS_ADDED $gene_dir/$name"
 log_genes "$LOG_END_MESSAGE $gene_dir/$name"
