@@ -98,9 +98,8 @@ if [[ "$has_snp" =~ ^-?[0-9]+$ ]] && [ "$has_snp" -eq 1 ]; then
         awk -v snp="$CMA_SNP_ID_IDX" \
         -v top_snp="$prev_top_snp" \
         -v gene_name="$gene_name" \
-        -v gene_idx="$GENE_NAME_IDX" \
         '{
-            if ($snp == top_snp && $gene_idx == gene_name) {
+            if ($snp == top_snp) {
                 print
             }
         }' "$prev_cma_file" > "$CMA_TOP_SNP_FILE"
