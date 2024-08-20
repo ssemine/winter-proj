@@ -106,7 +106,7 @@ if [[ "$has_snp" =~ ^-?[0-9]+$ ]] && [ "$has_snp" -eq 1 ]; then
             '{ 
                 print $snp, gene_name, $allele_one, $allele_two, $freq, $effect_size, $se, $p_val, $effect_size, $se, $p_val, $sample_size, thresh
             }' "$MA_TOP_SNP_FILE" >> "$results_file"
-    if [[ "$idx" =~ ^-?[0-9]+$ ]] && [ "$idx" -gt 2 ]; then
+    elif [[ "$idx" =~ ^-?[0-9]+$ ]] && [ "$idx" -gt 2 ]; then
         echo "idx > 1 ($idx) (reading/writing cma)" >> "$results_file"
         touch "$CMA_TOP_SNP_FILE"
         echo "$prev_cma_file" >> "$results_file"
