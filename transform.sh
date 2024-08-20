@@ -38,7 +38,7 @@ if [ "$file_type" = "$CMA_IDENTIFIER" ]; then
 else
     snps="${10}"
     name="$(printf "$MA_FILE_NAME" "$gene_name")"
-    name_tmp="$(printf "$MA_FILE_TMP_FINAL" "$gene_name")"
+    name_tmp="$(printf "$MA_FILE_NAME_TMP" "$gene_name")"
 fi
 
 columns="$MA_FILE_COLUMNS"
