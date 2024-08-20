@@ -101,7 +101,7 @@ if [[ "$has_snp" =~ ^-?[0-9]+$ ]] && [ "$has_snp" -eq 1 ]; then
         -v gene_name="$gene_name" \
         '{
             if ($snp == top_snp) {
-                print
+                print $0
             }
         }' "$prev_cma_file" > "$CMA_TOP_SNP_FILE"
         echo "MA file:" >> "$results_file"
