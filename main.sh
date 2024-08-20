@@ -76,6 +76,7 @@ while [[ $# -gt 0 ]]; do
 		--clean)
 			clean="$2"
 			shift 2
+			;;
         *)
             echo "$ERROR_INVALID_ARGUMENT $1"
             exit 1
@@ -169,7 +170,7 @@ while IFS= read -r line; do
 	touch "$log_dir/$gcta_log_file"
 	cat "$gene_dir/$line"*.log > "$log_dir/$gcta_log_file"
 	rm "$gene_dir/$line"*.log
-	
+
 	log "$LOG_RUN_FINISHED $line"
 	rm "$ma_file_reference"
 	echo "" >> "$log_dir/$summary_file"
