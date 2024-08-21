@@ -143,7 +143,7 @@ if [[ "$has_snp" =~ ^-?[0-9]+$ ]] && [ "$has_snp" -eq 1 ]; then
             round, pos
         }' "$first_ma_file" "$second_ma_file" >> "$results_file"
     fi
-    if [[ "$idx" =~ ^-?[0-9]+$ ]] && [ "$idx" -eq 1 ]; then
+    if [[ "$idx" =~ ^-?[0-9]+$ ]] && [ "$idx" -gt 1 ]; then
         # Sorts the .cma.cojo file by SNP ID
         cma_file_header="$(printf "$cma_file.$HEADER_EXTENTION")"
         cma_file_sorted="$(printf "$cma_file.$SORTED_EXTENTION")"
