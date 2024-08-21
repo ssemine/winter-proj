@@ -129,7 +129,7 @@ mkdir -p "$gene_dir"
 mkdir -p "$snp_dir"
 
 if [ "$p_val" = "$P_VALUE_THRESHOLD_PER_CHR" ]; then
-	num_snps=$(cat "$infile" | awk -v col="$INPUT_SNP_ID_IDX"'{ print $col }' | sort -k 1 | uniq | wc -l)
+	num_snps=$(cat "$infile" | awk -v col="$INPUT_SNP_ID_IDX" '{ print $col }' | sort -k 1 | uniq | wc -l)
 	p_val=$(echo "scale=$P_VALUE_PRECISION; $P_VALUE_NUMERATOR / $num_snps" | bc)
 	p_val=$(printf "%.${P_VALUE_PRECISION}f\n" "$p_val")
 fi
