@@ -111,7 +111,7 @@ if [[ "$has_snp" =~ ^-?[0-9]+$ ]] && [ "$has_snp" -eq 1 ]; then
         first_ma_file="$cma_top_file"
     fi
     second_ma_file="$ma_top_snp_file"
-    
+
     awk -v snp="$MA_SNP_ID_IDX" \
         -v gene_name="$gene_name" \
         -v allele_one="$MA_A1_IDX" \
@@ -143,37 +143,38 @@ if [[ "$has_snp" =~ ^-?[0-9]+$ ]] && [ "$has_snp" -eq 1 ]; then
             round, pos
         }' "$first_ma_file" "$second_ma_file" >> "$results_file"
     fi
+    if [[ "$idx" =~ ^-?[0-9]+$ ]] && [ "$idx" -eq 1 ]; then
+        # Sorts the .cma.cojo file by SNP ID
+        cma_file_header="$(printf "$cma_file.$HEADER_EXTENTION")"
+        cma_file_sorted="$(printf "$cma_file.$SORTED_EXTENTION")"
+        head -n 1 "$cma_file" > "$cma_file_header"
+        tail -n +2 "$cma_file" | sort -k "$CMA_SNP_ID_IDX" > "$cma_file_sorted"
+        cat "$cma_file_header" "$cma_file_sorted" > "$cma_file"
+        rm "$cma_file_header" "$cma_file_sorted"  
 
-    # Sorts the .cma.cojo file by SNP ID
-    cma_file_header="$(printf "$cma_file.$HEADER_EXTENTION")"
-    cma_file_sorted="$(printf "$cma_file.$SORTED_EXTENTION")"
-    head -n 1 "$cma_file" > "$cma_file_header"
-    tail -n +2 "$cma_file" | sort -k "$CMA_SNP_ID_IDX" > "$cma_file_sorted"
-    cat "$cma_file_header" "$cma_file_sorted" > "$cma_file"
-    rm "$cma_file_header" "$cma_file_sorted"  
+        # Writes the SNPs from cma.cojo file to a SNP_LIST file
+        awk -v snp_col="$CMA_SNP_ID_IDX" \
+            'NR > 1 {
+                print $snp_col
+            }' "$cma_file" > "$gene_dir/$SNP_LIST"
 
-    # Writes the SNPs from cma.cojo file to a SNP_LIST file
-    awk -v snp_col="$CMA_SNP_ID_IDX" \
-        'NR > 1 {
-            print $snp_col
-        }' "$cma_file" > "$gene_dir/$SNP_LIST"
+        # Removes rows which SNPs do not appear in SNP_LIST
+        awk -v snp_col="$MA_SNP_ID_IDX" \
+            'NR==FNR { 
+                snps[$snp_col];
+                next 
+            } 
+            FNR == 1 { 
+                print; 
+                next
+            } 
+            $snp_col in snps' "$gene_dir/$SNP_LIST" \
+            "$gene_dir/$ma_file_reference" > "$gene_dir/$ma_file_reference.$TMP_EXTENTION"
 
-    # Removes rows which SNPs do not appear in SNP_LIST
-    awk -v snp_col="$MA_SNP_ID_IDX" \
-        'NR==FNR { 
-            snps[$snp_col];
-            next 
-        } 
-        FNR == 1 { 
-            print; 
-            next
-        } 
-        $snp_col in snps' "$gene_dir/$SNP_LIST" \
-        "$gene_dir/$ma_file_reference" > "$gene_dir/$ma_file_reference.$TMP_EXTENTION"
-
-    # Updates ma_file_reference file
-    cat "$gene_dir/$ma_file_reference.$TMP_EXTENTION" > "$gene_dir/$ma_file_reference"
-    rm "$gene_dir/$SNP_LIST" "$gene_dir/$ma_file_reference.$TMP_EXTENTION"
+        # Updates ma_file_reference file
+        cat "$gene_dir/$ma_file_reference.$TMP_EXTENTION" > "$gene_dir/$ma_file_reference"
+        rm "$gene_dir/$SNP_LIST" "$gene_dir/$ma_file_reference.$TMP_EXTENTION"
+    fi
 
     # Transforms the .cma.cojo file to .ma file
     "$PATH_TO_TRANSFORM_SH" "$gene_name" \
