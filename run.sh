@@ -108,7 +108,7 @@ if [[ "$has_snp" =~ ^-?[0-9]+$ ]] && [ "$has_snp" -eq 1 ]; then
     if [[ "$idx" =~ ^-?[0-9]+$ ]] && [ "$idx" -eq 1 ]; then
         first_ma_file="$ma_top_snp_file"
     else
-        first_ma_file="$cma_top_file"
+        first_ma_file="$cma_top_snp_file"
     fi
     second_ma_file="$ma_top_snp_file"
 
@@ -139,12 +139,13 @@ if [[ "$has_snp" =~ ^-?[0-9]+$ ]] && [ "$has_snp" -eq 1 ]; then
             $effect_size, cma_effect_size, \
             $se, cma_se,  \
             $p_val, cma_p_val,  \
-            $sample_size, sci_thresh \
+            $sample_size, sci_thresh, \
             round, pos
         }' "$first_ma_file" "$second_ma_file" >> "$results_file"
     fi
     if [[ "$idx" =~ ^-?[0-9]+$ ]] && [ "$idx" -gt 1 ]; then
         # Sorts the .cma.cojo file by SNP ID
+        echo "$cma_file"
         cma_file_header="$(printf "$cma_file.$HEADER_EXTENTION")"
         cma_file_sorted="$(printf "$cma_file.$SORTED_EXTENTION")"
         head -n 1 "$cma_file" > "$cma_file_header"
