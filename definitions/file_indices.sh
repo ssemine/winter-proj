@@ -11,6 +11,7 @@
 # Input file indices (GWAS summary statistics)
 export INPUT_SNP_ID_IDX=1
 export INPUT_CHR_IDX=2
+export INPUT_POS_IDX=3
 export INPUT_ALLELE_ONE_IDX=4
 export INPUT_ALLELE_TWO_IDX=5
 export INPUT_FREQ_IDX=6

@@ -115,6 +115,13 @@ else
 	cat "$genes" > "$gene_list"
 fi
 
+# Generate SNP list with position
+awk -v snp="$INPUT_SNP_ID_IDX" \
+	-v pos="$INPUT_POS_IDX" \
+	'{
+		print $snp, $pos
+	}' "$infile" | sort -k 1 | uniq > "$SNP_POS_LIST"
+
 summary_log "Number of genes: $(wc -l < $gene_list)"
 echo "" >> "$log_dir/$summary_file"
 
@@ -185,13 +192,6 @@ while IFS= read -r line; do
 	echo "" >> "$log_dir/$summary_file"
 done < "$gene_list" || { log "$ERROR_READ_GENE_LIST"; exit 1; }
 
-
-# Clean up
-if [ "$clean" = "all" ]; then 
-	rm "$gene_list"
-	rm -rf "$gene_dir"
-	rm -rf "$snp_dir"
-fi
 
 log_lines 1
 log "$LOG_END_MESSAGE"

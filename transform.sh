@@ -100,9 +100,10 @@ if [ "$file_type" = "$INPUT_IDENTIFIER" ]; then
             -v gene_dir="$gene_dir" \
             -v name="$name" \
             -v name_chr="${gene_name}_chr.txt" \
+            -v chr_num="$chr_num" \
             -v sample_size="$sample_size" \
             '{
-                if ($gidx == gene) {
+                if (($gidx == gene) && ($cidx == chr_num)) {
                     print $col1, $col2, $col3, $col4, $col5, $col6, $col7, sample_size >> (gene_dir "/" name)
                 }
             }' "$infile" \

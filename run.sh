@@ -81,6 +81,7 @@ awk -v col="$MA_P_VALUE_IDX" \
 has_snp="$(wc -l < "$top_snp_file")"
 if [[ "$has_snp" =~ ^-?[0-9]+$ ]] && [ "$has_snp" -eq 1 ]; then
     top_snp=$(cat $top_snp_file)
+    top_snp_pos=$(cat $SNP_POS_LIST | grep -w "$top_snp" | awk '{ print $2 }')
 	log "$(printf "$LOG_TOP_SNP" "$gene_name" "$top_snp")"
 
     # Runs GCTA conditional analysis
@@ -104,51 +105,43 @@ if [[ "$has_snp" =~ ^-?[0-9]+$ ]] && [ "$has_snp" -eq 1 ]; then
             }
         }' "$gene_dir/$(printf "$MA_FILE_NAME" "$gene_name")" > "$ma_top_snp_file"
 
-    # If idx = 1 (First run, SNP not from GCTA-COJO)
     if [[ "$idx" =~ ^-?[0-9]+$ ]] && [ "$idx" -eq 1 ]; then
-        # Writes top SNP data from initial .ma file (cma.cojo columns are duplicates of initial .ma) to results_file
-        awk -v snp="$MA_SNP_ID_IDX" \
-            -v gene_name="$gene_name" \
-            -v allele_one="$MA_A1_IDX" \
-            -v allele_two="$MA_A2_IDX" \
-            -v freq="$MA_FREQ_IDX" \
-            -v effect_size="$MA_EFFECT_SIZE_IDX" \
-            -v se="$MA_SE_IDX" \
-            -v p_val="$MA_P_VALUE_IDX" \
-            -v sample_size="$MA_SAMPLE_SIZE_IDX" \
-            -v thresh="$p_val" \
-            '{
-                sci_thresh=sprintf("%.5e", thresh)  
-                print $snp, gene_name, $allele_one, $allele_two, $freq, $effect_size, $se, $p_val, $effect_size, $se, $p_val, $sample_size, sci_thresh
-            }' "$ma_top_snp_file" >> "$results_file"
+        first_ma_file="$ma_top_snp_file"
+    else
+        first_ma_file="$cma_top_file"
+    fi
+    second_ma_file="$ma_top_snp_file"
     
-    # If idx > 1 (SNP from GCTA-COJO)
-    elif [[ "$idx" =~ ^-?[0-9]+$ ]] && [ "$idx" -gt 1 ]; then
-        # Writes top SNP data from both cma.cojo (transformed to .ma) and initial .ma to results_file
-        awk -v snp="$MA_SNP_ID_IDX" \
-            -v gene_name="$gene_name" \
-            -v allele_one="$MA_A1_IDX" \
-            -v allele_two="$MA_A2_IDX" \
-            -v freq="$MA_FREQ_IDX" \
-            -v effect_size="$MA_EFFECT_SIZE_IDX" \
-            -v se="$MA_SE_IDX" \
-            -v p_val="$MA_P_VALUE_IDX" \
-            -v cma_effect_size_idx="$MA_EFFECT_SIZE_IDX" \
-            -v cma_se_idx="$MA_SE_IDX" \
-            -v cma_p_val_idx="$MA_P_VALUE_IDX" \
-            -v sample_size="$MA_SAMPLE_SIZE_IDX" \
-            -v thresh="$p_val" \
-            'FNR==NR {
-                cma_effect_size=$cma_effect_size_idx
-                cma_se=$cma_se_idx
-                cma_p_val=$cma_p_val_idx
-                next
-            }
-            {
-                sci_thresh=sprintf("%.5e", thresh) 
-                print $snp, gene_name, $allele_one, $allele_two, $freq, $effect_size, $se, $p_val, cma_effect_size, cma_se, cma_p_val, $sample_size, sci_thresh
-            }' "$cma_top_snp_file" "$ma_top_snp_file" >> "$results_file"
-        # Deletes both files, as they are no longer needed
+    awk -v snp="$MA_SNP_ID_IDX" \
+        -v gene_name="$gene_name" \
+        -v allele_one="$MA_A1_IDX" \
+        -v allele_two="$MA_A2_IDX" \
+        -v freq="$MA_FREQ_IDX" \
+        -v effect_size="$MA_EFFECT_SIZE_IDX" \
+        -v se="$MA_SE_IDX" \
+        -v p_val="$MA_P_VALUE_IDX" \
+        -v cma_effect_size_idx="$MA_EFFECT_SIZE_IDX" \
+        -v cma_se_idx="$MA_SE_IDX" \
+        -v cma_p_val_idx="$MA_P_VALUE_IDX" \
+        -v sample_size="$MA_SAMPLE_SIZE_IDX" \
+        -v thresh="$p_val" \
+        -v round="$idx" \
+        -v pos="$top_snp_pos" \
+        'FNR==NR {
+            cma_effect_size=$cma_effect_size_idx
+            cma_se=$cma_se_idx
+            cma_p_val=$cma_p_val_idx
+            next
+        }
+        {
+            sci_thresh=sprintf("%.5e", thresh) 
+            print $snp, gene_name, $allele_one, $allele_two, $freq, \
+            $effect_size, cma_effect_size, \
+            $se, cma_se,  \
+            $p_val, cma_p_val,  \
+            $sample_size, sci_thresh \
+            round, pos
+        }' "$first_ma_file" "$second_ma_file" >> "$results_file"
     fi
 
     # Sorts the .cma.cojo file by SNP ID
