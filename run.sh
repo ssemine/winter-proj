@@ -80,8 +80,12 @@ awk -v col="$MA_P_VALUE_IDX" \
 
 has_snp="$(wc -l < "$top_snp_file")"
 if [[ "$has_snp" =~ ^-?[0-9]+$ ]] && [ "$has_snp" -eq 1 ]; then
+
+    # SNP with the lowest p-value and relevant statistics for the results file
     top_snp=$(cat $top_snp_file)
     top_snp_pos=$(cat $SNP_POS_LIST | grep -w "$top_snp" | awk '{ print $2 }')
+    top_snp_strand=$(cat $SNP_POS_LIST | grep -w "$top_snp" | awk '{ print $3 }')
+    top_snp_qtl_type=$(cat $SNP_POS_LIST | grep -w "$top_snp" | awk '{ print $4 }')
 	log "$(printf "$LOG_TOP_SNP" "$gene_name" "$top_snp")"
 
     # Runs GCTA conditional analysis
@@ -127,6 +131,9 @@ if [[ "$has_snp" =~ ^-?[0-9]+$ ]] && [ "$has_snp" -eq 1 ]; then
         -v thresh="$p_val" \
         -v round="$idx" \
         -v pos="$top_snp_pos" \
+        -v chr="$chr" \
+        -v strand="$top_snp_strand" \
+        -v qtl_type="$top_snp_qtl_type" \
         'FNR==NR {
             cma_effect_size=$cma_effect_size_idx
             cma_se=$cma_se_idx
@@ -135,12 +142,14 @@ if [[ "$has_snp" =~ ^-?[0-9]+$ ]] && [ "$has_snp" -eq 1 ]; then
         }
         {
             sci_thresh=sprintf("%.5e", thresh) 
-            print $snp, gene_name, $allele_one, $allele_two, $freq, \
-            $effect_size, cma_effect_size, \
-            $se, cma_se,  \
-            $p_val, cma_p_val,  \
-            $sample_size, sci_thresh, \
-            round, pos
+            print $snp, chr, \
+                pos, gene_name, strand \
+                $allele_one, $allele_two, \
+                $freq, $effect_size, \
+                cma_effect_size, $se, \
+                cma_se, $p_val, \
+                cma_p_val, $sample_size, \
+                sci_thresh, qtl_type, round
         }' "$first_ma_file" "$second_ma_file" >> "$results_file"
     
     if [[ "$idx" =~ ^-?[0-9]+$ ]] && [ "$idx" -gt 1 ]; then

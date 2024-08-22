@@ -118,8 +118,10 @@ fi
 # Generate SNP list with position
 awk -v snp="$INPUT_SNP_ID_IDX" \
 	-v pos="$INPUT_POS_IDX" \
+	-v strand="$INPUT_STRAND_IDX" \
+	-v qtl_type="$INPUT_QTL_TYPE_IDX" \
 	'{
-		print $snp, $pos
+		print $snp, $pos, $strand, $qtl_type
 	}' "$infile" | sort -k 1 | uniq > "$SNP_POS_LIST"
 
 summary_log "Number of genes: $(wc -l < $gene_list)"
@@ -179,8 +181,9 @@ while IFS= read -r line; do
 
 	# Join GCTA logs by gene and run.sh idx
 	gcta_log_file="$(printf "$GCTA_LOG_FILE" "$line")"
-	touch "$log_dir/$gcta_log_file"
-	cat "$gene_dir/$line"*.log > "$log_dir/$gcta_log_file"
+	gcta_log_file="$log_dir/$GCTA_LOG_DIR/$gcta_log_file"
+	touch "$gcta_log_file"
+	cat "$gene_dir/$line"*.log > "$gcta_log_file"
 	rm "$gene_dir/$line"*.log
 
 	log "$LOG_RUN_FINISHED $line"
