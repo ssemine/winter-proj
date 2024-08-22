@@ -94,6 +94,7 @@ summary_file="${log_file%.log}_summary.log"
 source definitions/functions.sh
 cd "$run_dir"
 mkdir -p "$log_dir"
+mkdir -p "$log_dir/$GCTA_LOG_DIR"
 touch "$log_dir/$log_file"
 touch "$log_dir/$summary_file"
 touch "$results_file"
