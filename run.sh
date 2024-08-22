@@ -142,7 +142,7 @@ if [[ "$has_snp" =~ ^-?[0-9]+$ ]] && [ "$has_snp" -eq 1 ]; then
             $sample_size, sci_thresh, \
             round, pos
         }' "$first_ma_file" "$second_ma_file" >> "$results_file"
-    fi
+    
     if [[ "$idx" =~ ^-?[0-9]+$ ]] && [ "$idx" -gt 1 ]; then
         # Sorts the .cma.cojo file by SNP ID
         echo "$cma_file"
