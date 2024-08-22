@@ -143,13 +143,13 @@ if [[ "$has_snp" =~ ^-?[0-9]+$ ]] && [ "$has_snp" -eq 1 ]; then
         {
             sci_thresh=sprintf("%.5e", thresh) 
             print $snp, chr, \
-                pos, gene_name, strand \
-                $allele_one, $allele_two, \
-                $freq, $effect_size, \
-                cma_effect_size, $se, \
-                cma_se, $p_val, \
-                cma_p_val, $sample_size, \
-                sci_thresh, qtl_type, round
+            pos, gene_name, strand, \
+            $allele_one, $allele_two, \
+            $freq, $effect_size, \
+            cma_effect_size, $se, \
+            cma_se, $p_val, \
+            cma_p_val, $sample_size, \
+            sci_thresh, qtl_type, round
         }' "$first_ma_file" "$second_ma_file" >> "$results_file"
     
     if [[ "$idx" =~ ^-?[0-9]+$ ]] && [ "$idx" -gt 1 ]; then
