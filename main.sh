@@ -122,7 +122,7 @@ awk -v snp="$INPUT_SNP_ID_IDX" \
 	-v qtl_type="$INPUT_QTL_TYPE_IDX" \
 	'{
 		print $snp, $pos, $strand, $qtl_type
-	}' "$infile" | sort -k 1 | uniq > "$SNP_POS_LIST"
+	}' "$infile" | sort -k 1 | uniq > "$SNP_HELPER_LIST"
 
 summary_log "Number of genes: $(wc -l < $gene_list)"
 echo "" >> "$log_dir/$summary_file"
