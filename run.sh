@@ -85,7 +85,7 @@ if [[ "$has_snp" =~ ^-?[0-9]+$ ]] && [ "$has_snp" -eq 1 ]; then
 
     # SNP with the lowest p-value and relevant statistics for the results file
     top_snp=$(cat $top_snp_file)
-    top_snp_pos=$(cat $SNP_HELPER_LIST | grep -w "$top_snp" | grep -w "$gene_name"| awk -v pos="$SNP_HELPER_QTL_TYPE_IDX" '{ print $pos }')
+    top_snp_pos=$(cat $SNP_HELPER_LIST | grep -w "$top_snp" | grep -w "$gene_name"| awk -v pos="$SNP_HELPER_POS_IDX" '{ print $pos }')
     top_snp_strand=$(cat $SNP_HELPER_LIST | grep -w "$top_snp" | grep -w "$gene_name"| awk -v strand="$SNP_HELPER_STRAND_IDX" '{ print $strand }')
     top_snp_qtl_type=$(cat $SNP_HELPER_LIST | grep -w "$top_snp" | grep -w "$gene_name" | awk -v qtl_type="$SNP_HELPER_QTL_TYPE_IDX" '{ print $qtl_type }')
 	log "$(printf "$LOG_TOP_SNP" "$gene_name" "$top_snp")"
@@ -153,40 +153,34 @@ if [[ "$has_snp" =~ ^-?[0-9]+$ ]] && [ "$has_snp" -eq 1 ]; then
             cma_p_val, $sample_size, \
             sci_thresh, qtl_type, round
         }' "$first_ma_file" "$second_ma_file" >> "$results_file"
+
+    # Sorts the .cma.cojo file by SNP ID
+    cma_file_header="$(printf "$cma_file.$HEADER_EXTENTION")"
+    cma_file_sorted="$(printf "$cma_file.$SORTED_EXTENTION")"
+    head -n 1 "$cma_file" > "$cma_file_header"
+    tail -n +2 "$cma_file" | sort -k "$CMA_SNP_ID_IDX" > "$cma_file_sorted" \
+        || { log "$ERROR_SORT $cma_file"; exit 1; }
+    cat "$cma_file_header" "$cma_file_sorted" > "$cma_file"
+    rm "$cma_file_header" "$cma_file_sorted"  
+
+    # Removes line with top SNP from .ma reference file
+    awk -v snp="$top_snp" \
+        -v snp_col="$MA_SNP_ID_IDX" \
+        '$snp_col != snp' \
+        "$ma_file_reference" > "$ma_file_reference_tmp"
+    mv "$ma_file_reference_tmp" "$ma_file_reference"
+    rm "$ma_file_reference_tmp"
+
+    # Sorts the .ma reference file by SNP ID
+    ma_file_reference_header="$(printf "$ma_file_reference.$HEADER_EXTENTION")"
+    ma_file_reference_sorted="$(printf "$ma_file_reference.$SORTED_EXTENTION")"
+    head -n 1 "$ma_file_reference" > "$ma_file_reference_header"
+    tail -n +2 "$ma_file_reference" | sort -k "$MA_SNP_ID_IDX" > "$ma_file_reference_sorted" \
+        || { log "$ERROR_SORT $ma_file_reference"; exit 1; }
+    cat "$ma_file_reference_header" "$ma_file_reference_sorted" > "$ma_file_reference"
+    rm "$ma_file_reference_header" "$ma_file_reference_sorted" 
+
     
-    if [[ "$idx" =~ ^-?[0-9]+$ ]] && [ "$idx" -gt 1 ]; then
-
-        # Sorts the .cma.cojo file by SNP ID
-        cma_file_header="$(printf "$cma_file.$HEADER_EXTENTION")"
-        cma_file_sorted="$(printf "$cma_file.$SORTED_EXTENTION")"
-        head -n 1 "$cma_file" > "$cma_file_header"
-        tail -n +2 "$cma_file" | sort -k "$CMA_SNP_ID_IDX" > "$cma_file_sorted"
-        cat "$cma_file_header" "$cma_file_sorted" > "$cma_file"
-        rm "$cma_file_header" "$cma_file_sorted"  
-
-        # Writes the SNPs from cma.cojo file to a SNP_LIST file
-        awk -v snp_col="$CMA_SNP_ID_IDX" \
-            'NR > 1 {
-                print $snp_col
-            }' "$cma_file" > "$gene_dir/$SNP_LIST"
-
-        # Removes rows which SNPs do not appear in SNP_LIST
-        awk -v snp_col="$MA_SNP_ID_IDX" \
-            'NR==FNR { 
-                snps[$snp_col];
-                next 
-            } 
-            FNR == 1 { 
-                print; 
-                next
-            } 
-            $snp_col in snps' "$gene_dir/$SNP_LIST" \
-            "$gene_dir/$ma_file_reference" > "$gene_dir/$ma_file_reference.$TMP_EXTENTION"
-
-        # Updates ma_file_reference file
-        cat "$gene_dir/$ma_file_reference.$TMP_EXTENTION" > "$gene_dir/$ma_file_reference"
-        rm "$gene_dir/$SNP_LIST" "$gene_dir/$ma_file_reference.$TMP_EXTENTION"
-    fi
 
     # Transforms the .cma.cojo file to .ma file
     "$PATH_TO_TRANSFORM_SH" "$gene_name" \
