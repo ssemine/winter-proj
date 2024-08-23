@@ -116,13 +116,14 @@ else
 	cat "$genes" > "$gene_list"
 fi
 
-# Generate SNP list with position
+# Generate SNP list with position, gene name, strand and eQTL type
 awk -v snp="$INPUT_SNP_ID_IDX" \
 	-v pos="$INPUT_POS_IDX" \
+	-v gene_name="$INPUT_GENE_NAME_IDX" \
 	-v strand="$INPUT_STRAND_IDX" \
 	-v qtl_type="$INPUT_QTL_TYPE_IDX" \
 	'{
-		print $snp, $pos, $strand, $qtl_type
+		print $snp, $pos, $gene_name, $strand, $qtl_type
 	}' "$infile" | sort -k 1 | uniq > "$SNP_HELPER_LIST"
 
 summary_log "Number of genes: $(wc -l < $gene_list)"
