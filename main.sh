@@ -9,12 +9,12 @@
 # 							--bfile <bed_file> \
 #							--maf <maf> \
 #							--chr <chr_num> \
-# Optional arguments:		--pval <p_value_method> | <p_value> \
+# Optional arguments:		--pval <p_value_method> or <p_value> \
 #							--genes <gene_list> \
 #							--snps <snp_list> \
 #							--log <log_file> \
 #							--gene_dir <gene_dir> \
-#							--run_dir <run_dir> \
+#							--run_dir <run_dir>
 # ------------------------------------------------------------------------------
 
 source definitions/constants.sh
