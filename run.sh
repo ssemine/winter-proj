@@ -33,7 +33,7 @@ next_idx="$((idx + 1))"
 outfile="$(printf "$GCTA_OUTFILE_NAME" "$gene_name" "$idx")"
 infile="$(printf "$MA_FILE_NAME" "$gene_name")"
 ma_file_reference="$(printf "$MA_FILE_NAME_REFERENCE" "$gene_dir/$gene_name")"
-ma_file_reference_tmp="$(printf "$MA_FILE_NAME_REFERENCE_TMP" "$gene_name/$gene_name")"
+ma_file_reference_tmp="$(printf "$MA_FILE_NAME_REFERENCE_TMP" "$gene_dir/$gene_name")"
 ma_top_snp_file="$(printf "$MA_TOP_SNP_FILE" "$gene_name" "$idx")"
 cma_top_snp_file="$(printf "$CMA_TOP_SNP_FILE" "$gene_name" "$idx")"
 
@@ -192,7 +192,7 @@ if [[ "$has_snp" =~ ^-?[0-9]+$ ]] && [ "$has_snp" -eq 1 ]; then
         "$bfile" \
         "$CMA_IDENTIFIER" \
         "$PATH_TO_DEFINITIONS" \
-        "$gene_dir/$ma_file_reference" \
+        "$ma_file_reference" \
         "$idx" \
         || { log "$ERROR_TRANSFORM $gene_name"; exit 1; }
     
