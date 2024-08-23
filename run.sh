@@ -166,10 +166,10 @@ if [[ "$has_snp" =~ ^-?[0-9]+$ ]] && [ "$has_snp" -eq 1 ]; then
     # Removes line with top SNP from .ma reference file
     awk -v snp="$top_snp" \
         -v snp_col="$MA_SNP_ID_IDX" \
-        '$snp_col != snp' \
+        '{ if ($snp_col != snp) print }' \
         "$ma_file_reference" > "$ma_file_reference_tmp"
+    rm "$ma_file_reference"
     mv "$ma_file_reference_tmp" "$ma_file_reference"
-    rm "$ma_file_reference_tmp"
 
     # Sorts the .ma reference file by SNP ID
     ma_file_reference_header="$(printf "$ma_file_reference.$HEADER_EXTENTION")"
