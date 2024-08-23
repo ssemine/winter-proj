@@ -5,8 +5,8 @@
 # Transforms GWAS summary statistics file to .ma file format or GCTA's .cma.cojo file to .ma file format.
 # File indices are defined in definitions/file_indices.sh.
 # -------------------------------------------------------------------------------------------------------
-# Usage: ./transform.sh gene_name infile gene_dir snps chr_num log_file log_dir bfile file_type [ma_file idx]
-# -----------------------------------------------------------------------------------------------------------
+# Usage: ./transform.sh gene_name infile gene_dir snps chr_num log_file log_dir bfile file_type oath_to_defitions [ma_file idx]
+# -----------------------------------------------------------------------------------------------------------------------------
 
 
 gene_name="$1"

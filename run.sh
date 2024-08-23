@@ -5,8 +5,8 @@
 # Fetches lowest p-value SNP from .ma file and runs GCTA conditional analysis. 
 # Calls transform.sh to transform the GCTA's ouput .cma.cojo to .ma file, passes it to run.sh until all SNPs are with p-value < threshold are fetched.
 # ----------------------------------------------------------------------------------------------------------------------------------------------------
-# Usage: ./run.sh gene_name bfile chr maf idx p_val log_file log_dir gene_dir snp_dir summary_file
-# ------------------------------------------------------------------------------------------------
+# Usage: ./run.sh gene_name bfile chr maf idx p_val log_file log_dir gene_dir snp_dir summary_file path_to_definitions results_file [ prev_top_snp ]
+# ----------------------------------------------------------------------------------------------------------------------------------------------------
 
 
 gene_name="$1"
@@ -29,7 +29,6 @@ source "$path_to_definitions/file_indices.sh"
 source "$path_to_definitions/log_messages.sh"
 
 prev_idx="$((idx - 1))"
-prev_2_idx="$((idx - 2))"
 next_idx="$((idx + 1))"
 outfile="$(printf "$GCTA_OUTFILE_NAME" "$gene_name" "$idx")"
 infile="$(printf "$MA_FILE_NAME" "$gene_name")"
@@ -43,6 +42,7 @@ source "$path_to_definitions/functions.sh"
 log "$LOG_STARTING_RUN $gene_name"
 log "$LOG_ITERATION_NUM $idx"
 
+# If idx is 1, reads from .ma file, else reads from .cma.cojo file (transformed to .ma file)
 if [ $idx -eq 1 ]; then
 	read_file="$infile"
 else
@@ -78,14 +78,16 @@ awk -v col="$MA_P_VALUE_IDX" \
     }' "$gene_dir/$read_file" \
     || { log "$ERROR_AWK_WRITE $top_snp_file"; exit 1; }
 
+# Checks if the top_snp_file is written
 has_snp="$(wc -l < "$top_snp_file")"
+
 if [[ "$has_snp" =~ ^-?[0-9]+$ ]] && [ "$has_snp" -eq 1 ]; then
 
     # SNP with the lowest p-value and relevant statistics for the results file
     top_snp=$(cat $top_snp_file)
-    top_snp_pos=$(cat $SNP_HELPER_LIST | grep -w "$top_snp" | grep -w "$gene_name"| awk '{ print $2 }')
-    top_snp_strand=$(cat $SNP_HELPER_LIST | grep -w "$top_snp" | grep -w "$gene_name"| awk '{ print $3 }')
-    top_snp_qtl_type=$(cat $SNP_HELPER_LIST | grep -w "$top_snp" | grep -w "$gene_name" | awk '{ print $4 }')
+    top_snp_pos=$(cat $SNP_HELPER_LIST | grep -w "$top_snp" | grep -w "$gene_name"| awk -v pos="$SNP_HELPER_QTL_TYPE_IDX" '{ print $pos }')
+    top_snp_strand=$(cat $SNP_HELPER_LIST | grep -w "$top_snp" | grep -w "$gene_name"| awk -v strand="$SNP_HELPER_STRAND_IDX" '{ print $strand }')
+    top_snp_qtl_type=$(cat $SNP_HELPER_LIST | grep -w "$top_snp" | grep -w "$gene_name" | awk -v qtl_type="$SNP_HELPER_QTL_TYPE_IDX" '{ print $qtl_type }')
 	log "$(printf "$LOG_TOP_SNP" "$gene_name" "$top_snp")"
 
     # Runs GCTA conditional analysis
@@ -153,8 +155,8 @@ if [[ "$has_snp" =~ ^-?[0-9]+$ ]] && [ "$has_snp" -eq 1 ]; then
         }' "$first_ma_file" "$second_ma_file" >> "$results_file"
     
     if [[ "$idx" =~ ^-?[0-9]+$ ]] && [ "$idx" -gt 1 ]; then
+
         # Sorts the .cma.cojo file by SNP ID
-        echo "$cma_file"
         cma_file_header="$(printf "$cma_file.$HEADER_EXTENTION")"
         cma_file_sorted="$(printf "$cma_file.$SORTED_EXTENTION")"
         head -n 1 "$cma_file" > "$cma_file_header"

@@ -1,13 +1,21 @@
 #!/bin/bash
 
-# test
 # main.sh
 # -------
 # Main script that runs transform.sh and run.sh for each gene in the input file.
 # ------------------------------------------------------------------------------
-# Usage: ./main.sh --infile <input_file> --bfile <bed_file> --maf <maf> --chr <chr_num> \
-# 			[ --pval <p_value> | --genes <gene_list> | --snps <snp_list> | --log <log_file> | --gene_dir <gene_dir> ]
-# -------------------------------------------------------------------------------------------------------------------
+# Usage: 				./main.sh \
+# Required arguments:		--infile <input_file> \
+# 							--bfile <bed_file> \
+#							--maf <maf> \
+#							--chr <chr_num> \
+# Optional arguments:		--pval <p_value_method> | <p_value> \
+#							--genes <gene_list> \
+#							--snps <snp_list> \
+#							--log <log_file> \
+#							--gene_dir <gene_dir> \
+#							--run_dir <run_dir> \
+# ------------------------------------------------------------------------------
 
 source definitions/constants.sh
 source definitions/file_indices.sh
@@ -71,10 +79,6 @@ while [[ $# -gt 0 ]]; do
 			;;
 		--run_dir)
 			run_dir="$2"
-			shift 2
-			;;
-		--clean)
-			clean="$2"
 			shift 2
 			;;
         *)
