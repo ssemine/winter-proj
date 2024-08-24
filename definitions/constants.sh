@@ -3,15 +3,16 @@
 # Stores the constants.
 # ---------------------
 
-
+# Assumes gcta64 is in the same directory as the script, change if necessary
 export PATH_TO_GCTA="../gcta64"
-export RUN_DIR="run_$(date '+%Y-%m-%d-%H:%M:%S')"
-
 
 export PATH_TO_TRANSFORM_SH="../transform.sh"
 export PATH_TO_RUN_SH="../run.sh"
 export PATH_TO_DEFINITIONS="../definitions"
 
+
+
+export RUN_DIR="run_$(date '+%Y-%m-%d-%H:%M:%S')"
 
 export HEADER_EXTENTION="header"
 export SORTED_EXTENTION="sorted"

@@ -150,8 +150,8 @@ if [[ "$has_snp" =~ ^-?[0-9]+$ ]] && [ "$has_snp" -eq 1 ]; then
             $freq, $effect_size, \
             cma_effect_size, $se, \
             cma_se, $p_val, \
-            cma_p_val, $sample_size, \
-            sci_thresh, qtl_type, round
+            cma_p_val, sci_thresh, \
+            $sample_size, qtl_type, round
         }' "$first_ma_file" "$second_ma_file" >> "$results_file"
 
     # Sorts the .cma.cojo file by SNP ID

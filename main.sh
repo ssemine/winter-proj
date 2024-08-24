@@ -114,7 +114,14 @@ log "$(printf "$LOG_PARAMETERS" "$infile" "$bfile" "$maf" "$p_val" "$chr" "$gene
 log_lines 1
 
 if [ "$genes" == "$GENES_ALL" ] && [ ! -f "$genes" ]; then
-	awk -v gidx="$INPUT_GENE_NAME_IDX" '{ print $gidx }' "$infile" | sort | uniq > "$gene_list" \
+	awk -v gidx="$INPUT_GENE_NAME_IDX" \
+		-v cidx="$INPUT_CHR_IDX" \
+		-v chr="$chr" \
+		'{
+			if ($cidx == chr) {
+				print $gidx
+			}
+		}' "$infile" | sort -k 1 | uniq > "$gene_list" \
 		|| { log "$ERROR_GENE_LIST"; exit 1; }
 else
 	cat "$genes" > "$gene_list"
@@ -137,7 +144,14 @@ mkdir -p "$gene_dir"
 mkdir -p "$snp_dir"
 
 if [ "$p_val" = "$P_VALUE_THRESHOLD_PER_CHR" ]; then
-	num_snps=$(cat "$infile" | awk -v col="$INPUT_SNP_ID_IDX" '{ print $col }' | sort -k 1 | uniq | wc -l)
+	num_snps=$(awk -v snp="$INPUT_SNP_ID_IDX" \
+		-v cidx="$INPUT_CHR_IDX" \
+		-v chr="$chr" \
+		'{
+			if ($cidx == chr) {
+				print $snp
+			}
+		}' "$infile" | sort -k 1 | uniq | wc -l)
 	p_val=$(echo "scale=$P_VALUE_PRECISION; $P_VALUE_NUMERATOR / $num_snps" | bc)
 	p_val=$(printf "%.${P_VALUE_PRECISION}f\n" "$p_val")
 fi
