@@ -81,10 +81,6 @@ while [[ $# -gt 0 ]]; do
 			run_dir="$2"
 			shift 2
 			;;
-		--exclude_qtl_type)
-			exclude_qtl_type="$2"
-			shift 2
-			;;
         *)
             echo "$ERROR_INVALID_ARGUMENT $1"
             exit 1
@@ -105,21 +101,6 @@ mkdir -p "$log_dir"
 mkdir -p "$log_dir/$GCTA_LOG_DIR"
 touch "$log_dir/$log_file"
 touch "$log_dir/$summary_file"
-
-# Filters out the eQTL type
-if [ -n "$exclude_qtl_type" ]; then
-	if [[ $(echo ${QTL_TYPES[@]} | fgrep -w $exclude_qtl_type) ]]; then
-		touch "$INFILE"
-		awk -v qtl_type="$exclude_qtl_type" \
-			-v qtl_type_idx="$INPUT_QTL_TYPE_IDX" \
-			'{
-				if ($qtl_type_idx != qtl_type) {
-					print
-				}
-			}' "$infile" > "$INFILE"
-			infile="$INFILE"
-	fi
-fi
 
 touch "$results_file"
 echo "$RESULTS_FILE_HEADER" > "$results_file"
@@ -149,12 +130,13 @@ fi
 
 # Generate SNP list with position, gene name, strand and eQTL type
 awk -v snp="$INPUT_SNP_ID_IDX" \
-	-v pos="$INPUT_POS_IDX" \
+	-v pos_snp="$INPUT_POS_SNP_IDX" \
+	-v pos_gene="$INPUT_POS_GENEIDX" \
 	-v gene_name="$INPUT_GENE_NAME_IDX" \
 	-v strand="$INPUT_STRAND_IDX" \
 	-v qtl_type="$INPUT_QTL_TYPE_IDX" \
 	'{
-		print $snp, $pos, $gene_name, $strand, $qtl_type
+		print $snp, $pos_snp, $pos_gene, $gene_name, $strand, $qtl_type
 	}' "$infile" | sort -k 1 | uniq > "$SNP_HELPER_LIST"
 
 summary_log "Number of genes: $(wc -l < $gene_list)"
@@ -200,6 +182,7 @@ while IFS= read -r line; do
 		p_val=$(echo "scale=$P_VALUE_PRECISION; $P_VALUE_NUMERATOR / $num_snps" | bc)
 		p_val=$(printf "%.${P_VALUE_PRECISION}f\n" "$p_val")
 	fi
+	
 	summary_log "p-value for $line $p_val"
 	log_lines 1
 	log "$LOG_CALLING_RUN $line"

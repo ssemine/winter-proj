@@ -13,7 +13,6 @@ export PATH_TO_DEFINITIONS="../definitions"
 
 
 export RUN_DIR="run_$(date '+%Y-%m-%d-%H:%M:%S')"
-export INFILE="infile"
 export QTL_TYPES=("Cis" "trans")
 
 export HEADER_EXTENTION="header"
@@ -57,5 +56,5 @@ export SNP_LINE_EXTENTION="snpline"
 export MA_TOP_SNP_FILE="%s_%s.ma.$SNP_LINE_EXTENTION"
 export CMA_TOP_SNP_FILE="%s_%s.cma.$SNP_LINE_EXTENTION"
 export RESULTS_FILE_NAME="results"
-export RESULTS_FILE_HEADER="SNP CHR BP GENE STRAND A1 A2 FREQ B B_C SE SE_C P P_C P_T N TYPE ROUND"
+export RESULTS_FILE_HEADER="SNP CHR BP START GENE STRAND A1 A2 FREQ B B_C SE SE_C P P_C P_T N TYPE ROUND"
 export GCTA_LOG_DIR="gcta"

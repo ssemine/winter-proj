@@ -85,7 +85,8 @@ if [[ "$has_snp" =~ ^-?[0-9]+$ ]] && [ "$has_snp" -eq 1 ]; then
 
     # SNP with the lowest p-value and relevant statistics for the results file
     top_snp=$(cat $top_snp_file)
-    top_snp_pos=$(cat $SNP_HELPER_LIST | grep -w "$top_snp" | grep -w "$gene_name"| awk -v pos="$SNP_HELPER_POS_IDX" '{ print $pos }')
+    top_snp_pos_snp=$(cat $SNP_HELPER_LIST | grep -w "$top_snp" | grep -w "$gene_name"| awk -v pos="$SNP_HELPER_SNP_POS_IDX" '{ print $pos }')
+    top_snp_pos_gene=$(cat $SNP_HELPER_LIST | grep -w "$top_snp" | grep -w "$gene_name"| awk -v pos="$SNP_HELPER_GENE_POS_IDX" '{ print $pos }')
     top_snp_strand=$(cat $SNP_HELPER_LIST | grep -w "$top_snp" | grep -w "$gene_name"| awk -v strand="$SNP_HELPER_STRAND_IDX" '{ print $strand }')
     top_snp_qtl_type=$(cat $SNP_HELPER_LIST | grep -w "$top_snp" | grep -w "$gene_name" | awk -v qtl_type="$SNP_HELPER_QTL_TYPE_IDX" '{ print $qtl_type }')
 	log "$(printf "$LOG_TOP_SNP" "$gene_name" "$top_snp")"
@@ -132,7 +133,8 @@ if [[ "$has_snp" =~ ^-?[0-9]+$ ]] && [ "$has_snp" -eq 1 ]; then
         -v sample_size="$MA_SAMPLE_SIZE_IDX" \
         -v thresh="$p_val" \
         -v round="$idx" \
-        -v pos="$top_snp_pos" \
+        -v pos_snp="$top_snp_pos_snp" \
+        -v pos_gene="$top_snp_pos_gene" \
         -v chr="$chr" \
         -v strand="$top_snp_strand" \
         -v qtl_type="$top_snp_qtl_type" \
@@ -145,7 +147,7 @@ if [[ "$has_snp" =~ ^-?[0-9]+$ ]] && [ "$has_snp" -eq 1 ]; then
         {
             sci_thresh=sprintf("%.5e", thresh) 
             print $snp, chr, \
-            pos, gene_name, strand, \
+            pos_snp, pos_gene, gene_name, strand, \
             $allele_one, $allele_two, \
             $freq, $effect_size, \
             cma_effect_size, $se, \
