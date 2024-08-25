@@ -85,8 +85,8 @@ if [[ "$has_snp" =~ ^-?[0-9]+$ ]] && [ "$has_snp" -eq 1 ]; then
 
     # SNP with the lowest p-value and relevant statistics for the results file
     top_snp=$(cat $top_snp_file)
-    top_snp_pos_snp=$(cat $SNP_HELPER_LIST | grep -w "$top_snp" | grep -w "$gene_name"| awk -v pos="$SNP_HELPER_SNP_POS_IDX" '{ print $pos }')
-    top_snp_pos_gene=$(cat $SNP_HELPER_LIST | grep -w "$top_snp" | grep -w "$gene_name"| awk -v pos="$SNP_HELPER_GENE_POS_IDX" '{ print $pos }')
+    top_snp_pos_snp=$(cat $SNP_HELPER_LIST | grep -w "$top_snp" | grep -w "$gene_name"| awk -v pos="$SNP_HELPER_POS_SNP_IDX" '{ print $pos }')
+    top_snp_pos_gene=$(cat $SNP_HELPER_LIST | grep -w "$top_snp" | grep -w "$gene_name"| awk -v pos="$SNP_HELPER_POS_GENE_IDX" '{ print $pos }')
     top_snp_strand=$(cat $SNP_HELPER_LIST | grep -w "$top_snp" | grep -w "$gene_name"| awk -v strand="$SNP_HELPER_STRAND_IDX" '{ print $strand }')
     top_snp_qtl_type=$(cat $SNP_HELPER_LIST | grep -w "$top_snp" | grep -w "$gene_name" | awk -v qtl_type="$SNP_HELPER_QTL_TYPE_IDX" '{ print $qtl_type }')
 	log "$(printf "$LOG_TOP_SNP" "$gene_name" "$top_snp")"
