@@ -13,6 +13,8 @@ export PATH_TO_DEFINITIONS="../definitions"
 
 
 export RUN_DIR="run_$(date '+%Y-%m-%d-%H:%M:%S')"
+export INFILE="infile"
+export QTL_TYPES=("Cis" "trans")
 
 export HEADER_EXTENTION="header"
 export SORTED_EXTENTION="sorted"

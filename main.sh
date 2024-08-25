@@ -81,6 +81,10 @@ while [[ $# -gt 0 ]]; do
 			run_dir="$2"
 			shift 2
 			;;
+		--exclude_qtl_type)
+			exclude_qtl_type="$2"
+			shift 2
+			;;
         *)
             echo "$ERROR_INVALID_ARGUMENT $1"
             exit 1
@@ -101,6 +105,22 @@ mkdir -p "$log_dir"
 mkdir -p "$log_dir/$GCTA_LOG_DIR"
 touch "$log_dir/$log_file"
 touch "$log_dir/$summary_file"
+
+# Filters out the eQTL type
+if [ -n "$exclude_qtl_type" ]; then
+	if [[ $(echo ${QTL_TYPES[@]} | fgrep -w $exclude_qtl_type) ]]; then
+		touch "$INFILE"
+		awk -v qtl_type="$exclude_qtl_type" \
+			-v qtl_type_idx="$INPUT_QTL_TYPE_IDX" \
+			'{
+				if ($qtl_type_idx != qtl_type) {
+					print
+				}
+			}' "$infile" > "$INFILE"
+			infile="$INFILE"
+	fi
+fi
+
 touch "$results_file"
 echo "$RESULTS_FILE_HEADER" > "$results_file"
 log "$LOG_WELCOME_MESSAGE"
