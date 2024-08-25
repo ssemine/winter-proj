@@ -131,7 +131,7 @@ fi
 # Generate SNP list with position, gene name, strand and eQTL type
 awk -v snp="$INPUT_SNP_ID_IDX" \
 	-v pos_snp="$INPUT_POS_SNP_IDX" \
-	-v pos_gene="$INPUT_POS_GENEIDX" \
+	-v pos_gene="$INPUT_POS_GENE_IDX" \
 	-v gene_name="$INPUT_GENE_NAME_IDX" \
 	-v strand="$INPUT_STRAND_IDX" \
 	-v qtl_type="$INPUT_QTL_TYPE_IDX" \
@@ -182,7 +182,7 @@ while IFS= read -r line; do
 		p_val=$(echo "scale=$P_VALUE_PRECISION; $P_VALUE_NUMERATOR / $num_snps" | bc)
 		p_val=$(printf "%.${P_VALUE_PRECISION}f\n" "$p_val")
 	fi
-	
+
 	summary_log "p-value for $line $p_val"
 	log_lines 1
 	log "$LOG_CALLING_RUN $line"
