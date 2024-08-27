@@ -2,13 +2,16 @@
 
 Run 
 
-`./main.sh --infile input_file --bfile bfile --chr chr_num --maf maf  
-[ --genes gene_set | --gene_dir gene_directory | --log log_file | --p_val p_val | --snps snp_set]`
+`./main.sh [ required args ] [ optional args ]`
+
+Results will be saved in `results` file, with the following headers:
+
+`"SNP CHR BP START GENE STRAND A1 A2 FREQ B B_C SE SE_C P P_C P_T N TYPE ROUND"`
 
 ### Required files:
-gcta64 binary in this directory
+gcta64 binary in this directory (otherwise specify path in definitions/contants.sh)
 
-Input file
+Input file (SNPs of interest)
 
 Bfiles (.bed, .bim, .fam)
 
@@ -25,10 +28,11 @@ Bfiles (.bed, .bim, .fam)
   Optional:
 
     
-    --genes - file with subset of genes to run GCTA-COJO for (Row format)
-    --gene_dir - directory name where gene .ma files will be saved
-    --log - log file name
-    --p_val - p-value threshold
+    --genes - file with subset of genes to run GCTA-COJO for (Row format) (gene_list by default)
+    --gene_dir - directory name where gene .ma files will be saved (cojo_files by default)
+    --run-dir - directory name where all the files will be saved (run_$date by default)
+    --log - log file name ($date.log by default)
+    --p_val - p-value threshold (value or "per_chr" or "per_gene")
     --snps - file with subset of SNPs to run GCTA-COJO for (Row format)
 
 ### Files
@@ -46,5 +50,7 @@ Bfiles (.bed, .bim, .fam)
   **definitions/functions.sh** - stores logging functions' declarations
 
   **definitions/log_messages.sh** - stores log messages
+
+  
 
 
