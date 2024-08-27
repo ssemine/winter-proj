@@ -212,7 +212,7 @@ while IFS= read -r line; do
 	log "$LOG_RUN_FINISHED $line"
 
 	# Clean up
-	rm "$ma_file_reference"
+	# rm "$ma_file_reference"
 	rm *".$SNP_LINE_EXTENTION"
 
 	echo "" >> "$log_dir/$summary_file"
