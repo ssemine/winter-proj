@@ -32,8 +32,6 @@ prev_idx="$((idx - 1))"
 next_idx="$((idx + 1))"
 outfile="$(printf "$GCTA_OUTFILE_NAME" "$gene_name" "$idx")"
 infile="$(printf "$MA_FILE_NAME" "$gene_name")"
-ma_file_reference="$(printf "$MA_FILE_NAME_REFERENCE" "$gene_dir/$gene_name")"
-ma_file_reference_tmp="$(printf "$MA_FILE_NAME_REFERENCE_TMP" "$gene_dir/$gene_name")"
 ma_top_snp_file="$(printf "$MA_TOP_SNP_FILE" "$gene_name" "$idx")"
 cma_top_snp_file="$(printf "$CMA_TOP_SNP_FILE" "$gene_name" "$idx")"
 
@@ -165,25 +163,6 @@ if [[ "$has_snp" =~ ^-?[0-9]+$ ]] && [ "$has_snp" -eq 1 ]; then
     cat "$cma_file_header" "$cma_file_sorted" > "$cma_file"
     rm "$cma_file_header" "$cma_file_sorted"  
 
-    # Removes line with top SNP from .ma reference file
-    awk -v snp="$top_snp" \
-        -v snp_col="$MA_SNP_ID_IDX" \
-        '{ if ($snp_col != snp) print }' \
-        "$ma_file_reference" > "$ma_file_reference_tmp"
-    rm "$ma_file_reference"
-    mv "$ma_file_reference_tmp" "$ma_file_reference"
-
-    # Sorts the .ma reference file by SNP ID
-    ma_file_reference_header="$(printf "$ma_file_reference.$HEADER_EXTENTION")"
-    ma_file_reference_sorted="$(printf "$ma_file_reference.$SORTED_EXTENTION")"
-    head -n 1 "$ma_file_reference" > "$ma_file_reference_header"
-    tail -n +2 "$ma_file_reference" | sort -k "$MA_SNP_ID_IDX" > "$ma_file_reference_sorted" \
-        || { log "$ERROR_SORT $ma_file_reference"; exit 1; }
-    cat "$ma_file_reference_header" "$ma_file_reference_sorted" > "$ma_file_reference"
-    rm "$ma_file_reference_header" "$ma_file_reference_sorted" 
-
-    
-
     # Transforms the .cma.cojo file to .ma file
     "$PATH_TO_TRANSFORM_SH" "$gene_name" \
         "$cma_file" \
@@ -194,7 +173,6 @@ if [[ "$has_snp" =~ ^-?[0-9]+$ ]] && [ "$has_snp" -eq 1 ]; then
         "$bfile" \
         "$CMA_IDENTIFIER" \
         "$PATH_TO_DEFINITIONS" \
-        "$ma_file_reference" \
         "$idx" \
         || { log "$ERROR_TRANSFORM $gene_name"; exit 1; }
     

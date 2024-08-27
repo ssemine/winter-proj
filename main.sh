@@ -135,8 +135,10 @@ awk -v snp="$INPUT_SNP_ID_IDX" \
 	-v gene_name="$INPUT_GENE_NAME_IDX" \
 	-v strand="$INPUT_STRAND_IDX" \
 	-v qtl_type="$INPUT_QTL_TYPE_IDX" \
+	-v allele_one="$INPUT_ALLELE_ONE_IDX" \
+	-v allele_two="$INPUT_ALLELE_TWO_IDX" \
 	'{
-		print $snp, $pos_snp, $pos_gene, $gene_name, $strand, $qtl_type
+		print $snp, $pos_snp, $pos_gene, $gene_name, $strand, $qtl_type, $allele_one, $allele_two
 	}' "$infile" | sort -k 1 | uniq > "$SNP_HELPER_LIST"
 
 summary_log "Number of genes: $(wc -l < $gene_list)"
@@ -172,8 +174,7 @@ while IFS= read -r line; do
 		"$PATH_TO_DEFINITIONS" \
 		"$snps" \
 		|| { log "$ERROR_TRANSFORM $line"; exit 1; }
-	ma_file_reference="$(printf "$MA_FILE_NAME_REFERENCE" "$gene_dir/$line")"
-	cp "$gene_dir/$line.ma" "$ma_file_reference"
+
 	log "$LOG_MA_TRANSFORMED $line"
 
 	# Calculate p-value per gene (consider to remove)

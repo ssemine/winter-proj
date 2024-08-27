@@ -31,8 +31,7 @@ if [[ "$file_type" != "$INPUT_IDENTIFIER" && "$file_type" != "$CMA_IDENTIFIER" ]
 fi
 
 if [ "$file_type" = "$CMA_IDENTIFIER" ]; then
-    ma_file="${10}"
-    idx="${11}"
+    idx="${10}"
     name="$(printf "$MA_FILE_NAME_IDX" "$gene_name" "$idx")"
     name_tmp="$(printf "$MA_FILE_NAME_TMP_IDX" "$gene_name" "$idx")"
 else
@@ -112,8 +111,6 @@ if [ "$file_type" = "$INPUT_IDENTIFIER" ]; then
 else
     log "CMA"
     awk -F' ' -v col1="$CMA_SNP_ID_IDX" \
-    -v col2="$MA_A1_IDX" \
-    -v col3="$MA_A2_IDX" \
     -v col4="$CMA_FREQ_IDX" \
     -v col5="$CMA_EFFECT_SIZE_IDX" \
     -v col6="$CMA_SE_IDX" \
@@ -121,21 +118,22 @@ else
     -v gene="$gene_name" \
     -v gene_dir="$gene_dir" \
     -v name="$name" \
-    -v ma_snp_idx="$MA_SNP_ID_IDX" \
     -v sample_size="$sample_size" \
+    -v snp_helper_id="$SNP_HELPER_SNP_ID_IDX" \
+    -v snp_helper_a1="$SNP_HELPER_A1_IDX" \
+    -v snp_helper_a2="$SNP_HELPER_A2_IDX" \
     'FNR == 1 { next }
     FNR==NR {
-        ma_snp[FNR] = $ma_snp_idx
-        ma_col2[FNR] = $col2
-        ma_col3[FNR] = $col3
+        snp_id[$snp_helper_id] = $snp_helper_id
+        snp_a1[$snp_helper_id] = $snp_helper_a1
+        snp_a2[$snp_helper_id] = $snp_helper_a2
         next
     }
     {
-    FNR != NR {
-        if ($col1 == ma_snp[FNR]) {
-            print $col1, ma_col2[FNR], ma_col3[FNR], $col4, $col5, $col6, $col7, sample_size >> (gene_dir "/" name)
+        if ($col1 in snp_id) {
+            print $col1, snp_a1[$col1], snp_a2[$col1], $col4, $col5, $col6, $col7, sample_size >> (gene_dir "/" name)
         }
-    }' "$ma_file" "$infile" \
+    }' "$SNP_HELPER_LIST" "$infile" \
     || { log_genes "$ERROR_AWK_WRITE $gene_dir/$name"; exit 1; }
 fi
 
