@@ -10,6 +10,8 @@ export PATH_TO_TRANSFORM_SH="../transform.sh"
 export PATH_TO_RUN_SH="../run.sh"
 export PATH_TO_DEFINITIONS="../definitions"
 
+export GENES_PER_MAIN=100
+
 
 
 export RUN_DIR="run_$(date '+%Y-%m-%d-%H:%M:%S')"
@@ -23,8 +25,8 @@ export TMP_EXTENTION="tmp"
 export P_VALUE_THRESHOLD="1e-10"
 export P_VALUE_NUMERATOR="0.05"
 export P_VALUE_PRECISION=20
-export P_VALUE_THRESHOLD_PER_GENE="per_gene"
 export P_VALUE_THRESHOLD_PER_CHR="per_chr"
+export P_VALUE_THRESHOLD_PER_CHR_GENES="per_chr_genes"
 
 export GENE_LIST="gene_list"
 export GENE_DIR="cojo_files"

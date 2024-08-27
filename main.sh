@@ -147,6 +147,20 @@ echo "" >> "$log_dir/$summary_file"
 mkdir -p "$gene_dir"
 mkdir -p "$snp_dir"
 
+if [ "$p_val" = "$P_VALUE_THRESHOLD_PER_CHR_GENE" ]; then
+	num_snps=$(awk -v snp="$INPUT_SNP_ID_IDX" \
+		-v cidx="$INPUT_CHR_IDX" \
+		-v chr="$chr" \
+		'{
+			if ($cidx == chr) {
+				print $snp
+			}
+		}' "$infile" | sort -k 1 | uniq | wc -l)
+	num_genes=$(wc -l < "$gene_list")
+	denominator=$(echo "$num_snps * $num_genes" | bc)
+	p_val=$(echo "scale=$P_VALUE_PRECISION; $P_VALUE_NUMERATOR / $denominator" | bc)
+	p_val=$(printf "%.${P_VALUE_PRECISION}f\n" "$p_val")
+fi
 if [ "$p_val" = "$P_VALUE_THRESHOLD_PER_CHR" ]; then
 	num_snps=$(awk -v snp="$INPUT_SNP_ID_IDX" \
 		-v cidx="$INPUT_CHR_IDX" \
@@ -176,13 +190,6 @@ while IFS= read -r line; do
 		|| { log "$ERROR_TRANSFORM $line"; exit 1; }
 
 	log "$LOG_MA_TRANSFORMED $line"
-
-	# Calculate p-value per gene (consider to remove)
-	if [ p_val = "$P_VALUE_THRESHOLD_PER_GENE" ]; then
-		num_snps=$(cat "$gene_dir/$line.ma" | awk -v col="$MA_SNP_ID_IDX" '{ print $col }' | sort -k 1 | uniq | wc -l)
-		p_val=$(echo "scale=$P_VALUE_PRECISION; $P_VALUE_NUMERATOR / $num_snps" | bc)
-		p_val=$(printf "%.${P_VALUE_PRECISION}f\n" "$p_val")
-	fi
 
 	summary_log "p-value for $line $p_val"
 	log_lines 1
