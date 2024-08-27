@@ -125,12 +125,16 @@ else
     -v sample_size="$sample_size" \
     'FNR == 1 { next }
     FNR==NR {
+        ma_snp[FNR] = $ma_snp_idx
         ma_col2[FNR] = $col2
         ma_col3[FNR] = $col3
         next
     }
     {
-        print $col1, ma_col2[FNR], ma_col3[FNR], $col4, $col5, $col6, $col7, sample_size >> (gene_dir "/" name)
+    FNR != NR {
+        if ($col1 == ma_snp[FNR]) {
+            print $col1, ma_col2[FNR], ma_col3[FNR], $col4, $col5, $col6, $col7, sample_size >> (gene_dir "/" name)
+        }
     }' "$ma_file" "$infile" \
     || { log_genes "$ERROR_AWK_WRITE $gene_dir/$name"; exit 1; }
 fi
