@@ -6,7 +6,7 @@ Run
 
 Results will be saved in `results` file, with the following headers:
 
-`"SNP CHR BP START GENE STRAND A1 A2 FREQ B B_C SE SE_C P P_C P_T N TYPE ROUND"`
+`SNP CHR BP START GENE STRAND A1 A2 FREQ B B_C SE SE_C P P_C P_T N TYPE ROUND`
 
 ### Required files:
 gcta64 binary in this directory (otherwise specify path in definitions/contants.sh)
