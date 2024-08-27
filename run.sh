@@ -165,11 +165,20 @@ if [[ "$has_snp" =~ ^-?[0-9]+$ ]] && [ "$has_snp" -eq 1 ]; then
     cat "$cma_file_header" "$cma_file_sorted" > "$cma_file"
     rm "$cma_file_header" "$cma_file_sorted"  
 
-    # Removes line with top SNP from .ma reference file
-    awk -v snp="$top_snp" \
-        -v snp_col="$MA_SNP_ID_IDX" \
-        '{ if ($snp_col != snp) print }' \
-        "$ma_file_reference" > "$ma_file_reference_tmp"
+    # Removes line(s) from .ma reference file based on .cma.cojo
+    awk -v cma_snp_id="$top_snp" \
+    -v ma_snp="$MA_SNP_ID_IDX" \
+    '
+    FNR == 1 { next }
+    FNR == NR {
+        cma_snp[$cma_snp_id] = 1
+        next
+    }
+    {
+        if ($ma_snp in cma_snp) {
+            print $0
+        }
+    }' "$cma_file" "$ma_file_reference" > "$ma_file_reference_tmp"
     rm "$ma_file_reference"
     mv "$ma_file_reference_tmp" "$ma_file_reference"
 
@@ -180,7 +189,8 @@ if [[ "$has_snp" =~ ^-?[0-9]+$ ]] && [ "$has_snp" -eq 1 ]; then
     tail -n +2 "$ma_file_reference" | sort -k "$MA_SNP_ID_IDX" > "$ma_file_reference_sorted" \
         || { log "$ERROR_SORT $ma_file_reference"; exit 1; }
     cat "$ma_file_reference_header" "$ma_file_reference_sorted" > "$ma_file_reference"
-    rm "$ma_file_reference_header" "$ma_file_reference_sorted" 
+    rm "$ma_file_reference_header" "$ma_file_reference_sorted"
+    
 
     
 
