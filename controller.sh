@@ -12,7 +12,7 @@ log_file=$6
 p_val=$7
 run_dir=$8
 
-source defintions/constants.sh
+source definitions/constants.sh
 
 
 split -l $GENES_PER_MAIN -d --additional-suffix=.genelist "$genes" "${genes}_part_"
