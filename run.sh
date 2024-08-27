@@ -166,7 +166,7 @@ if [[ "$has_snp" =~ ^-?[0-9]+$ ]] && [ "$has_snp" -eq 1 ]; then
     rm "$cma_file_header" "$cma_file_sorted"  
 
     # Removes line(s) from .ma reference file based on .cma.cojo
-    awk -v cma_snp_id="$top_snp" \
+    awk -v cma_snp_id="$CMA_SNP_ID_IDX" \
     -v ma_snp="$MA_SNP_ID_IDX" \
     '
     FNR == 1 { next }
