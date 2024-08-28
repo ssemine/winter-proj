@@ -169,7 +169,14 @@ if [[ "$has_snp" =~ ^-?[0-9]+$ ]] && [ "$has_snp" -eq 1 ]; then
     awk -v cma_snp_id="$CMA_SNP_ID_IDX" \
     -v ma_snp="$MA_SNP_ID_IDX" \
     '
-    FNR == 1 { next }
+    FNR == 1 {
+        if (NR == 1) {
+            next
+        } else {
+            print $0
+            next
+        }
+    }
     FNR == NR {
         cma_snp[$cma_snp_id] = 1
         next
