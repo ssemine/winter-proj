@@ -153,7 +153,7 @@ awk -v exclude_qtl_type="$exclude_qtl_type" \
 	-v chr_idx="$INPUT_CHR_IDX" \
 	-v qtl_type_idx="$INPUT_QTL_TYPE_IDX" \
 	'{
-		if ((chr_idx == chr) && (qtl_type_idx != exclude_qtl_type)) {
+		if (($chr_idx == chr) && ($qtl_type_idx != exclude_qtl_type)) {
 			print $0
 		}
 	}' "$infile" > "$INFILE_COPY"
