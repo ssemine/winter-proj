@@ -16,6 +16,7 @@
 #							--gene_dir <gene_dir> \
 #							--run_dir <run_dir>
 # ------------------------------------------------------------------------------
+# NOTE: Current implementation assumes running with no trans eQTLs.
 
 source definitions/constants.sh
 source definitions/file_indices.sh
@@ -81,6 +82,10 @@ while [[ $# -gt 0 ]]; do
 			run_dir="$2"
 			shift 2
 			;;
+		--exclude_qtl_type)
+			exclude_qtl_type="$2"
+			shift 2
+			;;
         *)
             echo "$ERROR_INVALID_ARGUMENT $1"
             exit 1
@@ -135,9 +140,25 @@ awk -v snp="$INPUT_SNP_ID_IDX" \
 	-v gene_name="$INPUT_GENE_NAME_IDX" \
 	-v strand="$INPUT_STRAND_IDX" \
 	-v qtl_type="$INPUT_QTL_TYPE_IDX" \
+	-v exclude_qtl_type="$exclude_qtl_type" \
 	'{
-		print $snp, $pos_snp, $pos_gene, $gene_name, $strand, $qtl_type
+		if (qtl_type != exclude_qtl_type) {
+			print $snp, $pos_snp, $pos_gene, $gene_name, $strand, $qtl_type
+		}
 	}' "$infile" | sort -k 1 | uniq > "$SNP_HELPER_LIST"
+
+# Trans eQTLs are not considered
+awk -v exclude_qtl_type="$exclude_qtl_type" \
+	-v chr="$chr" \
+	-v chr_idx="$INFILE_SNP_CHR_IDX" \
+	-v qtl_type_idx="$INFILE_QTL_TYPE_IDX" \
+	'{
+		if (chr_idx == chr && qtl_type_idx != exclude_qtl_type) {
+			print $0
+		}
+	}' "$infile" > "$INFILE_COPY"
+infile="$INFILE_COPY"
+
 
 summary_log "Number of genes: $(wc -l < $gene_list)"
 echo "" >> "$log_dir/$summary_file"
