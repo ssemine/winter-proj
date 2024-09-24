@@ -159,7 +159,22 @@ awk -v exclude_qtl_type="$exclude_qtl_type" \
 	}' "$infile" > "$INFILE_COPY"
 infile="$INFILE_COPY"
 
-
+# Change chromosomes
+original_chr="$chr"
+if [[ "$chr" -ge 23 && "$chr" -le 29 ]]; then
+	chr=$(echo "$chr - 20" | bc)
+	awk -v chr_idx="$INPUT_CHR_IDX" \
+    		-v snp_idx="$INPUT_SNP_ID_IDX" \
+    		-v chr="$chr" \
+    		'{
+        		split($snp_idx, snp, ":");
+        		$(chr_idx) = chr;
+        		$(snp_idx) = chr ":" snp[2];
+        		print $0;
+    		}' "$infile" > "$infile.tmp"
+	rm "$infile"
+	mv "$infile.tmp" "$infile"
+fi
 summary_log "Number of genes: $(wc -l < $gene_list)"
 echo "" >> "$log_dir/$summary_file"
 
@@ -239,6 +254,25 @@ while IFS= read -r line; do
 	echo "" >> "$log_dir/$summary_file"
 done < "$gene_list" || { log "$ERROR_READ_GENE_LIST"; exit 1; }
 
+# Fix chromosome and SNP IDs in results
+chr="$original_chr"
+awk -v chr="$chr" \
+	-v chr_idx="$OUTPUT_CHR_IDX" \
+	-v snp_idx="$OUTPUT_SNP_ID_IDX" \
+	'{
+		split($snp_idx, snp, ":");
+		$(chr_idx) = chr;
+		$(snp_idx) = chr ":" snp[2];
+		print $0;
+	}' "$results_file" > "$results_file.tmp"
+	rm "$results_file"
+	mv "$results_file.tmp" "$results_file"
+
+# Remove bim.tmp
+if [[ "$chr" -ge 23 && "$chr" -le 29 ]]; then
+	rm "$bfile.bim"
+	mv "$bfile.bim.tmp" "$bfile.bim"
+fi
 
 log_lines 1
 log "$LOG_END_MESSAGE"
