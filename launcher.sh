@@ -20,27 +20,27 @@ for bfile in $bfiles; do
         echo "Changed from $chr"
         bim_chr="1"
         echo "to $bim_chr"
-	cd "$bfiles_dir"
-	cd ../tmp
-	new_bfiles_dir=$(pwd)
-	if [[ -d "$new_bfiles_dir/$bfile" ]]; then
-		rm -rf "$new_bfiles_dir/$bfile"
-		echo "Removed $new_bfiles_dir/$bfile"
-	fi
-	cd "$original_path"
-        mkdir "$new_bfiles_dir/$bfile"
-        cp "$bfiles_dir/$bfile"* "$new_bfiles_dir/$bfile/."
-        new_bfiles_dir="$new_bfiles_dir/$bfile"
-	mv "$new_bfiles_dir/$bfile.bim" "$new_bfiles_dir/$bfile.bim.tmp"
-        awk -v chr_idx="$bim_chr_idx" \
-            -v snp_idx="$bim_snp_idx" \
-            -v chr="$bim_chr" \
-            '{
-                split($snp_idx, snp, ":");
-		        $(chr_idx) = chr;
-		        $(snp_idx) = chr ":" snp[2];
-                print $0;
-            }' "$new_bfiles_dir/$bfile.bim.tmp" > "$new_bfiles_dir/$bfile.bim"
+        cd "$bfiles_dir"
+        cd ../tmp
+        new_bfiles_dir=$(pwd)
+        if [[ -d "$new_bfiles_dir/$bfile" ]]; then
+            rm -rf "$new_bfiles_dir/$bfile"
+            echo "Removed $new_bfiles_dir/$bfile"
+        fi
+        cd "$original_path"
+            mkdir "$new_bfiles_dir/$bfile"
+            cp "$bfiles_dir/$bfile"* "$new_bfiles_dir/$bfile/."
+            new_bfiles_dir="$new_bfiles_dir/$bfile"
+        mv "$new_bfiles_dir/$bfile.bim" "$new_bfiles_dir/$bfile.bim.tmp"
+            awk -v chr_idx="$bim_chr_idx" \
+                -v snp_idx="$bim_snp_idx" \
+                -v chr="$bim_chr" \
+                '{
+                    split($snp_idx, snp, ":");
+                    $(chr_idx) = chr;
+                    $(snp_idx) = chr ":" snp[2];
+                    print $0;
+                }' "$new_bfiles_dir/$bfile.bim.tmp" > "$new_bfiles_dir/$bfile.bim"
     fi
     sbatch slurm.sh "$infile" \
         "$new_bfiles_dir/$bfile" \
