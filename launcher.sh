@@ -18,10 +18,10 @@ for bfile in $bfiles; do
     new_bfiles_dir="$bfiles_dir"
     if [[ "$chr" -ge 23 && "$chr" -le 29 ]]; then
         echo "Changed from $chr"
-        bim_chr=$(echo "$chr - 20" | bc)
+        bim_chr="1"
         echo "to $bim_chr"
 	cd "$bfiles_dir"
-	cd ..
+	cd ../tmp
 	new_bfiles_dir=$(pwd)
 	if [[ -d "$new_bfiles_dir/$bfile" ]]; then
 		rm -rf "$new_bfiles_dir/$bfile"
@@ -37,8 +37,8 @@ for bfile in $bfiles; do
             -v chr="$bim_chr" \
             '{
                 split($snp_idx, snp, ":");
-		$(chr_idx) = chr;
-		$(snp_idx) = chr ":" snp[2];
+		        $(chr_idx) = chr;
+		        $(snp_idx) = chr ":" snp[2];
                 print $0;
             }' "$new_bfiles_dir/$bfile.bim.tmp" > "$new_bfiles_dir/$bfile.bim"
     fi
