@@ -133,20 +133,6 @@ else
 	cat "$genes" > "$gene_list"
 fi
 
-# Generate SNP list with position, gene name, strand and eQTL type
-awk -v snp="$INPUT_SNP_ID_IDX" \
-	-v pos_snp="$INPUT_POS_SNP_IDX" \
-	-v pos_gene="$INPUT_POS_GENE_IDX" \
-	-v gene_name="$INPUT_GENE_NAME_IDX" \
-	-v strand="$INPUT_STRAND_IDX" \
-	-v qtl_type="$INPUT_QTL_TYPE_IDX" \
-	-v exclude_qtl_type="$exclude_qtl_type" \
-	'{
-		if (qtl_type != exclude_qtl_type) {
-			print $snp, $pos_snp, $pos_gene, $gene_name, $strand, $qtl_type
-		}
-	}' "$infile" | sort -k 1 | uniq > "$SNP_HELPER_LIST"
-
 # Trans eQTLs are not considered
 awk -v exclude_qtl_type="$exclude_qtl_type" \
 	-v chr="$chr" \
@@ -162,7 +148,7 @@ infile="$INFILE_COPY"
 # Change chromosomes
 original_chr="$chr"
 if [[ "$chr" -ge 23 && "$chr" -le 29 ]]; then
-	chr=$(echo "$chr - 20" | bc)
+	chr="1"
 	awk -v chr_idx="$INPUT_CHR_IDX" \
     		-v snp_idx="$INPUT_SNP_ID_IDX" \
     		-v chr="$chr" \
@@ -175,6 +161,18 @@ if [[ "$chr" -ge 23 && "$chr" -le 29 ]]; then
 	rm "$infile"
 	mv "$infile.tmp" "$infile"
 fi
+
+# Create SNP helper list 
+awk -v snp="$INPUT_SNP_ID_IDX" \
+	-v pos_snp="$INPUT_POS_SNP_IDX" \
+	-v pos_gene="$INPUT_POS_GENE_IDX" \
+	-v gene_name="$INPUT_GENE_NAME_IDX" \
+	-v strand="$INPUT_STRAND_IDX" \
+	-v qtl_type="$INPUT_QTL_TYPE_IDX" \
+	'{
+		print $snp, $pos_snp, $pos_gene, $gene_name, $strand, $qtl_type
+	}' "$infile" | sort -k 1 | uniq > "$SNP_HELPER_LIST"
+
 summary_log "Number of genes: $(wc -l < $gene_list)"
 echo "" >> "$log_dir/$summary_file"
 

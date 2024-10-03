@@ -197,9 +197,6 @@ if [[ "$has_snp" =~ ^-?[0-9]+$ ]] && [ "$has_snp" -eq 1 ]; then
         || { log "$ERROR_SORT $ma_file_reference"; exit 1; }
     cat "$ma_file_reference_header" "$ma_file_reference_sorted" > "$ma_file_reference"
     rm "$ma_file_reference_header" "$ma_file_reference_sorted"
-    
-
-    
 
     # Transforms the .cma.cojo file to .ma file
     "$PATH_TO_TRANSFORM_SH" "$gene_name" \
