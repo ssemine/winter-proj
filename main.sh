@@ -252,19 +252,21 @@ while IFS= read -r line; do
 	echo "" >> "$log_dir/$summary_file"
 done < "$gene_list" || { log "$ERROR_READ_GENE_LIST"; exit 1; }
 
-# Fix chromosome and SNP IDs in results
+# Fix chromosome and SNP IDs in results + skipping header
 chr="$original_chr"
 awk -v chr="$chr" \
-	-v chr_idx="$OUTPUT_CHR_IDX" \
-	-v snp_idx="$OUTPUT_SNP_ID_IDX" \
-	'{
-		split($snp_idx, snp, ":");
-		$(chr_idx) = chr;
-		$(snp_idx) = chr ":" snp[2];
-		print $0;
-	}' "$results_file" > "$results_file.tmp"
-	rm "$results_file"
-	mv "$results_file.tmp" "$results_file"
+    -v chr_idx="$OUTPUT_CHR_IDX" \
+    -v snp_idx="$OUTPUT_SNP_ID_IDX" \
+    'NR == 1 { print $0; next } 
+    {
+        split($snp_idx, snp, ":");
+        $(chr_idx) = chr;
+        $(snp_idx) = chr ":" snp[2];
+        print $0;
+    }' "$results_file" > "$results_file.tmp"
+    
+rm "$results_file"
+mv "$results_file.tmp" "$results_file"
 
 # Remove bim.tmp
 if [[ "$chr" -ge 23 && "$chr" -le 29 ]]; then
