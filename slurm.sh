@@ -1,5 +1,6 @@
 #!/bin/bash
 
+# NOTE: Parameters are dependent on the cluster configuration, inout files.
 #SBATCH --account=CHANGE_ACCOUNT_GROUP_NAME
 #SBATCH --mem=1000GB
 #SBATCH --nodes=1
@@ -9,6 +10,7 @@
 #SBATCH --time=06:00:00
 #SBATCH --job-name=scojo
 
+# Local variables are set
 infile="$1"
 bfile="$2"
 maf="$3"
@@ -17,6 +19,7 @@ chr="$5"
 exclude_qtl_type="$6"
 run_dir="$7"
 
+# main.sh is called 
 ./main.sh --infile "$infile" \
     --bfile "$bfile" \
     --maf "$maf" \

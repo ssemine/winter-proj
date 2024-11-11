@@ -8,7 +8,7 @@
 # Usage: ./run.sh gene_name bfile chr maf idx p_val log_file log_dir gene_dir snp_dir summary_file path_to_definitions results_file [ prev_top_snp ]
 # ----------------------------------------------------------------------------------------------------------------------------------------------------
 
-
+# Local variables are set
 gene_name="$1"
 bfile="$2"
 chr="$3"
@@ -24,10 +24,14 @@ path_to_definitions="${12}"
 results_file="${13}"
 prev_top_snp="${14}"
 
+# Variables are sourced 
+# NOTE: Since transform.sh is called from gene_dir, the path to definitions is relative to gene_dir
 source "$path_to_definitions/constants.sh"
 source "$path_to_definitions/file_indices.sh"
 source "$path_to_definitions/log_messages.sh"
+source "$path_to_definitions/functions.sh"
 
+# run.sh variables are set
 prev_idx="$((idx - 1))"
 next_idx="$((idx + 1))"
 outfile="$(printf "$GCTA_OUTFILE_NAME" "$gene_name" "$idx")"
@@ -36,8 +40,6 @@ ma_file_reference="$(printf "$MA_FILE_NAME_REFERENCE" "$gene_dir/$gene_name")"
 ma_file_reference_tmp="$(printf "$MA_FILE_NAME_REFERENCE_TMP" "$gene_dir/$gene_name")"
 ma_top_snp_file="$(printf "$MA_TOP_SNP_FILE" "$gene_name" "$idx")"
 cma_top_snp_file="$(printf "$CMA_TOP_SNP_FILE" "$gene_name" "$idx")"
-
-source "$path_to_definitions/functions.sh"
 
 log "$LOG_STARTING_RUN $gene_name"
 log "$LOG_ITERATION_NUM $idx"
@@ -48,8 +50,10 @@ if [ $idx -eq 1 ]; then
 else
 	read_file="$(printf "$MA_FILE_NAME_IDX" "$gene_name" $prev_idx)"
 fi
+
 log "$LOG_READING_FROM $gene_dir/$read_file"
 
+# Creates the top_snp_file
 top_snp_file="$(printf "$TOP_SNP_FILE" "$snp_dir" "$gene_name" "$idx")"
 touch "$top_snp_file"
 
@@ -81,8 +85,8 @@ awk -v col="$MA_P_VALUE_IDX" \
 # Checks if the top_snp_file is written
 has_snp="$(wc -l < "$top_snp_file")"
 
+# If a SNP with p-value < threshold is found
 if [[ "$has_snp" =~ ^-?[0-9]+$ ]] && [ "$has_snp" -eq 1 ]; then
-
     # SNP with the lowest p-value and relevant statistics for the results file
     top_snp=$(cat $top_snp_file)
     top_snp_pos_snp=$(cat $SNP_HELPER_LIST | grep -w "$top_snp" | grep -w "$gene_name"| awk -v pos="$SNP_HELPER_POS_SNP_IDX" '{ print $pos }')
@@ -112,6 +116,7 @@ if [[ "$has_snp" =~ ^-?[0-9]+$ ]] && [ "$has_snp" -eq 1 ]; then
             }
         }' "$gene_dir/$(printf "$MA_FILE_NAME" "$gene_name")" > "$ma_top_snp_file"
 
+    # Checks whether read file is .ma or .cma.cojo
     if [[ "$idx" =~ ^-?[0-9]+$ ]] && [ "$idx" -eq 1 ]; then
         first_ma_file="$ma_top_snp_file"
     else
@@ -119,6 +124,7 @@ if [[ "$has_snp" =~ ^-?[0-9]+$ ]] && [ "$has_snp" -eq 1 ]; then
     fi
     second_ma_file="$ma_top_snp_file"
 
+    # Writes to results file
     awk -v snp="$MA_SNP_ID_IDX" \
         -v gene_name="$gene_name" \
         -v allele_one="$MA_A1_IDX" \

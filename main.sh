@@ -14,32 +14,32 @@
 #							--snps <snp_list> \
 #							--log <log_file> \
 #							--gene_dir <gene_dir> \
-#							--run_dir <run_dir>
+#							--run_dir <run_dir> \
+#							--exclude_qtl_type <qtl_type>
 # ------------------------------------------------------------------------------
 # NOTE: Current implementation assumes running with no trans eQTLs.
 
+# Variables are sourced
 source definitions/constants.sh
 source definitions/file_indices.sh
 source definitions/log_messages.sh
 
+# Local variables are set
 gene_list="$GENE_LIST"
 gene_dir="$GENE_DIR"
 snp_dir="$SNP_DIR"
 genes="$GENES_ALL" 
 snps="$SNPS_ALL"
 p_val="$P_VALUE_THRESHOLD_PER_CHR"
-
 log_dir="$LOG_DIR"
 log_file="$LOG_FILE"
 summary_file="$SUMMARY_FILE"
 snp_csv_header="$SNP_CSV_HEADER"
 snp_count_file="$SNP_COUNT_FILE"
-
 run_dir="$RUN_DIR"
-
 results_file="$RESULTS_FILE_NAME"
 
-
+# Command line arguments are parsed
 while [[ $# -gt 0 ]]; do
     case $1 in
         --infile)
@@ -93,11 +93,18 @@ while [[ $# -gt 0 ]]; do
     esac
 done
 
+# Checks if the run directory already exists, if so, exits
 if [[ -d "$run_dir" ]]; then
     echo "$(printf "$RUN_DIR_EXISTS" "$run_dir")"
 	exit 1
 fi
 
+# Checks if chromosome number is provided
+if [[ -z "$chr" ]]; then
+    { log "$ERROR_CHR_NUM_NOT_PROVIDED"; exit 1; }
+fi
+
+# Creates necessary directories and files
 mkdir -p "$run_dir"
 summary_file="${log_file%.log}_summary.log"
 source definitions/functions.sh
@@ -106,19 +113,16 @@ mkdir -p "$log_dir"
 mkdir -p "$log_dir/$GCTA_LOG_DIR"
 touch "$log_dir/$log_file"
 touch "$log_dir/$summary_file"
-
 touch "$results_file"
 echo "$RESULTS_FILE_HEADER" > "$results_file"
+
+# Logs the start of the script
 log "$LOG_WELCOME_MESSAGE"
 log_lines 2
-
-if [[ -z "$chr" ]]; then
-    { log "$ERROR_CHR_NUM_NOT_PROVIDED"; exit 1; }
-fi
-
 log "$(printf "$LOG_PARAMETERS" "$infile" "$bfile" "$maf" "$p_val" "$chr" "$genes" "$snps" "$log_file")"
 log_lines 1
 
+# Creates gene_list file
 if [ "$genes" == "$GENES_ALL" ] && [ ! -f "$genes" ]; then
 	awk -v gidx="$INPUT_GENE_NAME_IDX" \
 		-v cidx="$INPUT_CHR_IDX" \
@@ -133,7 +137,7 @@ else
 	cat "$genes" > "$gene_list"
 fi
 
-# Trans eQTLs are not considered
+# Excludes pares QTL type
 awk -v exclude_qtl_type="$exclude_qtl_type" \
 	-v chr="$chr" \
 	-v chr_idx="$INPUT_CHR_IDX" \
@@ -145,10 +149,10 @@ awk -v exclude_qtl_type="$exclude_qtl_type" \
 	}' "$infile" > "$INFILE_COPY"
 infile="$INFILE_COPY"
 
-# Change chromosomes
+# If real chromosome number is outside the GCTA range, change it to 1
 original_chr="$chr"
-if [[ "$chr" -ge 23 && "$chr" -le 29 ]]; then
-	chr="1"
+if [[ "$chr" -ge 23]]; then
+	chr="$SUBSTITUTE_CHR"
 	awk -v chr_idx="$INPUT_CHR_IDX" \
     		-v snp_idx="$INPUT_SNP_ID_IDX" \
     		-v chr="$chr" \
@@ -176,9 +180,11 @@ awk -v snp="$INPUT_SNP_ID_IDX" \
 summary_log "Number of genes: $(wc -l < $gene_list)"
 echo "" >> "$log_dir/$summary_file"
 
+# Create gene and snp directories
 mkdir -p "$gene_dir"
 mkdir -p "$snp_dir"
 
+# Compute p-value threshild per chromosome
 if [ "$p_val" = "$P_VALUE_THRESHOLD_PER_CHR" ]; then
 	num_snps=$(awk -v snp="$INPUT_SNP_ID_IDX" \
 		-v cidx="$INPUT_CHR_IDX" \
@@ -192,9 +198,12 @@ if [ "$p_val" = "$P_VALUE_THRESHOLD_PER_CHR" ]; then
 	p_val=$(printf "%.${P_VALUE_PRECISION}f\n" "$p_val")
 fi
 
+# Main loop
 while IFS= read -r line; do
 	log_lines 1
 	log "$LOG_CALLING_TRANSFORM $line"
+
+	# Transform the input data into .ma file format
 	"$PATH_TO_TRANSFORM_SH" "$line" \
 		"$infile" \
 		"$gene_dir" \
@@ -206,6 +215,8 @@ while IFS= read -r line; do
 		"$PATH_TO_DEFINITIONS" \
 		"$snps" \
 		|| { log "$ERROR_TRANSFORM $line"; exit 1; }
+
+	# Copy .ma file to reference file, used in run.sh
 	ma_file_reference="$(printf "$MA_FILE_NAME_REFERENCE" "$gene_dir/$line")"
 	cp "$gene_dir/$line.ma" "$ma_file_reference"
 	log "$LOG_MA_TRANSFORMED $line"
@@ -221,6 +232,8 @@ while IFS= read -r line; do
 	log_lines 1
 	log "$LOG_CALLING_RUN $line"
 	summary_log "Gene: $line"
+
+	# Run GCTA conditional analysis for the gene
 	"$PATH_TO_RUN_SH" "$line" \
 		"$bfile" \
 		"$chr" \
@@ -264,12 +277,11 @@ awk -v chr="$chr" \
         $(snp_idx) = chr ":" snp[2];
         print $0;
     }' "$results_file" > "$results_file.tmp"
-    
 rm "$results_file"
 mv "$results_file.tmp" "$results_file"
 
-# Remove bim.tmp
-if [[ "$chr" -ge 23 && "$chr" -le 29 ]]; then
+# Remove tempotaory bfiles
+if [[ "$chr" -ge "$GCTA_MAX_CHR" ]]; then
 	rm "$bfile.bim"
 	mv "$bfile.bim.tmp" "$bfile.bim"
 fi

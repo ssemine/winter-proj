@@ -59,3 +59,7 @@ export CMA_TOP_SNP_FILE="%s_%s.cma.$SNP_LINE_EXTENTION"
 export RESULTS_FILE_NAME="results"
 export RESULTS_FILE_HEADER="SNP CHR BP START GENE STRAND A1 A2 FREQ B B_C SE SE_C P P_C P_T N TYPE ROUND"
 export GCTA_LOG_DIR="gcta"
+
+export GCTA_MAX_CHR=22
+export SUBSTITUTE_CHR=1
+export NEW_BFILES_DIR="../tmp" # relative to the bfiles_dir directory (currently assumes /scratch)

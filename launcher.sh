@@ -1,5 +1,16 @@
 #!/bin/bash
 
+# launcher.sh
+# -----------
+# Launches slurm.sh for each chromosome.
+# -------------------------------------- 
+# Usage: ./launcher.sh infile bfiles_dir maf p_val exclude_qtl_type
+# -----------------------------------------------------------------
+
+# Sources the constants.sh file
+source definitions/constants.sh
+
+# Command line arguments are parsed
 infile="$1"
 bfiles_dir="$2"
 maf="$3"
@@ -16,12 +27,12 @@ original_path=$(pwd)
 for bfile in $bfiles; do
     chr=$(echo "$bfile" | grep -oP '(?<=chrom)\d+')
     new_bfiles_dir="$bfiles_dir"
-    if [[ "$chr" -ge 23 && "$chr" -le 29 ]]; then
+    if [[ "$chr" -ge "$GCTA_MAX_CHR"]]; then
         echo "Changed from $chr"
-        bim_chr="1"
+        bim_chr="$SUBSTITUTE_CHR"
         echo "to $bim_chr"
         cd "$bfiles_dir"
-        cd ../tmp
+        cd "$NEW_BFILES_DIR"
         new_bfiles_dir=$(pwd)
         if [[ -d "$new_bfiles_dir/$bfile" ]]; then
             rm -rf "$new_bfiles_dir/$bfile"
@@ -32,15 +43,15 @@ for bfile in $bfiles; do
             cp "$bfiles_dir/$bfile"* "$new_bfiles_dir/$bfile/."
             new_bfiles_dir="$new_bfiles_dir/$bfile"
         mv "$new_bfiles_dir/$bfile.bim" "$new_bfiles_dir/$bfile.bim.tmp"
-            awk -v chr_idx="$bim_chr_idx" \
-                -v snp_idx="$bim_snp_idx" \
-                -v chr="$bim_chr" \
-                '{
-                    split($snp_idx, snp, ":");
-                    $(chr_idx) = chr;
-                    $(snp_idx) = chr ":" snp[2];
-                    print $0;
-                }' "$new_bfiles_dir/$bfile.bim.tmp" > "$new_bfiles_dir/$bfile.bim"
+        awk -v chr_idx="$bim_chr_idx" \
+            -v snp_idx="$bim_snp_idx" \
+            -v chr="$bim_chr" \
+            '{
+                split($snp_idx, snp, ":");
+                $(chr_idx) = chr;
+                $(snp_idx) = chr ":" snp[2];
+                print $0;
+            }' "$new_bfiles_dir/$bfile.bim.tmp" > "$new_bfiles_dir/$bfile.bim"
     fi
     sbatch slurm.sh "$infile" \
         "$new_bfiles_dir/$bfile" \

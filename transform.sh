@@ -5,10 +5,10 @@
 # Transforms GWAS summary statistics file to .ma file format or GCTA's .cma.cojo file to .ma file format.
 # File indices are defined in definitions/file_indices.sh.
 # -------------------------------------------------------------------------------------------------------
-# Usage: ./transform.sh gene_name infile gene_dir snps chr_num log_file log_dir bfile file_type oath_to_defitions [ma_file idx]
+# Usage: ./transform.sh gene_name infile gene_dir snps chr_num log_file log_dir bfile file_type path_to_defitions [ma_file idx]
 # -----------------------------------------------------------------------------------------------------------------------------
 
-
+# Local variables are set
 gene_name="$1"
 infile="$2"
 gene_dir="$3"
@@ -19,17 +19,20 @@ bfile="$7"
 file_type="$8"
 path_to_definitions="$9"
 
-
+# Variables are sourced 
+# NOTE: Since transform.sh is called from gene_dir, the path to definitions is relative to gene_dir
 source "$path_to_definitions/constants.sh"
 source "$path_to_definitions/file_indices.sh"
 source "$path_to_definitions/log_messages.sh"
 source "$path_to_definitions/functions.sh"
 
+# Checks if transformed file is .ma or .cma.cojo
 if [[ "$file_type" != "$INPUT_IDENTIFIER" && "$file_type" != "$CMA_IDENTIFIER" ]]; then
     log_genes "$ERROR_FILE_TYPE"
     exit 1
 fi
 
+# Set variables based on file type
 if [ "$file_type" = "$CMA_IDENTIFIER" ]; then
     ma_file="${10}"
     idx="${11}"
@@ -41,21 +44,25 @@ else
     name_tmp="$(printf "$MA_FILE_NAME_TMP" "$gene_name")"
 fi
 
+# Set columns for .ma output file
 columns="$MA_FILE_COLUMNS"
 sample_size=$(wc -l < "$bfile.fam")
 
+# Checks if output files were successfully created
 if ! touch "$gene_dir/$name"; then
     log_genes "$ERROR_TOUCH_FAILED $gene_dir/$name"
     exit 1
 fi
-
 if ! touch "$gene_dir/$name_tmp"; then
     log_genes "$ERROR_TOUCH_FAILED $gene_dir/$name_tmp"
     exit 1
 fi
 
 log_genes "$LOG_WRITING_DATA $gene_dir/$name"
+
+# Transform input file (infile/cma) into .ma file format
 if [ "$file_type" = "$INPUT_IDENTIFIER" ]; then
+    # If SNPs file is provided
     log "INPUT"
     if [ -f "$snps" ]; then
         log_genes "$LOG_USING_SNP_FILTER $snps"
@@ -86,6 +93,7 @@ if [ "$file_type" = "$INPUT_IDENTIFIER" ]; then
             }' "$infile" \
             || { log_genes "$ERROR_AWK_WRITE $gene_dir/$name"; exit 1; }
     else
+        # If no SNPs file is provided
         log_genes "$LOG_NO_SNP_FILTER"
         awk -F' ' -v col1="$INPUT_SNP_ID_IDX" \
             -v col2="$INPUT_ALLELE_ONE_IDX" \
@@ -110,6 +118,7 @@ if [ "$file_type" = "$INPUT_IDENTIFIER" ]; then
             || { log_genes "$ERROR_AWK_WRITE $gene_dir/$name"; exit 1; }
     fi
 else
+    # If .cma.cojo file is provided
     log "CMA"
     awk -F' ' -v col1="$CMA_SNP_ID_IDX" \
     -v col2="$MA_A1_IDX" \
@@ -137,12 +146,13 @@ fi
 
 log_genes "$LOG_DATA_WRITTEN $gene_dir/$name"
 
+# Final output file transformation
 sort -k "$MA_SNP_ID_IDX" "$gene_dir/$name" -o "$gene_dir/$name" \
     || { log_genes "$ERROR_SORT $gene_dir/$name"; exit 1; }
-
 cat "$gene_dir/$name" > "$gene_dir/$name_tmp"
 echo "$columns" > "$gene_dir/$name"
 cat "$gene_dir/$name_tmp" >> "$gene_dir/$name"
 rm "$gene_dir/$name_tmp"
+
 log_genes "$LOG_COLUMNS_ADDED $gene_dir/$name"
 log_genes "$LOG_END_MESSAGE $gene_dir/$name"
