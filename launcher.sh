@@ -9,6 +9,7 @@
 
 # Sources the constants.sh file
 source definitions/constants.sh
+source definitions/file_indices.sh
 
 # Command line arguments are parsed
 infile="$1"
@@ -19,8 +20,8 @@ exclude_qtl_type="$5"
 
 bfiles=$(ls "$bfiles_dir" | cut -d. -f1 | sort | uniq)
 
-bim_chr_idx=1
-bim_snp_idx=2
+bim_chr_idx="$BIM_CHR_IDX"
+bim_snp_idx="$BIM_SNP_IDX"
 
 original_path=$(pwd)
 
